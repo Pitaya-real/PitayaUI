@@ -17,7 +17,6 @@ local UserInputService = Services.UserInputService
 local HttpService = Services.HttpService
 local Workspace = Services.Workspace
 
--- Hàm xử lý Parent an toàn (Ưu tiên gethui > CoreGui > PlayerGui)
 local function ParentToSafeGui(screenGui)
 	if gethui then
 		screenGui.Parent = gethui()
@@ -25,16 +24,13 @@ local function ParentToSafeGui(screenGui)
 		syn.protect_gui(screenGui)
 		screenGui.Parent = CoreGui
 	else
-		local success = pcall(function()
-			screenGui.Parent = CoreGui
-		end)
+		local success = pcall(function() screenGui.Parent = CoreGui end)
 		if not success or not screenGui.Parent then
 			screenGui.Parent = PlayerGui
 		end
 	end
 end
 
--- Danh sách Themes
 PitayaUI.Themes = {
 	Pitaya = {
 		Background = Color3.fromRGB(8, 10, 14),
@@ -78,7 +74,6 @@ PitayaUI.Themes = {
 	}
 }
 
--- Danh sách Font Presets
 PitayaUI.FontPresets = {
 	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
 	Roboto = { Main = Enum.Font.Roboto, Bold = Enum.Font.RobotoMono, Medium = Enum.Font.Roboto },
@@ -103,7 +98,7 @@ end
 local function LoadConfig()
 	local success, result = pcall(function()
 		if readfile and isfile and isfile(ConfigFile) then
-			return HttpService:JSONEncode(readfile(ConfigFile))
+			return HttpService:JSONDecode(readfile(ConfigFile))
 		end
 	end)
 	if success and result then return result end
@@ -304,10 +299,18 @@ function PitayaUI:CreateWindow(config)
 	WindowObj:RegisterTheme(toggleStroke, "Color", "Accent")
 	MakeDraggable(ToggleBtn, nil, function() return UIScale.Scale end)
 
+	-- Main Frame chuẩn hóa AnchorPoint tránh văng góc
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight)
-	MainFrame.Position = savedConfig.PosX and savedConfig.PosY and UDim2.new(0, savedConfig.PosX, 0, savedConfig.PosY) or UDim2.new(0.5, -WindowObj.SavedWidth / 2, 0.5, -WindowObj.SavedHeight / 2)
+
+	if savedConfig.PosX and savedConfig.PosY then
+		MainFrame.Position = UDim2.new(0, savedConfig.PosX, 0, savedConfig.PosY)
+	else
+		MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	end
+
 	WindowObj:RegisterTheme(MainFrame, "BackgroundColor3", "Background")
 	MainFrame.BackgroundTransparency = 0.1
 	MainFrame.ClipsDescendants = false
@@ -317,11 +320,13 @@ function PitayaUI:CreateWindow(config)
 	WindowObj.MainFrame = MainFrame
 
 	local function SaveCurrentState()
+		local absPos = MainFrame.AbsolutePosition
+		local absSize = MainFrame.AbsoluteSize
 		SaveConfig({
 			Width = WindowObj.SavedWidth,
 			Height = WindowObj.SavedHeight,
-			PosX = MainFrame.Position.X.Offset,
-			PosY = MainFrame.Position.Y.Offset
+			PosX = absPos.X + (absSize.X / 2),
+			PosY = absPos.Y + (absSize.Y / 2)
 		})
 	end
 
@@ -804,7 +809,7 @@ function PitayaUI:CreateTab(tabName)
 		local headerBtn = Instance.new("TextButton", card)
 		headerBtn.Size = UDim2.new(1, 0, 0, 36)
 		headerBtn.BackgroundTransparency = 1
-		headerBtn.Text = "haha"
+		headerBtn.Text = ""
 		headerBtn.MouseButton1Click:Connect(ToggleDrop)
 	end
 
