@@ -1,5 +1,5 @@
-local DragonFruitLib = {}
-DragonFruitLib.__index = DragonFruitLib
+local PitayaUI = {}
+PitayaUI.__index = PitayaUI
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -11,8 +11,8 @@ local Workspace = game:GetService("Workspace")
 -- =================================================================
 -- BẢNG THEMES SẴN CÓ
 -- =================================================================
-DragonFruitLib.Themes = {
-	DragonFruit = {
+PitayaUI.Themes = {
+	PitayaUI = {
 		Background = Color3.fromRGB(15, 15, 20),
 		Window = Color3.fromRGB(22, 22, 28),
 		Border = Color3.fromRGB(45, 45, 55),
@@ -101,7 +101,7 @@ DragonFruitLib.Themes = {
 -- =================================================================
 -- BẢNG PHÔNG CHỮ SẴN CÓ (FONT PRESETS)
 -- =================================================================
-DragonFruitLib.FontPresets = {
+PitayaUI.FontPresets = {
 	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
 	Roboto = { Main = Enum.Font.Roboto, Bold = Enum.Font.RobotoCondensed, Medium = Enum.Font.Roboto },
 	FredokaOne = { Main = Enum.Font.FredokaOne, Bold = Enum.Font.FredokaOne, Medium = Enum.Font.FredokaOne },
@@ -127,7 +127,7 @@ end
 -- =================================================================
 -- QUẢN LÝ THEME VÀ FONT CỦA WINDOW
 -- =================================================================
-function DragonFruitLib:BindTheme(instance, property, role)
+function PitayaUI:BindTheme(instance, property, role)
 	table.insert(self.ThemeObjects, {
 		Instance = instance,
 		Property = property,
@@ -139,8 +139,8 @@ function DragonFruitLib:BindTheme(instance, property, role)
 	return instance
 end
 
-function DragonFruitLib:SetTheme(themeName)
-	local targetTheme = DragonFruitLib.Themes[themeName]
+function PitayaUI:SetTheme(themeName)
+	local targetTheme = PitayaUI.Themes[themeName]
 	if not targetTheme then return end
 
 	self.CurrentThemeName = themeName
@@ -159,16 +159,16 @@ function DragonFruitLib:SetTheme(themeName)
 	end
 end
 
-function DragonFruitLib:GetThemes()
+function PitayaUI:GetThemes()
 	local list = {}
-	for name, _ in pairs(DragonFruitLib.Themes) do
+	for name, _ in pairs(PitayaUI.Themes) do
 		table.insert(list, name)
 	end
 	table.sort(list)
 	return list
 end
 
-function DragonFruitLib:BindFont(instance, fontRole)
+function PitayaUI:BindFont(instance, fontRole)
 	table.insert(self.FontObjects, {
 		Instance = instance,
 		Role = fontRole or "Main"
@@ -179,8 +179,8 @@ function DragonFruitLib:BindFont(instance, fontRole)
 	return instance
 end
 
-function DragonFruitLib:SetFont(fontName)
-	local targetPreset = DragonFruitLib.FontPresets[fontName]
+function PitayaUI:SetFont(fontName)
+	local targetPreset = PitayaUI.FontPresets[fontName]
 	if not targetPreset then return end
 
 	self.CurrentFontName = fontName
@@ -193,9 +193,9 @@ function DragonFruitLib:SetFont(fontName)
 	end
 end
 
-function DragonFruitLib:GetFonts()
+function PitayaUI:GetFonts()
 	local list = {}
-	for name, _ in pairs(DragonFruitLib.FontPresets) do
+	for name, _ in pairs(PitayaUI.FontPresets) do
 		table.insert(list, name)
 	end
 	table.sort(list)
@@ -205,18 +205,18 @@ end
 -- =================================================================
 -- TẠO CỬA SỔ CHÍNH (CREATE WINDOW)
 -- =================================================================
-function DragonFruitLib:CreateWindow(config)
+function PitayaUI:CreateWindow(config)
 	config = config or {}
-	local WindowObj = setmetatable({}, DragonFruitLib)
-	WindowObj.TitleText = config.Title or "Dragon Fruit Hub"
+	local WindowObj = setmetatable({}, PitayaUI)
+	WindowObj.TitleText = config.Title or "Pitaya Hub"
 	WindowObj.LogoId = config.Logo or "rbxassetid://90272501948122"
 	WindowObj.Tabs = {}
 	WindowObj.ThemeObjects = {}
 	WindowObj.FontObjects = {}
 
 	-- Khởi tạo Theme
-	local selectedTheme = config.Theme or "DragonFruit"
-	local baseTheme = DragonFruitLib.Themes[selectedTheme] or DragonFruitLib.Themes.DragonFruit
+	local selectedTheme = config.Theme or "PitayaUI"
+	local baseTheme = PitayaUI.Themes[selectedTheme] or PitayaUI.Themes.PitayaUI
 	WindowObj.Colors = {}
 	for k, v in pairs(baseTheme) do
 		WindowObj.Colors[k] = v
@@ -225,7 +225,7 @@ function DragonFruitLib:CreateWindow(config)
 
 	-- Khởi tạo Font
 	local selectedFont = config.Font or "Gotham"
-	WindowObj.Fonts = DragonFruitLib.FontPresets[selectedFont] or DragonFruitLib.FontPresets.Gotham
+	WindowObj.Fonts = PitayaUI.FontPresets[selectedFont] or PitayaUI.FontPresets.Gotham
 	WindowObj.CurrentFontName = selectedFont
 
 	local ScreenGui = Instance.new("ScreenGui")
@@ -465,7 +465,7 @@ end
 -- =================================================================
 -- THÔNG BÁO (NOTIFICATION)
 -- =================================================================
-function DragonFruitLib:Notify(title, text, duration)
+function PitayaUI:Notify(title, text, duration)
 	duration = duration or 3
 	local notifFrame = Instance.new("Frame", self.NotifContainer)
 	notifFrame.Size = UDim2.new(1, 0, 0, 60)
@@ -531,7 +531,7 @@ end
 -- =================================================================
 -- TẠO TAB & PHẦN TỬ UI (TABS & COMPONENTS)
 -- =================================================================
-function DragonFruitLib:CreateTab(tabName, iconSymbol)
+function PitayaUI:CreateTab(tabName, iconSymbol)
 	local TabObj = {}
 	local window = self
 
@@ -982,4 +982,4 @@ function DragonFruitLib:CreateTab(tabName, iconSymbol)
 	return TabObj
 end
 
-return DragonFruitLib
+return PitayaUI
