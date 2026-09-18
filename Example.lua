@@ -3,7 +3,7 @@
 -- =================================================================
 
 -- 1. LOAD THƯ VIỆN (Nếu dùng File local thì thay bằng require, hoặc loadstring URL)
-local DragonFruitLib = loadstring(game:HttpGet(""))()
+local DragonFruitLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
 
 -- 2. KHỞI TẠO CÁC SERVICE ROBLOX
 local Players = game:GetService("Players")
