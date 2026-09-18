@@ -9,7 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 -- =================================================================
--- Báº¢NG THEMES Sáº´N CĂ“
+-- BẢNG THEMES SẴN CÓ
 -- =================================================================
 DragonFruitLib.Themes = {
 	DragonFruit = {
@@ -99,7 +99,7 @@ DragonFruitLib.Themes = {
 }
 
 -- =================================================================
--- Báº¢NG PHĂ”NG CHá»® Sáº´N CĂ“ (FONT PRESETS)
+-- BẢNG PHÔNG CHỮ SẴN CÓ (FONT PRESETS)
 -- =================================================================
 DragonFruitLib.FontPresets = {
 	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
@@ -125,7 +125,7 @@ local function AddUIStroke(parent, color)
 end
 
 -- =================================================================
--- QUáº¢N LĂ THEME VĂ€ FONT Cá»¦A WINDOW
+-- QUẢN LÝ THEME VÀ FONT CỦA WINDOW
 -- =================================================================
 function DragonFruitLib:BindTheme(instance, property, role)
 	table.insert(self.ThemeObjects, {
@@ -203,7 +203,7 @@ function DragonFruitLib:GetFonts()
 end
 
 -- =================================================================
--- Táº O Cá»¬A Sá»” CHĂNH (CREATE WINDOW)
+-- TẠO CỬA SỔ CHÍNH (CREATE WINDOW)
 -- =================================================================
 function DragonFruitLib:CreateWindow(config)
 	config = config or {}
@@ -214,7 +214,7 @@ function DragonFruitLib:CreateWindow(config)
 	WindowObj.ThemeObjects = {}
 	WindowObj.FontObjects = {}
 
-	-- Khá»Ÿi táº¡o Theme
+	-- Khởi tạo Theme
 	local selectedTheme = config.Theme or "DragonFruit"
 	local baseTheme = DragonFruitLib.Themes[selectedTheme] or DragonFruitLib.Themes.DragonFruit
 	WindowObj.Colors = {}
@@ -223,7 +223,7 @@ function DragonFruitLib:CreateWindow(config)
 	end
 	WindowObj.CurrentThemeName = selectedTheme
 
-	-- Khá»Ÿi táº¡o Font
+	-- Khởi tạo Font
 	local selectedFont = config.Font or "Gotham"
 	WindowObj.Fonts = DragonFruitLib.FontPresets[selectedFont] or DragonFruitLib.FontPresets.Gotham
 	WindowObj.CurrentFontName = selectedFont
@@ -249,7 +249,7 @@ function DragonFruitLib:CreateWindow(config)
 
 	WindowObj.ScreenGui = ScreenGui
 
-	-- KĂ­ch thÆ°á»›c ban Ä‘áº§u dá»±a theo mĂ n hĂ¬nh thiáº¿t bá»‹
+	-- Kích thước ban đầu dựa theo màn hình thiết bị
 	local Camera = Workspace.CurrentCamera
 	local viewportSize = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
 
@@ -275,7 +275,7 @@ function DragonFruitLib:CreateWindow(config)
 	NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	NotifList.Padding = UDim.new(0, 10)
 
-	-- NĂºt báº­t/táº¯t UI
+	-- Nút bật/tắt UI
 	local ToggleBtn = Instance.new("ImageButton", ScreenGui)
 	ToggleBtn.Name = "OpenCloseToggle"
 	ToggleBtn.Size = UDim2.new(0, 46, 0, 46)
@@ -290,7 +290,7 @@ function DragonFruitLib:CreateWindow(config)
 	WindowObj:BindTheme(ToggleBtn, "BackgroundColor3", "Window")
 	WindowObj:BindTheme(toggleStroke, "Color", "Accent")
 
-	-- Khung chĂ­nh UI
+	-- Khung chính UI
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight)
@@ -306,7 +306,7 @@ function DragonFruitLib:CreateWindow(config)
 	WindowObj:BindTheme(mainStroke, "Color", "Border")
 	WindowObj.MainFrame = MainFrame
 
-	-- Animation Má»Ÿ / ÄĂ³ng Cá»­a Sá»•
+	-- Animation Mở / Đóng Cửa Sổ
 	local isOpen = true
 	ToggleBtn.MouseButton1Click:Connect(function()
 		isOpen = not isOpen
@@ -410,13 +410,13 @@ function DragonFruitLib:CreateWindow(config)
 	WindowObj.ContentArea = ContentArea
 	WindowObj.TabListContainer = TabListContainer
 
-	-- KĂ‰O GIĂƒN THU PHĂ“NG (RESIZE & AUTO SAVE SIZE)
+	-- KÉO GIÃN THU PHÓNG (RESIZE & AUTO SAVE SIZE)
 	local ResizeHandle = Instance.new("TextButton", MainFrame)
 	ResizeHandle.Name = "ResizeHandle"
 	ResizeHandle.Size = UDim2.new(0, 18, 0, 18)
 	ResizeHandle.Position = UDim2.new(1, -18, 1, -18)
 	ResizeHandle.BackgroundTransparency = 1
-	ResizeHandle.Text = "â—¢"
+	ResizeHandle.Text = "◢"
 	ResizeHandle.TextColor3 = WindowObj.Colors.TextSub
 	ResizeHandle.TextSize = 13
 	ResizeHandle.ZIndex = 100
@@ -456,14 +456,14 @@ function DragonFruitLib:CreateWindow(config)
 	end)
 
 	task.spawn(function()
-		WindowObj:Notify("Há»‡ Thá»‘ng", "Giao diá»‡n Ä‘Ă£ táº£i hoĂ n táº¥t!", 4)
+		WindowObj:Notify("Hệ Thống", "Giao diện đã tải hoàn tất!", 4)
 	end)
 
 	return WindowObj
 end
 
 -- =================================================================
--- THĂ”NG BĂO (NOTIFICATION)
+-- THÔNG BÁO (NOTIFICATION)
 -- =================================================================
 function DragonFruitLib:Notify(title, text, duration)
 	duration = duration or 3
@@ -529,7 +529,7 @@ function DragonFruitLib:Notify(title, text, duration)
 end
 
 -- =================================================================
--- Táº O TAB & PHáº¦N Tá»¬ UI (TABS & COMPONENTS)
+-- TẠO TAB & PHẦN TỬ UI (TABS & COMPONENTS)
 -- =================================================================
 function DragonFruitLib:CreateTab(tabName, iconSymbol)
 	local TabObj = {}
@@ -850,7 +850,7 @@ function DragonFruitLib:CreateTab(tabName, iconSymbol)
 		arrow.Size = UDim2.new(0, 30, 0, headerHeight)
 		arrow.Position = UDim2.new(1, -35, 0, 0)
 		arrow.BackgroundTransparency = 1
-		arrow.Text = "â–¼"
+		arrow.Text = "▼"
 		arrow.TextColor3 = window.Colors.TextSub
 		arrow.TextSize = 11
 		window:BindTheme(arrow, "TextColor3", "TextSub")
@@ -876,7 +876,7 @@ function DragonFruitLib:CreateTab(tabName, iconSymbol)
 
 		local function ToggleDrop()
 			isDropped = not isDropped
-			arrow.Text = isDropped and "â–²" or "â–¼"
+			arrow.Text = isDropped and "▲" or "▼"
 			local targetListH = isDropped and (visibleCount * itemHeight) or 0
 			local targetFrameH = isDropped and (headerHeight + targetListH + 8) or headerHeight
 
