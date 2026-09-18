@@ -3,13 +3,13 @@ local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pita
 local Window = PitayaUI:CreateWindow({
 	Title = "RealKid Hub : Blox Fruits",
 	Logo = "rbxassetid://115347218827913",
-	Theme = "Pitaya"
+	Theme = "Pitaya",
+	Font = "Gotham"
 })
 
-Window:CreateTab("Discord")
-Window:CreateTab("Server")
-Window:CreateTab("Shop")
-
+-- ========================================================
+-- TAB CHÍNH: FARM
+-- ========================================================
 local FarmTab = Window:CreateTab("Farm")
 
 FarmTab:AddSection("Select tool")
@@ -19,7 +19,7 @@ FarmTab:AddDropdown({
 	Items = {"Melee", "Sword", "Blox Fruit"},
 	Default = "Melee",
 	Callback = function(selected)
-		print("Đã chọn:", selected)
+		print("Đã chọn weapon:", selected)
 	end
 })
 
@@ -29,7 +29,7 @@ FarmTab:AddSlider({
 	Max = 100,
 	Default = 30,
 	Callback = function(val)
-		print("Độ cao:", val)
+		print("Độ cao farm:", val)
 	end
 })
 
@@ -61,8 +61,29 @@ FarmTab:AddToggle({
 	end
 })
 
-Window:CreateTab("Skill Settings")
-Window:CreateTab("Hop Farm")
-Window:CreateTab("Stack Farming")
-Window:CreateTab("Fishing/Slap Fish")
-Window:CreateTab("Esp")
+-- ========================================================
+-- TAB SETTINGS: ĐỔI THEME VÀ FONT TRỰC TIẾP
+-- ========================================================
+local SettingsTab = Window:CreateTab("⚙️ Settings")
+
+SettingsTab:AddSection("Giao Diện & Font Chữ")
+
+SettingsTab:AddDropdown({
+	Text = "Đổi Theme",
+	Items = {"Pitaya", "Dark", "Blood", "Ocean"},
+	Default = "Pitaya",
+	Callback = function(selectedTheme)
+		Window:SetTheme(selectedTheme)
+		Window:Notify("Settings", "Đã đổi Theme sang: " .. selectedTheme, 2)
+	end
+})
+
+SettingsTab:AddDropdown({
+	Text = "Đổi Font",
+	Items = {"Gotham", "Roboto", "Code", "SourceSans"},
+	Default = "Gotham",
+	Callback = function(selectedFont)
+		Window:SetFont(selectedFont)
+		Window:Notify("Settings", "Đã đổi Font sang: " .. selectedFont, 2)
+	end
+})
