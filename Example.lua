@@ -1,15 +1,17 @@
 local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
 
 local Window = PitayaUI:CreateWindow({
-	Title = "Pitaya Hub : Blox Fruits",
-	Theme = "Pitaya",
-	Font = "Gotham"
+	Title = "RealKid Hub : Blox Fruits",
+	Logo = "rbxassetid://115347218827913",
+	Theme = "Pitaya"
 })
 
--- Tạo Tab Farm
+Window:CreateTab("Discord")
+Window:CreateTab("Server")
+Window:CreateTab("Shop")
+
 local FarmTab = Window:CreateTab("Farm")
 
--- Thêm Section "Select tool"
 FarmTab:AddSection("Select tool")
 
 FarmTab:AddDropdown({
@@ -27,11 +29,10 @@ FarmTab:AddSlider({
 	Max = 100,
 	Default = 30,
 	Callback = function(val)
-		print("Độ cao farm:", val)
+		print("Độ cao:", val)
 	end
 })
 
--- Thêm Section "Event"
 FarmTab:AddSection("Event")
 
 FarmTab:AddToggle({
@@ -50,3 +51,18 @@ FarmTab:AddButton({
 		Window:Notify("Thông Báo", "Đã bấm quay ngẫu nhiên!", 3)
 	end
 })
+
+FarmTab:AddToggle({
+	Text = "Auto Random Magnet Event",
+	SubText = "Tự quay khi có ít nhất 500 Magnet Token",
+	Default = false,
+	Callback = function(state)
+		print("Auto Random Magnet Event:", state)
+	end
+})
+
+Window:CreateTab("Skill Settings")
+Window:CreateTab("Hop Farm")
+Window:CreateTab("Stack Farming")
+Window:CreateTab("Fishing/Slap Fish")
+Window:CreateTab("Esp")
