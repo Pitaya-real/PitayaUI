@@ -17,7 +17,7 @@ local UserInputService = Services.UserInputService
 local HttpService = Services.HttpService
 local Workspace = Services.Workspace
 
--- Hàm xử lý Parent an toàn (Ưu tiên gethui > CoreGui > PlayerGui để Bypass)
+-- Hàm xử lý Parent an toàn (Ưu tiên gethui > CoreGui > PlayerGui)
 local function ParentToSafeGui(screenGui)
 	if gethui then
 		screenGui.Parent = gethui()
@@ -34,6 +34,7 @@ local function ParentToSafeGui(screenGui)
 	end
 end
 
+-- Danh sách Themes
 PitayaUI.Themes = {
 	Pitaya = {
 		Background = Color3.fromRGB(8, 10, 14),
@@ -44,14 +45,47 @@ PitayaUI.Themes = {
 		TextSub = Color3.fromRGB(150, 155, 170),
 		Accent = Color3.fromRGB(0, 162, 255),
 		AccentHover = Color3.fromRGB(30, 180, 255)
+	},
+	Dark = {
+		Background = Color3.fromRGB(15, 15, 15),
+		Window = Color3.fromRGB(25, 25, 25),
+		Card = Color3.fromRGB(35, 35, 35),
+		Border = Color3.fromRGB(60, 60, 60),
+		TextMain = Color3.fromRGB(255, 255, 255),
+		TextSub = Color3.fromRGB(170, 170, 170),
+		Accent = Color3.fromRGB(120, 80, 220),
+		AccentHover = Color3.fromRGB(140, 100, 240)
+	},
+	Blood = {
+		Background = Color3.fromRGB(14, 8, 8),
+		Window = Color3.fromRGB(24, 16, 16),
+		Card = Color3.fromRGB(34, 22, 22),
+		Border = Color3.fromRGB(65, 45, 45),
+		TextMain = Color3.fromRGB(250, 245, 245),
+		TextSub = Color3.fromRGB(170, 150, 150),
+		Accent = Color3.fromRGB(255, 50, 50),
+		AccentHover = Color3.fromRGB(255, 80, 80)
+	},
+	Ocean = {
+		Background = Color3.fromRGB(6, 14, 20),
+		Window = Color3.fromRGB(12, 24, 34),
+		Card = Color3.fromRGB(18, 34, 48),
+		Border = Color3.fromRGB(30, 60, 80),
+		TextMain = Color3.fromRGB(240, 250, 255),
+		TextSub = Color3.fromRGB(140, 175, 195),
+		Accent = Color3.fromRGB(0, 200, 200),
+		AccentHover = Color3.fromRGB(50, 230, 230)
 	}
 }
 
+-- Danh sách Font Presets
 PitayaUI.FontPresets = {
-	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium }
+	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
+	Roboto = { Main = Enum.Font.Roboto, Bold = Enum.Font.RobotoMono, Medium = Enum.Font.Roboto },
+	Code = { Main = Enum.Font.Code, Bold = Enum.Font.Code, Medium = Enum.Font.Code },
+	SourceSans = { Main = Enum.Font.SourceSans, Bold = Enum.Font.SourceSansBold, Medium = Enum.Font.SourceSansSemibold }
 }
 
--- Quản lý File Cấu Hình Auto Save
 local ConfigFolder = "PitayaUI"
 local ConfigFile = ConfigFolder .. "/ui_config.json"
 
@@ -69,7 +103,7 @@ end
 local function LoadConfig()
 	local success, result = pcall(function()
 		if readfile and isfile and isfile(ConfigFile) then
-			return HttpService:JSONDecode(readfile(ConfigFile))
+			return HttpService:JSONEncode(readfile(ConfigFile))
 		end
 	end)
 	if success and result then return result end
@@ -103,7 +137,6 @@ local function AddUIStroke(parent, color, thickness, transparency)
 	return stroke
 end
 
--- Xử lý Dragging (Tự tính theo UIScale)
 local function MakeDraggable(gui, handle, getScale, onDragEnd)
 	handle = handle or gui
 	local dragging = false
@@ -136,7 +169,6 @@ local function MakeDraggable(gui, handle, getScale, onDragEnd)
 	end)
 end
 
--- Xử lý Resizing (Tự tính theo UIScale & Lưu cấu hình)
 local function MakeResizable(gui, handle, minSize, maxSize, getScale, onResize, onResizeEnd)
 	minSize = minSize or Vector2.new(500, 300)
 	maxSize = maxSize or Vector2.new(950, 650)
@@ -179,6 +211,38 @@ function PitayaUI:BindFont(instance, fontRole)
 	return instance
 end
 
+function PitayaUI:RegisterTheme(instance, property, colorRole)
+	table.insert(self.ThemeObjects, { Instance = instance, Property = property, Role = colorRole })
+	if self.Colors[colorRole] then
+		instance[property] = self.Colors[colorRole]
+	end
+	return instance
+end
+
+function PitayaUI:SetTheme(themeName)
+	local baseTheme = PitayaUI.Themes[themeName]
+	if not baseTheme then return end
+	for k, v in pairs(baseTheme) do
+		self.Colors[k] = v
+	end
+	for _, obj in ipairs(self.ThemeObjects) do
+		if obj.Instance and obj.Instance.Parent then
+			obj.Instance[obj.Property] = self.Colors[obj.Role]
+		end
+	end
+end
+
+function PitayaUI:SetFont(fontName)
+	local preset = PitayaUI.FontPresets[fontName]
+	if not preset then return end
+	self.Fonts = preset
+	for _, item in ipairs(self.FontObjects) do
+		if item.Instance and item.Instance.Parent then
+			item.Instance.Font = self.Fonts[item.Role] or Enum.Font.Gotham
+		end
+	end
+end
+
 function PitayaUI:CreateWindow(config)
 	config = config or {}
 	local WindowObj = setmetatable({}, PitayaUI)
@@ -186,6 +250,7 @@ function PitayaUI:CreateWindow(config)
 	WindowObj.LogoId = FormatAssetId(config.Logo)
 	WindowObj.Tabs = {}
 	WindowObj.FontObjects = {}
+	WindowObj.ThemeObjects = {}
 
 	local savedConfig = LoadConfig() or {}
 	WindowObj.SavedWidth = savedConfig.Width or 650
@@ -195,16 +260,16 @@ function PitayaUI:CreateWindow(config)
 	local baseTheme = PitayaUI.Themes[selectedTheme] or PitayaUI.Themes.Pitaya
 	WindowObj.Colors = {}
 	for k, v in pairs(baseTheme) do WindowObj.Colors[k] = v end
-	WindowObj.Fonts = PitayaUI.FontPresets.Gotham
 
-	-- Tạo ScreenGui và gán vào CoreGui/PlayerGui/gethui
+	local selectedFont = config.Font or "Gotham"
+	WindowObj.Fonts = PitayaUI.FontPresets[selectedFont] or PitayaUI.FontPresets.Gotham
+
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = HttpService:GenerateGUID(false)
 	ScreenGui.ResetOnSpawn = false
 	ParentToSafeGui(ScreenGui)
 	WindowObj.ScreenGui = ScreenGui
 
-	-- Tự động co giãn màn hình (UIScale)
 	local UIScale = Instance.new("UIScale", ScreenGui)
 	local Camera = Workspace.CurrentCamera
 	local function UpdateAutoScaling()
@@ -215,7 +280,6 @@ function PitayaUI:CreateWindow(config)
 	UpdateAutoScaling()
 	Camera:GetPropertyChangedSignal("ViewportSize"):Connect(UpdateAutoScaling)
 
-	-- Notification Container
 	local NotifContainer = Instance.new("Frame", ScreenGui)
 	NotifContainer.Name = "NotifContainer"
 	NotifContainer.Size = UDim2.new(0, 260, 1, -40)
@@ -228,28 +292,28 @@ function PitayaUI:CreateWindow(config)
 	NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	NotifList.Padding = UDim.new(0, 8)
 
-	-- Nút Toggle Mở UI
 	local ToggleBtn = Instance.new("ImageButton", ScreenGui)
 	ToggleBtn.Name = "PitayaToggle"
 	ToggleBtn.Size = UDim2.new(0, 46, 0, 46)
 	ToggleBtn.Position = UDim2.new(0, 20, 0, 100)
-	ToggleBtn.BackgroundColor3 = WindowObj.Colors.Window
+	WindowObj:RegisterTheme(ToggleBtn, "BackgroundColor3", "Window")
 	ToggleBtn.Image = WindowObj.LogoId
 	ToggleBtn.Active = true
 	AddUICorner(ToggleBtn, 23)
-	AddUIStroke(ToggleBtn, WindowObj.Colors.Accent, 2)
+	local toggleStroke = AddUIStroke(ToggleBtn, WindowObj.Colors.Accent, 2)
+	WindowObj:RegisterTheme(toggleStroke, "Color", "Accent")
 	MakeDraggable(ToggleBtn, nil, function() return UIScale.Scale end)
 
-	-- Main Frame
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight)
 	MainFrame.Position = savedConfig.PosX and savedConfig.PosY and UDim2.new(0, savedConfig.PosX, 0, savedConfig.PosY) or UDim2.new(0.5, -WindowObj.SavedWidth / 2, 0.5, -WindowObj.SavedHeight / 2)
-	MainFrame.BackgroundColor3 = WindowObj.Colors.Background
-	MainFrame.BackgroundTransparency = 0.45
+	WindowObj:RegisterTheme(MainFrame, "BackgroundColor3", "Background")
+	MainFrame.BackgroundTransparency = 0.1
 	MainFrame.ClipsDescendants = false
 	AddUICorner(MainFrame, 10)
-	AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 1, 0.85)
+	local mainStroke = AddUIStroke(MainFrame, WindowObj.Colors.Border, 1)
+	WindowObj:RegisterTheme(mainStroke, "Color", "Border")
 	WindowObj.MainFrame = MainFrame
 
 	local function SaveCurrentState()
@@ -261,48 +325,38 @@ function PitayaUI:CreateWindow(config)
 		})
 	end
 
-	-- Header Bar (Drag)
 	local HeaderDragBar = Instance.new("Frame", MainFrame)
 	HeaderDragBar.Size = UDim2.new(1, 0, 0, 28)
 	HeaderDragBar.BackgroundTransparency = 1
-	MakeDraggable(MainFrame, HeaderDragBar, function() return UIScale.Scale end, function()
-		SaveCurrentState()
-	end)
+	MakeDraggable(MainFrame, HeaderDragBar, function() return UIScale.Scale end, function() SaveCurrentState() end)
 
 	local TitleLabel = Instance.new("TextLabel", HeaderDragBar)
 	TitleLabel.Size = UDim2.new(1, 0, 1, 0)
 	TitleLabel.BackgroundTransparency = 1
 	TitleLabel.Text = WindowObj.TitleText
-	TitleLabel.TextColor3 = WindowObj.Colors.Accent
+	WindowObj:RegisterTheme(TitleLabel, "TextColor3", "Accent")
 	TitleLabel.TextSize = 13
 	WindowObj:BindFont(TitleLabel, "Bold")
 
-	-- Nút Thu Phong (Góc Dưới Phải)
 	local ResizeGrip = Instance.new("ImageLabel", MainFrame)
 	ResizeGrip.Size = UDim2.new(0, 18, 0, 18)
 	ResizeGrip.Position = UDim2.new(1, -18, 1, -18)
 	ResizeGrip.BackgroundTransparency = 1
 	ResizeGrip.Image = "rbxassetid://6031097225"
-	ResizeGrip.ImageColor3 = WindowObj.Colors.TextSub
+	WindowObj:RegisterTheme(ResizeGrip, "ImageColor3", "TextSub")
 	ResizeGrip.Active = true
 	ResizeGrip.ZIndex = 10
 
 	MakeResizable(
-		MainFrame,
-		ResizeGrip,
-		Vector2.new(500, 300),
-		Vector2.new(950, 650),
+		MainFrame, ResizeGrip, Vector2.new(500, 300), Vector2.new(950, 650),
 		function() return UIScale.Scale end,
 		function(newSize)
 			WindowObj.SavedWidth = newSize.X.Offset
 			WindowObj.SavedHeight = newSize.Y.Offset
 		end,
-		function()
-			SaveCurrentState()
-		end
+		function() SaveCurrentState() end
 	)
 
-	-- Animation Toggle UI
 	local isOpen = true
 	ToggleBtn.MouseButton1Click:Connect(function()
 		isOpen = not isOpen
@@ -317,28 +371,27 @@ function PitayaUI:CreateWindow(config)
 				Size = UDim2.new(0, WindowObj.SavedWidth * 0.85, 0, WindowObj.SavedHeight * 0.85)
 			})
 			tween:Play()
-			tween.Completed:Connect(function()
-				if not isOpen then MainFrame.Visible = false end
-			end)
+			tween.Completed:Connect(function() if not isOpen then MainFrame.Visible = false end end)
 		end
 	end)
 
-	-- Sidebar & Content Frame
 	local Sidebar = Instance.new("Frame", MainFrame)
 	Sidebar.Name = "Sidebar"
 	Sidebar.Size = UDim2.new(0, 175, 1, -36)
 	Sidebar.Position = UDim2.new(0, 8, 0, 28)
-	Sidebar.BackgroundColor3 = WindowObj.Colors.Window
+	WindowObj:RegisterTheme(Sidebar, "BackgroundColor3", "Window")
 	Sidebar.BackgroundTransparency = 0.05
 	AddUICorner(Sidebar, 8)
-	AddUIStroke(Sidebar, WindowObj.Colors.Border, 1)
+	local sidebarStroke = AddUIStroke(Sidebar, WindowObj.Colors.Border, 1)
+	WindowObj:RegisterTheme(sidebarStroke, "Color", "Border")
 
 	local SearchBoxFrame = Instance.new("Frame", Sidebar)
 	SearchBoxFrame.Size = UDim2.new(1, -16, 0, 28)
 	SearchBoxFrame.Position = UDim2.new(0, 8, 0, 8)
-	SearchBoxFrame.BackgroundColor3 = WindowObj.Colors.Background
+	WindowObj:RegisterTheme(SearchBoxFrame, "BackgroundColor3", "Background")
 	AddUICorner(SearchBoxFrame, 6)
-	AddUIStroke(SearchBoxFrame, WindowObj.Colors.Border, 1)
+	local searchStroke = AddUIStroke(SearchBoxFrame, WindowObj.Colors.Border, 1)
+	WindowObj:RegisterTheme(searchStroke, "Color", "Border")
 
 	local SearchInput = Instance.new("TextBox", SearchBoxFrame)
 	SearchInput.Size = UDim2.new(1, -12, 1, 0)
@@ -346,8 +399,8 @@ function PitayaUI:CreateWindow(config)
 	SearchInput.BackgroundTransparency = 1
 	SearchInput.Text = ""
 	SearchInput.PlaceholderText = "🔍 Tìm kiếm..."
-	SearchInput.TextColor3 = WindowObj.Colors.TextMain
-	SearchInput.PlaceholderColor3 = WindowObj.Colors.TextSub
+	WindowObj:RegisterTheme(SearchInput, "TextColor3", "TextMain")
+	WindowObj:RegisterTheme(SearchInput, "PlaceholderColor3", "TextSub")
 	SearchInput.TextSize = 10
 	SearchInput.TextXAlignment = Enum.TextXAlignment.Left
 	WindowObj:BindFont(SearchInput, "Main")
@@ -366,10 +419,11 @@ function PitayaUI:CreateWindow(config)
 	ContentFrame.Name = "ContentFrame"
 	ContentFrame.Size = UDim2.new(1, -201, 1, -36)
 	ContentFrame.Position = UDim2.new(0, 191, 0, 28)
-	ContentFrame.BackgroundColor3 = WindowObj.Colors.Window
+	WindowObj:RegisterTheme(ContentFrame, "BackgroundColor3", "Window")
 	ContentFrame.BackgroundTransparency = 0.05
 	AddUICorner(ContentFrame, 8)
-	AddUIStroke(ContentFrame, WindowObj.Colors.Border, 1)
+	local contentStroke = AddUIStroke(ContentFrame, WindowObj.Colors.Border, 1)
+	WindowObj:RegisterTheme(contentStroke, "Color", "Border")
 
 	local TabHeaderBar = Instance.new("Frame", ContentFrame)
 	TabHeaderBar.Size = UDim2.new(1, 0, 0, 30)
@@ -380,7 +434,7 @@ function PitayaUI:CreateWindow(config)
 	CurrentTabTitle.Position = UDim2.new(0, 12, 0, 0)
 	CurrentTabTitle.BackgroundTransparency = 1
 	CurrentTabTitle.Text = "Tab"
-	CurrentTabTitle.TextColor3 = WindowObj.Colors.TextMain
+	WindowObj:RegisterTheme(CurrentTabTitle, "TextColor3", "TextMain")
 	CurrentTabTitle.TextSize = 12
 	CurrentTabTitle.TextXAlignment = Enum.TextXAlignment.Left
 	WindowObj:BindFont(CurrentTabTitle, "Bold")
@@ -408,16 +462,17 @@ function PitayaUI:Notify(title, text, duration)
 	duration = duration or 3
 	local notifFrame = Instance.new("Frame", self.NotifContainer)
 	notifFrame.Size = UDim2.new(1, 0, 0, 48)
-	notifFrame.BackgroundColor3 = self.Colors.Card
+	self:RegisterTheme(notifFrame, "BackgroundColor3", "Card")
 	AddUICorner(notifFrame, 6)
-	AddUIStroke(notifFrame, self.Colors.Border, 1)
+	local stroke = AddUIStroke(notifFrame, self.Colors.Border, 1)
+	self:RegisterTheme(stroke, "Color", "Border")
 
 	local titleLbl = Instance.new("TextLabel", notifFrame)
 	titleLbl.Size = UDim2.new(1, -16, 0, 16)
 	titleLbl.Position = UDim2.new(0, 8, 0, 5)
 	titleLbl.BackgroundTransparency = 1
 	titleLbl.Text = title
-	titleLbl.TextColor3 = self.Colors.Accent
+	self:RegisterTheme(titleLbl, "TextColor3", "Accent")
 	titleLbl.TextSize = 11
 	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 	self:BindFont(titleLbl, "Bold")
@@ -427,7 +482,7 @@ function PitayaUI:Notify(title, text, duration)
 	descLbl.Position = UDim2.new(0, 8, 0, 22)
 	descLbl.BackgroundTransparency = 1
 	descLbl.Text = text
-	descLbl.TextColor3 = self.Colors.TextMain
+	self:RegisterTheme(descLbl, "TextColor3", "TextMain")
 	descLbl.TextSize = 10
 	descLbl.TextXAlignment = Enum.TextXAlignment.Left
 	self:BindFont(descLbl, "Main")
@@ -459,7 +514,7 @@ function PitayaUI:CreateTab(tabName)
 	local activeBar = Instance.new("Frame", tabBtn)
 	activeBar.Size = UDim2.new(0, 3, 1, -10)
 	activeBar.Position = UDim2.new(0, 0, 0.5, -10)
-	activeBar.BackgroundColor3 = window.Colors.Accent
+	window:RegisterTheme(activeBar, "BackgroundColor3", "Accent")
 	activeBar.Visible = false
 	AddUICorner(activeBar, 2)
 
@@ -468,7 +523,7 @@ function PitayaUI:CreateTab(tabName)
 	tabTextLabel.Position = UDim2.new(0, 14, 0, 0)
 	tabTextLabel.BackgroundTransparency = 1
 	tabTextLabel.Text = tabName
-	tabTextLabel.TextColor3 = window.Colors.TextSub
+	window:RegisterTheme(tabTextLabel, "TextColor3", "TextSub")
 	tabTextLabel.TextSize = 11
 	tabTextLabel.TextXAlignment = Enum.TextXAlignment.Left
 	window:BindFont(tabTextLabel, "Medium")
@@ -506,13 +561,13 @@ function PitayaUI:CreateTab(tabName)
 		local line = Instance.new("Frame", sectionFrame)
 		line.Size = UDim2.new(1, 0, 0, 1)
 		line.Position = UDim2.new(0, 0, 1, -1)
-		line.BackgroundColor3 = window.Colors.Border
+		window:RegisterTheme(line, "BackgroundColor3", "Border")
 
 		local label = Instance.new("TextLabel", sectionFrame)
 		label.Size = UDim2.new(1, 0, 1, -2)
 		label.BackgroundTransparency = 1
 		label.Text = text
-		label.TextColor3 = window.Colors.TextSub
+		window:RegisterTheme(label, "TextColor3", "TextSub")
 		label.TextSize = 11
 		label.TextXAlignment = Enum.TextXAlignment.Center
 		window:BindFont(label, "Bold")
@@ -522,16 +577,17 @@ function PitayaUI:CreateTab(tabName)
 		options = options or {}
 		local card = Instance.new("Frame", page)
 		card.Size = UDim2.new(1, 0, 0, options.SubText and 48 or 38)
-		card.BackgroundColor3 = window.Colors.Card
+		window:RegisterTheme(card, "BackgroundColor3", "Card")
 		AddUICorner(card, 6)
-		AddUIStroke(card, window.Colors.Border, 1)
+		local stroke = AddUIStroke(card, window.Colors.Border, 1)
+		window:RegisterTheme(stroke, "Color", "Border")
 
 		local label = Instance.new("TextLabel", card)
 		label.Size = UDim2.new(1, -95, 0, 16)
 		label.Position = UDim2.new(0, 10, 0, options.SubText and 6 or 11)
 		label.BackgroundTransparency = 1
 		label.Text = options.Text or "Button"
-		label.TextColor3 = window.Colors.TextMain
+		window:RegisterTheme(label, "TextColor3", "TextMain")
 		label.TextSize = 11
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindFont(label, "Bold")
@@ -542,7 +598,7 @@ function PitayaUI:CreateTab(tabName)
 			sub.Position = UDim2.new(0, 10, 0, 24)
 			sub.BackgroundTransparency = 1
 			sub.Text = options.SubText
-			sub.TextColor3 = window.Colors.TextSub
+			window:RegisterTheme(sub, "TextColor3", "TextSub")
 			sub.TextSize = 9
 			sub.TextXAlignment = Enum.TextXAlignment.Left
 			window:BindFont(sub, "Main")
@@ -551,7 +607,7 @@ function PitayaUI:CreateTab(tabName)
 		local actionBtn = Instance.new("TextButton", card)
 		actionBtn.Size = UDim2.new(0, 68, 0, 22)
 		actionBtn.Position = UDim2.new(1, -78, 0.5, -11)
-		actionBtn.BackgroundColor3 = window.Colors.Accent
+		window:RegisterTheme(actionBtn, "BackgroundColor3", "Accent")
 		actionBtn.Text = "Click"
 		actionBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 		actionBtn.TextSize = 10
@@ -571,16 +627,17 @@ function PitayaUI:CreateTab(tabName)
 		local state = options.Default or false
 		local card = Instance.new("Frame", page)
 		card.Size = UDim2.new(1, 0, 0, options.SubText and 48 or 38)
-		card.BackgroundColor3 = window.Colors.Card
+		window:RegisterTheme(card, "BackgroundColor3", "Card")
 		AddUICorner(card, 6)
-		AddUIStroke(card, window.Colors.Border, 1)
+		local strokeCard = AddUIStroke(card, window.Colors.Border, 1)
+		window:RegisterTheme(strokeCard, "Color", "Border")
 
 		local label = Instance.new("TextLabel", card)
 		label.Size = UDim2.new(1, -45, 0, 16)
 		label.Position = UDim2.new(0, 10, 0, options.SubText and 6 or 11)
 		label.BackgroundTransparency = 1
 		label.Text = options.Text or "Toggle"
-		label.TextColor3 = window.Colors.TextMain
+		window:RegisterTheme(label, "TextColor3", "TextMain")
 		label.TextSize = 11
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindFont(label, "Bold")
@@ -591,7 +648,7 @@ function PitayaUI:CreateTab(tabName)
 			sub.Position = UDim2.new(0, 10, 0, 24)
 			sub.BackgroundTransparency = 1
 			sub.Text = options.SubText
-			sub.TextColor3 = window.Colors.TextSub
+			window:RegisterTheme(sub, "TextColor3", "TextSub")
 			sub.TextSize = 9
 			sub.TextXAlignment = Enum.TextXAlignment.Left
 			window:BindFont(sub, "Main")
@@ -600,9 +657,9 @@ function PitayaUI:CreateTab(tabName)
 		local checkSquare = Instance.new("TextButton", card)
 		checkSquare.Size = UDim2.new(0, 18, 0, 18)
 		checkSquare.Position = UDim2.new(1, -28, 0.5, -9)
-		checkSquare.BackgroundColor3 = window.Colors.Background
+		window:RegisterTheme(checkSquare, "BackgroundColor3", "Background")
 		checkSquare.Text = state and "✓" or ""
-		checkSquare.TextColor3 = window.Colors.Accent
+		window:RegisterTheme(checkSquare, "TextColor3", "Accent")
 		checkSquare.TextSize = 12
 		AddUICorner(checkSquare, 3)
 		local stroke = AddUIStroke(checkSquare, state and window.Colors.Accent or window.Colors.Border, 1)
@@ -622,16 +679,17 @@ function PitayaUI:CreateTab(tabName)
 
 		local card = Instance.new("Frame", page)
 		card.Size = UDim2.new(1, 0, 0, 48)
-		card.BackgroundColor3 = window.Colors.Card
+		window:RegisterTheme(card, "BackgroundColor3", "Card")
 		AddUICorner(card, 6)
-		AddUIStroke(card, window.Colors.Border, 1)
+		local strokeCard = AddUIStroke(card, window.Colors.Border, 1)
+		window:RegisterTheme(strokeCard, "Color", "Border")
 
 		local label = Instance.new("TextLabel", card)
 		label.Size = UDim2.new(1, -55, 0, 16)
 		label.Position = UDim2.new(0, 10, 0, 6)
 		label.BackgroundTransparency = 1
 		label.Text = options.Text or "Slider"
-		label.TextColor3 = window.Colors.TextMain
+		window:RegisterTheme(label, "TextColor3", "TextMain")
 		label.TextSize = 11
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindFont(label, "Bold")
@@ -641,19 +699,19 @@ function PitayaUI:CreateTab(tabName)
 		valLabel.Position = UDim2.new(1, -48, 0, 6)
 		valLabel.BackgroundTransparency = 1
 		valLabel.Text = tostring(default)
-		valLabel.TextColor3 = window.Colors.TextSub
+		window:RegisterTheme(valLabel, "TextColor3", "TextSub")
 		valLabel.TextSize = 10
 		window:BindFont(valLabel, "Main")
 
 		local sliderBar = Instance.new("Frame", card)
 		sliderBar.Size = UDim2.new(1, -20, 0, 5)
 		sliderBar.Position = UDim2.new(0, 10, 0, 31)
-		sliderBar.BackgroundColor3 = window.Colors.Background
+		window:RegisterTheme(sliderBar, "BackgroundColor3", "Background")
 		AddUICorner(sliderBar, 2)
 
 		local sliderFill = Instance.new("Frame", sliderBar)
 		sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-		sliderFill.BackgroundColor3 = window.Colors.Accent
+		window:RegisterTheme(sliderFill, "BackgroundColor3", "Accent")
 		AddUICorner(sliderFill, 2)
 
 		local dragging = false
@@ -686,16 +744,17 @@ function PitayaUI:CreateTab(tabName)
 
 		local card = Instance.new("Frame", page)
 		card.Size = UDim2.new(1, 0, 0, 36)
-		card.BackgroundColor3 = window.Colors.Card
+		window:RegisterTheme(card, "BackgroundColor3", "Card")
 		AddUICorner(card, 6)
-		AddUIStroke(card, window.Colors.Border, 1)
+		local strokeCard = AddUIStroke(card, window.Colors.Border, 1)
+		window:RegisterTheme(strokeCard, "Color", "Border")
 
 		local label = Instance.new("TextLabel", card)
 		label.Size = UDim2.new(1, -30, 0, 36)
 		label.Position = UDim2.new(0, 10, 0, 0)
 		label.BackgroundTransparency = 1
 		label.Text = (options.Text or "Dropdown") .. ": " .. tostring(currentChoice)
-		label.TextColor3 = window.Colors.TextMain
+		window:RegisterTheme(label, "TextColor3", "TextMain")
 		label.TextSize = 11
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindFont(label, "Bold")
@@ -705,7 +764,7 @@ function PitayaUI:CreateTab(tabName)
 		arrow.Position = UDim2.new(1, -26, 0, 0)
 		arrow.BackgroundTransparency = 1
 		arrow.Text = "›"
-		arrow.TextColor3 = window.Colors.TextSub
+		window:RegisterTheme(arrow, "TextColor3", "TextSub")
 		arrow.TextSize = 16
 
 		local listContainer = Instance.new("ScrollingFrame", card)
@@ -730,7 +789,7 @@ function PitayaUI:CreateTab(tabName)
 			btn.Size = UDim2.new(1, 0, 0, 24)
 			btn.BackgroundTransparency = 1
 			btn.Text = tostring(v)
-			btn.TextColor3 = (v == currentChoice) and window.Colors.Accent or window.Colors.TextSub
+			window:RegisterTheme(btn, "TextColor3", (v == currentChoice) and "Accent" or "TextSub")
 			btn.TextSize = 10
 			window:BindFont(btn, "Main")
 
@@ -745,7 +804,7 @@ function PitayaUI:CreateTab(tabName)
 		local headerBtn = Instance.new("TextButton", card)
 		headerBtn.Size = UDim2.new(1, 0, 0, 36)
 		headerBtn.BackgroundTransparency = 1
-		headerBtn.Text = "hahaha"
+		headerBtn.Text = "haha"
 		headerBtn.MouseButton1Click:Connect(ToggleDrop)
 	end
 
