@@ -1,13 +1,38 @@
 local PitayaUI = {}
 PitayaUI.__index = PitayaUI
 
-local Players = game:GetService("Players")
+local Services = setmetatable({}, {
+	__index = function(_, service)
+		local s = game:GetService(service)
+		return (cloneref and cloneref(s)) or s
+	end
+})
+
+local Players = Services.Players
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local Workspace = game:GetService("Workspace")
+local CoreGui = Services.CoreGui
+local TweenService = Services.TweenService
+local UserInputService = Services.UserInputService
+local HttpService = Services.HttpService
+local Workspace = Services.Workspace
+
+-- Hàm xử lý Parent an toàn (Ưu tiên gethui > CoreGui > PlayerGui để Bypass)
+local function ParentToSafeGui(screenGui)
+	if gethui then
+		screenGui.Parent = gethui()
+	elseif syn and syn.protect_gui then
+		syn.protect_gui(screenGui)
+		screenGui.Parent = CoreGui
+	else
+		local success = pcall(function()
+			screenGui.Parent = CoreGui
+		end)
+		if not success or not screenGui.Parent then
+			screenGui.Parent = PlayerGui
+		end
+	end
+end
 
 PitayaUI.Themes = {
 	Pitaya = {
@@ -26,7 +51,7 @@ PitayaUI.FontPresets = {
 	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium }
 }
 
--- Quản lý File Cấu Hình (Auto Save UI Size & Position)
+-- Quản lý File Cấu Hình Auto Save
 local ConfigFolder = "PitayaUI"
 local ConfigFile = ConfigFolder .. "/ui_config.json"
 
@@ -51,7 +76,6 @@ local function LoadConfig()
 	return nil
 end
 
--- Định dạng Logo ID
 local function FormatAssetId(id)
 	if typeof(id) == "number" then
 		return "rbxassetid://" .. tostring(id)
@@ -79,54 +103,52 @@ local function AddUIStroke(parent, color, thickness, transparency)
 	return stroke
 end
 
--- Xử lý Dragging (Kéo thả mượt)
-local function MakeDraggable(gui, handle)
+-- Xử lý Dragging (Tự tính theo UIScale)
+local function MakeDraggable(gui, handle, getScale, onDragEnd)
 	handle = handle or gui
-	local dragging, dragInput, dragStart, startPos
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
+	local dragging = false
+	local dragStart = Vector3.new()
+	local startPos = UDim2.new()
 
 	handle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = gui.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
 		end
 	end)
 
-	handle.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			dragInput = input
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			if dragging then
+				dragging = false
+				if onDragEnd then onDragEnd(gui.Position) end
+			end
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if input == dragInput and dragging then
-			update(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local scale = getScale and getScale() or 1
+			local delta = (input.Position - dragStart) / scale
+			gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
 	end)
 end
 
--- Xử lý Resizing (Thu phóng bằng góc dưới phải)
-local function MakeResizable(gui, handle, minSize, maxSize, onResizeEnd)
-	minSize = minSize or Vector2.new(500, 320)
-	maxSize = maxSize or Vector2.new(900, 600)
-	local resizing, resizeStart, startSize
+-- Xử lý Resizing (Tự tính theo UIScale & Lưu cấu hình)
+local function MakeResizable(gui, handle, minSize, maxSize, getScale, onResize, onResizeEnd)
+	minSize = minSize or Vector2.new(500, 300)
+	maxSize = maxSize or Vector2.new(950, 650)
+	local resizing = false
+	local resizeStart = Vector3.new()
+	local startSize = Vector2.new()
 
 	handle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			resizing = true
 			resizeStart = input.Position
-			startSize = gui.AbsoluteSize
+			startSize = Vector2.new(gui.Size.X.Offset, gui.Size.Y.Offset)
 		end
 	end)
 
@@ -141,10 +163,12 @@ local function MakeResizable(gui, handle, minSize, maxSize, onResizeEnd)
 
 	UserInputService.InputChanged:Connect(function(input)
 		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - resizeStart
+			local scale = getScale and getScale() or 1
+			local delta = (input.Position - resizeStart) / scale
 			local newW = math.clamp(startSize.X + delta.X, minSize.X, maxSize.X)
 			local newH = math.clamp(startSize.Y + delta.Y, minSize.Y, maxSize.Y)
 			gui.Size = UDim2.new(0, newW, 0, newH)
+			if onResize then onResize(gui.Size) end
 		end
 	end)
 end
@@ -173,16 +197,14 @@ function PitayaUI:CreateWindow(config)
 	for k, v in pairs(baseTheme) do WindowObj.Colors[k] = v end
 	WindowObj.Fonts = PitayaUI.FontPresets.Gotham
 
+	-- Tạo ScreenGui và gán vào CoreGui/PlayerGui/gethui
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = HttpService:GenerateGUID(false)
 	ScreenGui.ResetOnSpawn = false
-
-	if gethui then ScreenGui.Parent = gethui()
-	elseif syn and syn.protect_gui then syn.protect_gui(ScreenGui); ScreenGui.Parent = game:GetService("CoreGui")
-	else pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end); if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end end
+	ParentToSafeGui(ScreenGui)
 	WindowObj.ScreenGui = ScreenGui
 
-	-- Tự động căn chỉnh UI cho tương thích điện thoại & máy tính (UIScale)
+	-- Tự động co giãn màn hình (UIScale)
 	local UIScale = Instance.new("UIScale", ScreenGui)
 	local Camera = Workspace.CurrentCamera
 	local function UpdateAutoScaling()
@@ -206,7 +228,7 @@ function PitayaUI:CreateWindow(config)
 	NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	NotifList.Padding = UDim.new(0, 8)
 
-	-- Nút Toggle nổi bật (Có Logo)
+	-- Nút Toggle Mở UI
 	local ToggleBtn = Instance.new("ImageButton", ScreenGui)
 	ToggleBtn.Name = "PitayaToggle"
 	ToggleBtn.Size = UDim2.new(0, 46, 0, 46)
@@ -216,7 +238,7 @@ function PitayaUI:CreateWindow(config)
 	ToggleBtn.Active = true
 	AddUICorner(ToggleBtn, 23)
 	AddUIStroke(ToggleBtn, WindowObj.Colors.Accent, 2)
-	MakeDraggable(ToggleBtn)
+	MakeDraggable(ToggleBtn, nil, function() return UIScale.Scale end)
 
 	-- Main Frame
 	local MainFrame = Instance.new("Frame", ScreenGui)
@@ -230,13 +252,23 @@ function PitayaUI:CreateWindow(config)
 	AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 1, 0.85)
 	WindowObj.MainFrame = MainFrame
 
-	-- Thanh Header làm vùng kéo thả Drag
+	local function SaveCurrentState()
+		SaveConfig({
+			Width = WindowObj.SavedWidth,
+			Height = WindowObj.SavedHeight,
+			PosX = MainFrame.Position.X.Offset,
+			PosY = MainFrame.Position.Y.Offset
+		})
+	end
+
+	-- Header Bar (Drag)
 	local HeaderDragBar = Instance.new("Frame", MainFrame)
 	HeaderDragBar.Size = UDim2.new(1, 0, 0, 28)
 	HeaderDragBar.BackgroundTransparency = 1
-	MakeDraggable(MainFrame, HeaderDragBar)
+	MakeDraggable(MainFrame, HeaderDragBar, function() return UIScale.Scale end, function()
+		SaveCurrentState()
+	end)
 
-	-- Title chính giữa
 	local TitleLabel = Instance.new("TextLabel", HeaderDragBar)
 	TitleLabel.Size = UDim2.new(1, 0, 1, 0)
 	TitleLabel.BackgroundTransparency = 1
@@ -245,36 +277,43 @@ function PitayaUI:CreateWindow(config)
 	TitleLabel.TextSize = 13
 	WindowObj:BindFont(TitleLabel, "Bold")
 
-	-- Nút Resize ở góc dưới bên phải
+	-- Nút Thu Phong (Góc Dưới Phải)
 	local ResizeGrip = Instance.new("ImageLabel", MainFrame)
-	ResizeGrip.Size = UDim2.new(0, 14, 0, 14)
-	ResizeGrip.Position = UDim2.new(1, -16, 1, -16)
+	ResizeGrip.Size = UDim2.new(0, 18, 0, 18)
+	ResizeGrip.Position = UDim2.new(1, -18, 1, -18)
 	ResizeGrip.BackgroundTransparency = 1
 	ResizeGrip.Image = "rbxassetid://6031097225"
 	ResizeGrip.ImageColor3 = WindowObj.Colors.TextSub
 	ResizeGrip.Active = true
+	ResizeGrip.ZIndex = 10
 
-	MakeResizable(MainFrame, ResizeGrip, Vector2.new(520, 320), Vector2.new(900, 600), function(newSize)
-		SaveConfig({
-			Width = newSize.X.Offset,
-			Height = newSize.Y.Offset,
-			PosX = MainFrame.Position.X.Offset,
-			PosY = MainFrame.Position.Y.Offset
-		})
-	end)
+	MakeResizable(
+		MainFrame,
+		ResizeGrip,
+		Vector2.new(500, 300),
+		Vector2.new(950, 650),
+		function() return UIScale.Scale end,
+		function(newSize)
+			WindowObj.SavedWidth = newSize.X.Offset
+			WindowObj.SavedHeight = newSize.Y.Offset
+		end,
+		function()
+			SaveCurrentState()
+		end
+	)
 
-	-- Animation Bật/Tắt UI
+	-- Animation Toggle UI
 	local isOpen = true
 	ToggleBtn.MouseButton1Click:Connect(function()
 		isOpen = not isOpen
 		if isOpen then
 			MainFrame.Visible = true
 			MainFrame.Size = UDim2.new(0, WindowObj.SavedWidth * 0.85, 0, WindowObj.SavedHeight * 0.85)
-			TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+			TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight)
 			}):Play()
 		else
-			local tween = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			local tween = TweenService:Create(MainFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
 				Size = UDim2.new(0, WindowObj.SavedWidth * 0.85, 0, WindowObj.SavedHeight * 0.85)
 			})
 			tween:Play()
@@ -284,7 +323,7 @@ function PitayaUI:CreateWindow(config)
 		end
 	end)
 
-	-- 1. Sidebar Trái
+	-- Sidebar & Content Frame
 	local Sidebar = Instance.new("Frame", MainFrame)
 	Sidebar.Name = "Sidebar"
 	Sidebar.Size = UDim2.new(0, 175, 1, -36)
@@ -306,7 +345,7 @@ function PitayaUI:CreateWindow(config)
 	SearchInput.Position = UDim2.new(0, 8, 0, 0)
 	SearchInput.BackgroundTransparency = 1
 	SearchInput.Text = ""
-	SearchInput.PlaceholderText = "🔍 Search section or Functi..."
+	SearchInput.PlaceholderText = "🔍 Tìm kiếm..."
 	SearchInput.TextColor3 = WindowObj.Colors.TextMain
 	SearchInput.PlaceholderColor3 = WindowObj.Colors.TextSub
 	SearchInput.TextSize = 10
@@ -323,7 +362,6 @@ function PitayaUI:CreateWindow(config)
 	UIList.SortOrder = Enum.SortOrder.LayoutOrder
 	UIList.Padding = UDim.new(0, 3)
 
-	-- 2. Content Frame Phải
 	local ContentFrame = Instance.new("Frame", MainFrame)
 	ContentFrame.Name = "ContentFrame"
 	ContentFrame.Size = UDim2.new(1, -201, 1, -36)
@@ -435,7 +473,6 @@ function PitayaUI:CreateTab(tabName)
 	tabTextLabel.TextXAlignment = Enum.TextXAlignment.Left
 	window:BindFont(tabTextLabel, "Medium")
 
-	-- Animation chuyển Tab
 	local function ActivateTab()
 		for _, t in ipairs(window.Tabs) do
 			t.Page.Visible = false
@@ -708,7 +745,7 @@ function PitayaUI:CreateTab(tabName)
 		local headerBtn = Instance.new("TextButton", card)
 		headerBtn.Size = UDim2.new(1, 0, 0, 36)
 		headerBtn.BackgroundTransparency = 1
-		headerBtn.Text = ""
+		headerBtn.Text = "hahaha"
 		headerBtn.MouseButton1Click:Connect(ToggleDrop)
 	end
 
