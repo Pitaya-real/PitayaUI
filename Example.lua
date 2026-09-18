@@ -1,4 +1,4 @@
-local PitayaUI = loadstring(game:HttpGet("YOUR_RAW_GITHUB_URL_HERE"))()
+local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
 
 local Window = PitayaUI:CreateWindow({
 	Title = "Pitaya Hub : Blox Fruits",
