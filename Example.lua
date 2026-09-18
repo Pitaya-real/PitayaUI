@@ -1,9 +1,9 @@
 -- =================================================================
--- EXAMPLE SCRIPT - DRAGON FRUIT LIB (FULL FUNCTIONAL)
+-- EXAMPLE SCRIPT - PITAYA UI (FULL FUNCTIONAL)
 -- =================================================================
 
 -- 1. LOAD THƯ VIỆN (Nếu dùng File local thì thay bằng require, hoặc loadstring URL)
-local DragonFruitLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
+local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
 
 -- 2. KHỞI TẠO CÁC SERVICE ROBLOX
 local Players = game:GetService("Players")
@@ -25,10 +25,10 @@ local function getRootPart()
 end
 
 -- 3. TẠO CỬA SỔ CHÍNH (WINDOW)
-local Window = DragonFruitLib:CreateWindow({
-	Title = "Dragon Fruit Hub | Premium",
-	Logo = "rbxassetid://90272501948122",
-	Theme = "DragonFruit",
+local Window = PitayaUI:CreateWindow({
+	Title = "Pitaya Hub | Premium",
+	Logo = "rbxassetid://115347218827913",
+	Theme = "PitayaUI",
 	Font = "Gotham"
 })
 
@@ -180,7 +180,7 @@ SettingsTab:AddLabel("--- Tùy Chỉnh UI ---")
 SettingsTab:AddDropdown({
 	Text = "Chủ Đề",
 	Items = Window:GetThemes(),
-	Default = "DragonFruit",
+	Default = "PitayaUI",
 	Callback = function(selectedTheme)
 		Window:SetTheme(selectedTheme)
 		Window:Notify("Theme", "Đã chuyển giao diện sang: " .. selectedTheme, 2)
