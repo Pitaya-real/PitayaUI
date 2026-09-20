@@ -5,7 +5,7 @@
 
 -- 1. Tải thư viện PitayaUI
 -- (Thay link raw pastebin/github của bạn vào đây nếu đã tải file source lên)
-local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/YourName/YourRepo/main/Pitayauisource.lua"))()
+local PitayaUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/Pitayauisource.lua"))()
 
 -- 2. Khởi tạo Cửa sổ chính (CreateWindow)
 local Window = PitayaUI:CreateWindow({
