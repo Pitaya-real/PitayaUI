@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local Stats = game:GetService("Stats")
+local Camera = workspace.CurrentCamera
 
 -- =================================================================
 -- HÀM TRỢ GIÚP GIAO DIỆN
@@ -26,25 +26,52 @@ local function AddUIStroke(parent, color, thickness, transparency)
 	return stroke
 end
 
+local function MakeDraggable(guiObject, handleObject)
+	handleObject = handleObject or guiObject
+	local dragging, dragStart, startPos
+
+	handleObject.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = guiObject.Position
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - dragStart
+			guiObject.Position = UDim2.new(
+				startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+end
+
 -- =================================================================
--- TẠO CỬA SỔ CHÍNH (PITAYA GLASS STYLE)
+-- TẠO CỬA SỔ CHÍNH & TÍNH NĂNG NÂNG CẤP
 -- =================================================================
 function PitayaUI:CreateWindow(config)
 	config = config or {}
 	local WindowObj = setmetatable({}, PitayaUI)
 	WindowObj.TitleText = config.Title or "SCRIPT MASTER HUB - PITAYA EDITION v3.5"
-	WindowObj.LogoId = config.Logo or "rbxassetid://10723321812" -- Asset Dragonfruit tách nền
+	WindowObj.LogoId = config.Logo or "rbxassetid://10723321812" -- ID Logo Pitaya
 	WindowObj.Tabs = {}
 
-	-- Màu sắc chuẩn Theme Pitaya Light Glass
 	WindowObj.Colors = {
 		WindowBg = Color3.fromRGB(232, 236, 242),
-		TopbarBg = Color3.fromRGB(240, 243, 248),
 		TabBarBg = Color3.fromRGB(28, 32, 42),
 		CardBg = Color3.fromRGB(255, 255, 255),
-		CardTransparency = 0.25,
+		CardTransparency = 0.2,
 		TextMain = Color3.fromRGB(20, 25, 35),
-		TextSub = Color3.fromRGB(100, 110, 125),
+		TextSub = Color3.fromRGB(120, 130, 145),
 		AccentPink = Color3.fromRGB(245, 65, 125),
 		AccentCyan = Color3.fromRGB(0, 220, 230),
 		DarkBtnBg = Color3.fromRGB(32, 36, 48)
@@ -62,7 +89,7 @@ function PitayaUI:CreateWindow(config)
 	end
 	WindowObj.ScreenGui = ScreenGui
 
-	-- Khung chính cửa sổ
+	-- KHUNG CHÍNH (MAIN FRAME)
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -73,49 +100,49 @@ function PitayaUI:CreateWindow(config)
 	MainFrame.ClipsDescendants = false
 	AddUICorner(MainFrame, 0, 14)
 	AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 2, 0.2)
-
 	WindowObj.MainFrame = MainFrame
 
-	-- TOPBAR (Thanh tiêu đề + Nút Đóng/Thu nhỏ)
+	-- 1. TỰ ĐỘNG CĂN CHỈNH KÍCH THƯỚC THEO THIẾT BỊ (RESPONSIVE UISCALE)
+	local UiScale = Instance.new("UIScale", MainFrame)
+	local function AutoScale()
+		local viewportSize = Camera.ViewportSize
+		local scaleFactor = math.clamp(viewportSize.Y / 550, 0.65, 1.15)
+		UiScale.Scale = scaleFactor
+	end
+	AutoScale()
+	Camera:GetPropertyChangedSignal("ViewportSize"):Connect(AutoScale)
+
+	-- 2. NÚT FLOATING TRÔI NỔI (BẬT / TẮT UI MỌI LÚC)
+	local FloatingBtn = Instance.new("ImageButton", ScreenGui)
+	FloatingBtn.Name = "PitayaFloatingBtn"
+	FloatingBtn.Size = UDim2.new(0, 48, 0, 48)
+	FloatingBtn.Position = UDim2.new(0.08, 0, 0.25, 0)
+	FloatingBtn.BackgroundColor3 = WindowObj.Colors.TabBarBg
+	FloatingBtn.Image = WindowObj.LogoId
+	FloatingBtn.AutoButtonColor = true
+	AddUICorner(FloatingBtn, 1, 0)
+	AddUIStroke(FloatingBtn, WindowObj.Colors.AccentPink, 2)
+	MakeDraggable(FloatingBtn)
+
+	local isMainVisible = true
+	FloatingBtn.MouseButton1Click:Connect(function()
+		isMainVisible = not isMainVisible
+		MainFrame.Visible = isMainVisible
+	end)
+
+	-- TOPBAR & KÉO THẢ
 	local Topbar = Instance.new("Frame", MainFrame)
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 38)
 	Topbar.BackgroundTransparency = 1
+	MakeDraggable(MainFrame, Topbar)
 
-	-- Kéo thả Cửa sổ
-	local winDragging, winDragStart, winStartPos
-	Topbar.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			winDragging = true
-			winDragStart = input.Position
-			winStartPos = MainFrame.Position
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if winDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - winDragStart
-			MainFrame.Position = UDim2.new(
-				winStartPos.X.Scale, winStartPos.X.Offset + delta.X,
-				winStartPos.Y.Scale, winStartPos.Y.Offset + delta.Y
-			)
-		end
-	end)
-
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			winDragging = false
-		end
-	end)
-
-	-- Logo Pitaya (Không nền)
 	local LogoImg = Instance.new("ImageLabel", Topbar)
 	LogoImg.Size = UDim2.new(0, 24, 0, 24)
 	LogoImg.Position = UDim2.new(0, 12, 0, 7)
 	LogoImg.BackgroundTransparency = 1
 	LogoImg.Image = WindowObj.LogoId
 
-	-- Tiêu đề Window
 	local TitleLbl = Instance.new("TextLabel", Topbar)
 	TitleLbl.Size = UDim2.new(1, -110, 1, 0)
 	TitleLbl.Position = UDim2.new(0, 42, 0, 0)
@@ -126,7 +153,7 @@ function PitayaUI:CreateWindow(config)
 	TitleLbl.Font = Enum.Font.FredokaOne
 	TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 
-	-- Nút Thu nhỏ (-) và Đóng (X)
+	-- NÚT THU NHỎ VÀ ĐÓNG
 	local ControlsContainer = Instance.new("Frame", Topbar)
 	ControlsContainer.Size = UDim2.new(0, 50, 1, 0)
 	ControlsContainer.Position = UDim2.new(1, -55, 0, 0)
@@ -150,20 +177,16 @@ function PitayaUI:CreateWindow(config)
 	CloseBtn.TextSize = 13
 	CloseBtn.Font = Enum.Font.GothamBold
 
-	local isOpen = true
-	local function ToggleUI()
-		isOpen = not isOpen
-		MainFrame.Visible = isOpen
-	end
+	MinimizeBtn.MouseButton1Click:Connect(function()
+		isMainVisible = false
+		MainFrame.Visible = false
+	end)
 
-	MinimizeBtn.MouseButton1Click:Connect(ToggleUI)
 	CloseBtn.MouseButton1Click:Connect(function()
 		ScreenGui:Destroy()
 	end)
 
-	-- -------------------------------------------------------------
-	-- THANH TAB NGANG (ĐÃ SỬA LỖI VỆT CẢNH VÀ CĂN CHỈNH)
-	-- -------------------------------------------------------------
+	-- 3. THANH TAB CUỘN NGANG (SỬA LỖI TRÔI VỆT NEON VÀ CUỘN NHIỀU TAB)
 	local TabBarContainer = Instance.new("Frame", MainFrame)
 	TabBarContainer.Name = "TabBarContainer"
 	TabBarContainer.Size = UDim2.new(1, -20, 0, 42)
@@ -175,16 +198,17 @@ function PitayaUI:CreateWindow(config)
 	TabScroll.Size = UDim2.new(1, -10, 1, 0)
 	TabScroll.Position = UDim2.new(0, 5, 0, 0)
 	TabScroll.BackgroundTransparency = 1
-	TabScroll.ScrollBarThickness = 0
+	TabScroll.ScrollBarThickness = 2
+	TabScroll.ScrollBarImageColor3 = WindowObj.Colors.AccentCyan
 	TabScroll.ClipsDescendants = true
+	TabScroll.ScrollingDirection = Enum.ScrollingDirection.Horizontal
 
 	local TabListLayout = Instance.new("UIListLayout", TabScroll)
 	TabListLayout.FillDirection = Enum.FillDirection.Horizontal
 	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabListLayout.Padding = UDim.new(0, 4)
+	TabListLayout.Padding = UDim.new(0, 6)
 	TabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 
-	-- Thanh chỉ báo gạch chân màu Cyan (Active Tab Indicator)
 	local ActiveLineIndicator = Instance.new("Frame", TabScroll)
 	ActiveLineIndicator.Name = "ActiveLineIndicator"
 	ActiveLineIndicator.Size = UDim2.new(0, 40, 0, 3)
@@ -197,19 +221,51 @@ function PitayaUI:CreateWindow(config)
 
 	WindowObj.ActiveLineIndicator = ActiveLineIndicator
 
-	-- -------------------------------------------------------------
 	-- NỘI DUNG TABS
-	-- -------------------------------------------------------------
 	local ContentArea = Instance.new("Frame", MainFrame)
 	ContentArea.Name = "ContentArea"
 	ContentArea.Size = UDim2.new(1, -20, 1, -90)
 	ContentArea.Position = UDim2.new(0, 10, 0, 85)
 	ContentArea.BackgroundTransparency = 1
-	ContentArea.ClipsDescendants = false
 
 	WindowObj.ContentArea = ContentArea
 	WindowObj.TabScroll = TabScroll
 	WindowObj.TabListLayout = TabListLayout
+
+	-- 4. NÚT KÉO GIÃN THU NHỎ UI (RESIZE HANDLE)
+	local ResizeHandle = Instance.new("TextButton", MainFrame)
+	ResizeHandle.Name = "ResizeHandle"
+	ResizeHandle.Size = UDim2.new(0, 16, 0, 16)
+	ResizeHandle.Position = UDim2.new(1, -16, 1, -16)
+	ResizeHandle.BackgroundTransparency = 1
+	ResizeHandle.Text = "◢"
+	ResizeHandle.TextColor3 = WindowObj.Colors.TextSub
+	ResizeHandle.TextSize = 12
+	ResizeHandle.Font = Enum.Font.GothamBold
+
+	local resizing, resizeStart, startSize
+	ResizeHandle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = true
+			resizeStart = input.Position
+			startSize = MainFrame.Size
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - resizeStart
+			local newX = math.clamp(startSize.X.Offset + delta.X, 400, 800)
+			local newY = math.clamp(startSize.Y.Offset + delta.Y, 280, 550)
+			MainFrame.Size = UDim2.new(0, newX, 0, newY)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			resizing = false
+		end
+	end)
 
 	return WindowObj
 end
@@ -227,15 +283,13 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	page.ScrollBarThickness = 3
 	page.ScrollBarImageColor3 = window.Colors.AccentCyan
 	page.Visible = false
-	page.ClipsDescendants = false
 
 	local PageList = Instance.new("UIListLayout", page)
 	PageList.SortOrder = Enum.SortOrder.LayoutOrder
 	PageList.Padding = UDim.new(0, 8)
 
-	-- Nút Tab dạng Icon trên - Chữ dưới
 	local tabBtn = Instance.new("TextButton", window.TabScroll)
-	tabBtn.Size = UDim2.new(0, 75, 1, 0)
+	tabBtn.Size = UDim2.new(0, 70, 1, 0)
 	tabBtn.BackgroundTransparency = 1
 	tabBtn.Text = ""
 
@@ -267,11 +321,11 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		page.Visible = true
 		window.ActiveLineIndicator.Visible = true
 
-		-- Cập nhật thanh trượt Cyan ngay bên dưới Tab active chuẩn xác
-		local targetX = tabBtn.AbsolutePosition.X - window.TabScroll.AbsolutePosition.X + window.TabScroll.CanvasPosition.X
+		-- Tính vị trí chuẩn xác tương đối trong ScrollingFrame
+		local relX = tabBtn.AbsolutePosition.X - window.TabScroll.AbsolutePosition.X + window.TabScroll.CanvasPosition.X
 		TweenService:Create(window.ActiveLineIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, targetX + 10, 1, -5),
-			Size = UDim2.new(0, tabBtn.AbsoluteSize.X - 20, 0, 3)
+			Position = UDim2.new(0, relX + 8, 1, -5),
+			Size = UDim2.new(0, tabBtn.AbsoluteSize.X - 16, 0, 3)
 		}):Play()
 
 		TweenService:Create(iconLbl, TweenInfo.new(0.2), { TextColor3 = window.Colors.AccentPink }):Play()
@@ -287,15 +341,16 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 	table.insert(window.Tabs, TabObj)
 
+	-- Tự động tính toán CanvasSize cho nhiều Tab
 	task.defer(function()
-		window.TabScroll.CanvasSize = UDim2.new(0, window.TabListLayout.AbsoluteContentSize.X + 10, 0, 0)
+		window.TabScroll.CanvasSize = UDim2.new(0, window.TabListLayout.AbsoluteContentSize.X + 15, 0, 0)
 		if #window.Tabs == 1 then
 			ActivateTab()
 		end
 	end)
 
 	-- -------------------------------------------------------------
-	-- COMPONENT 1: SLIDER FULL CARD (KÈM NÚT RESET)
+	-- COMPONENT: SLIDER (CÓ NÚT RESET)
 	-- -------------------------------------------------------------
 	function TabObj:AddSlider(options)
 		options = options or {}
@@ -352,13 +407,6 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		sliderFill.BackgroundColor3 = window.Colors.AccentPink
 		AddUICorner(sliderFill, 0, 3)
 
-		local sliderThumb = Instance.new("Frame", sliderFill)
-		sliderThumb.Size = UDim2.new(0, 12, 0, 12)
-		sliderThumb.AnchorPoint = Vector2.new(0.5, 0.5)
-		sliderThumb.Position = UDim2.new(1, 0, 0.5, 0)
-		sliderThumb.BackgroundColor3 = window.Colors.AccentCyan
-		AddUICorner(sliderThumb, 1, 0)
-
 		local dragging = false
 		local function UpdateSlider(input)
 			local pos = math.clamp((input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X, 0, 1)
@@ -395,7 +443,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- COMPONENT 2: TOGGLE CARD
+	-- COMPONENT: TOGGLE
 	-- -------------------------------------------------------------
 	function TabObj:AddToggle(options)
 		options = options or {}
@@ -447,7 +495,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- COMPONENT 3: BUTTON CARD (NÚT BẤM CƠ BẢN)
+	-- COMPONENT: BUTTON (NÚT BẤM)
 	-- -------------------------------------------------------------
 	function TabObj:AddButton(options)
 		options = options or {}
@@ -480,7 +528,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- COMPONENT 4: DROPDOWN MENU + NÚT BẤM (GIỐNG MẪU TELEPORT TO)
+	-- COMPONENT: DROPDOWN + NÚT BẤM ("GO")
 	-- -------------------------------------------------------------
 	function TabObj:AddDropdown(options)
 		options = options or {}
@@ -532,7 +580,6 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 			AddUICorner(actionBtn, 0, 6)
 		end
 
-		-- Menu danh sách xổ xuống
 		local dropList = Instance.new("ScrollingFrame", card)
 		dropList.Size = UDim2.new(hasActionButton and 0.42 or 0.56, 0, 0, 0)
 		dropList.Position = UDim2.new(0.38, 0, 1, 4)
