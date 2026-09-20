@@ -11,32 +11,28 @@ local Workspace = game:GetService("Workspace")
 local Camera = Workspace.CurrentCamera
 
 -- =================================================================
--- THEMES LIQUID GLASS
+-- THEMES LIQUID GLASS (SANG TRỌNG & HIỆN ĐẠI)
 -- =================================================================
 PitayaUI.Themes = {
 	PitayaUI = {
-		WindowBackground = Color3.fromRGB(18, 20, 29),
+		WindowBackground = Color3.fromRGB(15, 17, 26),
 		GlassCard = Color3.fromRGB(255, 255, 255),
-		GlassCardTransparency = 0.93,
+		GlassCardTransparency = 0.94,
 		BorderGlass = Color3.fromRGB(255, 255, 255),
 		TextMain = Color3.fromRGB(245, 247, 255),
 		TextSub = Color3.fromRGB(160, 165, 185),
-		Accent = Color3.fromRGB(255, 50, 120),         -- Liquid Pink
-		AccentCyan = Color3.fromRGB(0, 225, 255),      -- Glass Cyan Glow
-		TabUnselected = Color3.fromRGB(255, 255, 255),
-		TabUnselectedTrans = 0.95
+		Accent = Color3.fromRGB(255, 45, 120),         -- Liquid Pink
+		AccentCyan = Color3.fromRGB(0, 230, 255),      -- Neon Cyan Glow
 	},
 	Dark = {
-		WindowBackground = Color3.fromRGB(12, 14, 20),
+		WindowBackground = Color3.fromRGB(10, 12, 18),
 		GlassCard = Color3.fromRGB(255, 255, 255),
-		GlassCardTransparency = 0.95,
+		GlassCardTransparency = 0.96,
 		BorderGlass = Color3.fromRGB(200, 220, 255),
 		TextMain = Color3.fromRGB(240, 240, 245),
 		TextSub = Color3.fromRGB(130, 135, 155),
 		Accent = Color3.fromRGB(0, 170, 255),
 		AccentCyan = Color3.fromRGB(180, 80, 255),
-		TabUnselected = Color3.fromRGB(255, 255, 255),
-		TabUnselectedTrans = 0.96
 	}
 }
 
@@ -62,54 +58,6 @@ local function AddUIStroke(parent, color, thickness, transparency)
 end
 
 -- =================================================================
--- HÀM KÉO THẢ MƯỢT CHO ĐIỆN THOẠI & PC (DRAGGABLE TOUCH FIX)
--- =================================================================
-local function MakeDraggable(guiObject, dragHandle)
-	dragHandle = dragHandle or guiObject
-	local dragging = false
-	local dragStart = Vector3.new()
-	local startPos = UDim2.new()
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		guiObject.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-
-	dragHandle.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = guiObject.Position
-
-			local connection
-			connection = input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-					if connection then connection:Disconnect() end
-				end
-			end)
-		end
-	end)
-
-	dragHandle.InputChanged:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-			if dragging then update(input) end
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			update(input)
-		end
-	end)
-end
-
--- =================================================================
 -- QUẢN LÝ THEME & FONT
 -- =================================================================
 function PitayaUI:BindTheme(instance, property, role)
@@ -126,7 +74,7 @@ function PitayaUI:SetTheme(themeName)
 
 	for _, item in ipairs(self.ThemeObjects) do
 		if item.Instance and item.Instance.Parent and self.Colors[item.Role] then
-			TweenService:Create(item.Instance, TweenInfo.new(0.3), { [item.Property] = self.Colors[item.Role] }):Play()
+			TweenService:Create(item.Instance, TweenInfo.new(0.4), { [item.Property] = self.Colors[item.Role] }):Play()
 		end
 	end
 end
@@ -164,12 +112,12 @@ function PitayaUI:GetFonts()
 end
 
 -- =================================================================
--- TẠO CỬA SỔ LIQUID GLASS
+-- TẠO CỬA SỔ CHÍNH (LIQUID GLASS CENTER EXPAND)
 -- =================================================================
 function PitayaUI:CreateWindow(config)
 	config = config or {}
 	local WindowObj = setmetatable({}, PitayaUI)
-	WindowObj.TitleText = config.Title or "PITAYA GLASS"
+	WindowObj.TitleText = config.Title or "PITAYA GLASS UI"
 	WindowObj.LogoId = config.Logo or "rbxassetid://115347218827913"
 	WindowObj.Tabs = {}
 	WindowObj.ThemeObjects = {}
@@ -199,8 +147,8 @@ function PitayaUI:CreateWindow(config)
 
 	-- TỰ ĐỘNG RESPONSIVE
 	local vpSize = Camera.ViewportSize
-	local targetWidth = math.clamp(vpSize.X * 0.78, 380, 560)
-	local targetHeight = math.clamp(vpSize.Y * 0.72, 260, 350)
+	local targetWidth = math.clamp(vpSize.X * 0.75, 400, 580)
+	local targetHeight = math.clamp(vpSize.Y * 0.70, 270, 360)
 	
 	WindowObj.CurrentWidth = targetWidth
 	WindowObj.CurrentHeight = targetHeight
@@ -208,8 +156,8 @@ function PitayaUI:CreateWindow(config)
 	-- NOTIFICATION CONTAINER
 	local NotifContainer = Instance.new("Frame", ScreenGui)
 	NotifContainer.Name = "NotifContainer"
-	NotifContainer.Size = UDim2.new(0, 240, 1, -40)
-	NotifContainer.Position = UDim2.new(1, -250, 0, 20)
+	NotifContainer.Size = UDim2.new(0, 250, 1, -40)
+	NotifContainer.Position = UDim2.new(1, -260, 0, 20)
 	NotifContainer.BackgroundTransparency = 1
 	WindowObj.NotifContainer = NotifContainer
 
@@ -219,16 +167,16 @@ function PitayaUI:CreateWindow(config)
 	NotifList.Padding = UDim.new(0, 8)
 
 	-- -------------------------------------------------------------
-	-- NÚT NỔI FLOATING LIQUID (TỰ ĐỘNG TÁCH/BO TRÒN NỀN LOGO)
+	-- NÚT FLOATING CẢI TIẾN TRIỆT ĐỂ (KÉO MƯỢT 100% CẢ MOUSE & TOUCH)
 	-- -------------------------------------------------------------
 	local FloatBtnFrame = Instance.new("Frame", ScreenGui)
 	FloatBtnFrame.Name = "FloatingToggle"
-	FloatBtnFrame.Size = UDim2.new(0, 50, 0, 50)
-	FloatBtnFrame.Position = UDim2.new(0, 15, 0.35, 0)
+	FloatBtnFrame.Size = UDim2.new(0, 52, 0, 52)
+	FloatBtnFrame.Position = UDim2.new(0, 20, 0.35, 0)
 	FloatBtnFrame.BackgroundColor3 = WindowObj.Colors.WindowBackground
 	FloatBtnFrame.BackgroundTransparency = 0.2
 	FloatBtnFrame.Active = true
-	AddUICorner(FloatBtnFrame, 25)
+	AddUICorner(FloatBtnFrame, 26)
 
 	local floatStroke = AddUIStroke(FloatBtnFrame, WindowObj.Colors.BorderGlass, 1.5, 0.3)
 	local floatGrad = Instance.new("UIGradient", floatStroke)
@@ -237,10 +185,10 @@ function PitayaUI:CreateWindow(config)
 		ColorSequenceKeypoint.new(1, WindowObj.Colors.Accent)
 	})
 
-	-- CanvasGroup giúp tự động cắt sạch góc vuông của ảnh Logo
+	-- Mask hình tròn tự động cắt bỏ nền thừa của Logo
 	local LogoMaskGroup = Instance.new("CanvasGroup", FloatBtnFrame)
-	LogoMaskGroup.Size = UDim2.new(1, -10, 1, -10)
-	LogoMaskGroup.Position = UDim2.new(0, 5, 0, 5)
+	LogoMaskGroup.Size = UDim2.new(1, -12, 1, -12)
+	LogoMaskGroup.Position = UDim2.new(0, 6, 0, 6)
 	LogoMaskGroup.BackgroundTransparency = 1
 	AddUICorner(LogoMaskGroup, 20)
 
@@ -249,21 +197,55 @@ function PitayaUI:CreateWindow(config)
 	FloatBtnIcon.BackgroundTransparency = 1
 	FloatBtnIcon.Image = WindowObj.LogoId
 
-	MakeDraggable(FloatBtnFrame)
+	-- HỆ THỐNG KÉO THẢ MỚI (KHÔNG CẦN CHẠY JOYSTICK, KHÔNG LỖI CẢM ỨNG)
+	local isDragging = false
+	local hasDragged = false
+	local dragStart, startPos
+
+	FloatBtnFrame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			isDragging = true
+			hasDragged = false
+			dragStart = input.Position
+			startPos = FloatBtnFrame.Position
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - dragStart
+			if delta.Magnitude > 6 then
+				hasDragged = true
+			end
+			FloatBtnFrame.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			isDragging = false
+		end
+	end)
 
 	-- -------------------------------------------------------------
-	-- MAIN FRAME LIQUID GLASS
+	-- MAIN FRAME (CĂN GIỮA MÀN HÌNH - PHÓNG TO TỪ TÂM)
 	-- -------------------------------------------------------------
 	local MainFrame = Instance.new("CanvasGroup", ScreenGui)
 	MainFrame.Name = "MainFrame"
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5) -- Căn giữa hoàn hảo
 	MainFrame.Size = UDim2.new(0, targetWidth, 0, targetHeight)
-	MainFrame.Position = UDim2.new(0.5, -targetWidth/2, 0.5, -targetHeight/2)
+	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	MainFrame.BackgroundColor3 = WindowObj.Colors.WindowBackground
 	MainFrame.GroupTransparency = 0
-	MainFrame.BackgroundTransparency = 0.25
+	MainFrame.BackgroundTransparency = 0.2
 	AddUICorner(MainFrame, 16)
 
-	local mainStroke = AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 1.2, 0.4)
+	local mainStroke = AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 1.2, 0.5)
 	local mainGrad = Instance.new("UIGradient", mainStroke)
 	mainGrad.Color = ColorSequence.new({
 		ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
@@ -274,20 +256,48 @@ function PitayaUI:CreateWindow(config)
 
 	WindowObj.MainFrame = MainFrame
 
-	-- TOPBAR
+	-- TOPBAR (KÉO DI CHUYỂN CỬA SỔ CHÍNH)
 	local Topbar = Instance.new("Frame", MainFrame)
 	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 38)
+	Topbar.Size = UDim2.new(1, 0, 0, 40)
 	Topbar.BackgroundTransparency = 1
 
-	MakeDraggable(MainFrame, Topbar)
+	-- Kéo di chuyển Cửa sổ
+	local winDragging = false
+	local winDragStart, winStartPos
 
-	-- Logo Topbar cắt nền tự động
+	Topbar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			winDragging = true
+			winDragStart = input.Position
+			winStartPos = MainFrame.Position
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if winDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - winDragStart
+			MainFrame.Position = UDim2.new(
+				winStartPos.X.Scale,
+				winStartPos.X.Offset + delta.X,
+				winStartPos.Y.Scale,
+				winStartPos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			winDragging = false
+		end
+	end)
+
+	-- Logo Topbar
 	local TopLogoMask = Instance.new("CanvasGroup", Topbar)
-	TopLogoMask.Size = UDim2.new(0, 22, 0, 22)
+	TopLogoMask.Size = UDim2.new(0, 24, 0, 24)
 	TopLogoMask.Position = UDim2.new(0, 12, 0, 8)
 	TopLogoMask.BackgroundTransparency = 1
-	AddUICorner(TopLogoMask, 11)
+	AddUICorner(TopLogoMask, 12)
 
 	local LogoImg = Instance.new("ImageLabel", TopLogoMask)
 	LogoImg.Size = UDim2.new(1, 0, 1, 0)
@@ -296,38 +306,39 @@ function PitayaUI:CreateWindow(config)
 
 	local TitleLbl = Instance.new("TextLabel", Topbar)
 	TitleLbl.Size = UDim2.new(1, -90, 1, 0)
-	TitleLbl.Position = UDim2.new(0, 42, 0, 0)
+	TitleLbl.Position = UDim2.new(0, 44, 0, 0)
 	TitleLbl.BackgroundTransparency = 1
 	TitleLbl.Text = WindowObj.TitleText
 	TitleLbl.TextColor3 = WindowObj.Colors.TextMain
-	TitleLbl.TextSize = 12
+	TitleLbl.TextSize = 13
 	TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 	WindowObj:BindFont(TitleLbl, "Bold")
 
 	local CloseBtn = Instance.new("TextButton", Topbar)
 	CloseBtn.Size = UDim2.new(0, 28, 0, 28)
-	CloseBtn.Position = UDim2.new(1, -34, 0, 5)
+	CloseBtn.Position = UDim2.new(1, -34, 0, 6)
 	CloseBtn.BackgroundTransparency = 1
 	CloseBtn.Text = "✕"
 	CloseBtn.TextColor3 = Color3.fromRGB(255, 90, 110)
-	CloseBtn.TextSize = 13
+	CloseBtn.TextSize = 14
 	WindowObj:BindFont(CloseBtn, "Bold")
 
-	-- ĐÓNG / MỞ LIQUID ANIMATION
+	-- ĐÓNG / MỞ NỞ TỪ GIỮA MÀN HÌNH (CENTER LIQUID ANIMATION)
 	local isOpen = true
 	local function ToggleUI()
 		isOpen = not isOpen
 		if isOpen then
 			MainFrame.Visible = true
-			MainFrame.Size = UDim2.new(0, WindowObj.CurrentWidth * 0.85, 0, WindowObj.CurrentHeight * 0.85)
+			MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Bắt đầu từ tâm điểm 0
 			MainFrame.GroupTransparency = 1
-			TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			
+			TweenService:Create(MainFrame, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
 				Size = UDim2.new(0, WindowObj.CurrentWidth, 0, WindowObj.CurrentHeight),
 				GroupTransparency = 0
 			}):Play()
 		else
-			local tw = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-				Size = UDim2.new(0, WindowObj.CurrentWidth * 0.85, 0, WindowObj.CurrentHeight * 0.85),
+			local tw = TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+				Size = UDim2.new(0, 0, 0, 0), -- Thu nhỏ chụm vào giữa tâm
 				GroupTransparency = 1
 			})
 			tw:Play()
@@ -337,7 +348,9 @@ function PitayaUI:CreateWindow(config)
 		end
 	end
 
-	FloatBtnIcon.MouseButton1Click:Connect(ToggleUI)
+	FloatBtnIcon.MouseButton1Click:Connect(function()
+		if not hasDragged then ToggleUI() end
+	end)
 	CloseBtn.MouseButton1Click:Connect(ToggleUI)
 
 	-- -------------------------------------------------------------
@@ -345,10 +358,10 @@ function PitayaUI:CreateWindow(config)
 	-- -------------------------------------------------------------
 	local TabBarFrame = Instance.new("Frame", MainFrame)
 	TabBarFrame.Name = "TabBarFrame"
-	TabBarFrame.Size = UDim2.new(1, -24, 0, 32)
-	TabBarFrame.Position = UDim2.new(0, 12, 0, 38)
+	TabBarFrame.Size = UDim2.new(1, -24, 0, 34)
+	TabBarFrame.Position = UDim2.new(0, 12, 0, 42)
 	TabBarFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	TabBarFrame.BackgroundTransparency = 0.6
+	TabBarFrame.BackgroundTransparency = 0.5
 	AddUICorner(TabBarFrame, 10)
 	AddUIStroke(TabBarFrame, Color3.fromRGB(255, 255, 255), 1, 0.9)
 
@@ -368,65 +381,18 @@ function PitayaUI:CreateWindow(config)
 	LiquidTabIndicator.Visible = false
 	AddUICorner(LiquidTabIndicator, 8)
 
-	local TabListLayout = Instance.new("UIListLayout", TabScroll)
-	TabListLayout.FillDirection = Enum.FillDirection.Horizontal
-	TabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-	TabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-	TabListLayout.Padding = UDim.new(0, 6)
-
 	WindowObj.LiquidTabIndicator = LiquidTabIndicator
 
 	-- -------------------------------------------------------------
-	-- CONTENT AREA
+	-- CONTENT AREA (KHU VỰC NỘI DUNG)
 	-- -------------------------------------------------------------
 	local ContentArea = Instance.new("Frame", MainFrame)
 	ContentArea.Name = "ContentArea"
-	ContentArea.Size = UDim2.new(1, -24, 1, -95)
-	ContentArea.Position = UDim2.new(0, 12, 0, 76)
+	ContentArea.Size = UDim2.new(1, -24, 1, -100)
+	ContentArea.Position = UDim2.new(0, 12, 0, 82)
 	ContentArea.BackgroundTransparency = 1
 	WindowObj.ContentArea = ContentArea
 	WindowObj.TabScroll = TabScroll
-
-	-- -------------------------------------------------------------
-	-- RESIZE GRIP
-	-- -------------------------------------------------------------
-	local ResizeGrip = Instance.new("TextButton", MainFrame)
-	ResizeGrip.Name = "ResizeGrip"
-	ResizeGrip.Size = UDim2.new(0, 16, 0, 16)
-	ResizeGrip.Position = UDim2.new(1, -16, 1, -16)
-	ResizeGrip.BackgroundTransparency = 1
-	ResizeGrip.Text = "◢"
-	ResizeGrip.TextColor3 = WindowObj.Colors.AccentCyan
-	ResizeGrip.TextSize = 12
-
-	local resizing = false
-	local resizeStart, startSize
-
-	ResizeGrip.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = true
-			resizeStart = input.Position
-			startSize = Vector2.new(MainFrame.AbsoluteSize.X, MainFrame.AbsoluteSize.Y)
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - resizeStart
-			local newW = math.clamp(startSize.X + delta.X, 360, vpSize.X - 20)
-			local newH = math.clamp(startSize.Y + delta.Y, 240, vpSize.Y - 20)
-
-			WindowObj.CurrentWidth = newW
-			WindowObj.CurrentHeight = newH
-			MainFrame.Size = UDim2.new(0, newW, 0, newH)
-		end
-	end)
-
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = false
-		end
-	end)
 
 	-- FOOTER STATUS BAR
 	local FooterLbl = Instance.new("TextLabel", MainFrame)
@@ -442,7 +408,7 @@ function PitayaUI:CreateWindow(config)
 		while task.wait(1) do
 			if ScreenGui.Parent then
 				local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-				FooterLbl.Text = string.format("User: %s  |  Server: VN  |  Ping: %dms", LocalPlayer.Name, ping)
+				FooterLbl.Text = string.format("User: %s  |  Status: Active  |  Ping: %dms", LocalPlayer.Name, ping)
 			end
 		end
 	end)
@@ -458,8 +424,8 @@ end
 function PitayaUI:Notify(title, text, duration)
 	duration = duration or 3
 	local notifFrame = Instance.new("Frame", self.NotifContainer)
-	notifFrame.Size = UDim2.new(1, 0, 0, 46)
-	notifFrame.BackgroundColor3 = Color3.fromRGB(20, 22, 32)
+	notifFrame.Size = UDim2.new(1, 0, 0, 48)
+	notifFrame.BackgroundColor3 = Color3.fromRGB(18, 20, 30)
 	notifFrame.BackgroundTransparency = 0.2
 	AddUICorner(notifFrame, 10)
 	
@@ -467,7 +433,7 @@ function PitayaUI:Notify(title, text, duration)
 
 	local titleLbl = Instance.new("TextLabel", notifFrame)
 	titleLbl.Size = UDim2.new(1, -16, 0, 16)
-	titleLbl.Position = UDim2.new(0, 10, 0, 5)
+	titleLbl.Position = UDim2.new(0, 10, 0, 6)
 	titleLbl.BackgroundTransparency = 1
 	titleLbl.Text = title
 	titleLbl.TextColor3 = self.Colors.AccentCyan
@@ -477,7 +443,7 @@ function PitayaUI:Notify(title, text, duration)
 
 	local descLbl = Instance.new("TextLabel", notifFrame)
 	descLbl.Size = UDim2.new(1, -16, 0, 18)
-	descLbl.Position = UDim2.new(0, 10, 0, 22)
+	descLbl.Position = UDim2.new(0, 10, 0, 24)
 	descLbl.BackgroundTransparency = 1
 	descLbl.Text = text
 	descLbl.TextColor3 = self.Colors.TextMain
@@ -485,13 +451,13 @@ function PitayaUI:Notify(title, text, duration)
 	descLbl.TextXAlignment = Enum.TextXAlignment.Left
 	self:BindFont(descLbl, "Main")
 
-	TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+	TweenService:Create(notifFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 		BackgroundTransparency = 0.15
 	}):Play()
 
 	task.delay(duration, function()
 		if notifFrame then
-			local tw = TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			local tw = TweenService:Create(notifFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
 				BackgroundTransparency = 1
 			})
 			tw:Play()
@@ -501,7 +467,7 @@ function PitayaUI:Notify(title, text, duration)
 end
 
 -- =================================================================
--- TẠO TAB & COMPONENTS (GLASS CARDS)
+-- TẠO TAB & COMPONENTS (GLASS CARDS BỐ CỤC ĐẸP)
 -- =================================================================
 function PitayaUI:CreateTab(tabName, iconSymbol)
 	local TabObj = {}
@@ -515,12 +481,12 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	page.Visible = false
 
 	local PageGrid = Instance.new("UIGridLayout", page)
-	PageGrid.CellSize = UDim2.new(0.488, 0, 0, 52)
+	PageGrid.CellSize = UDim2.new(0.488, 0, 0, 54)
 	PageGrid.CellPadding = UDim2.new(0.02, 0, 0, 8)
 	PageGrid.SortOrder = Enum.SortOrder.LayoutOrder
 
 	local tabBtn = Instance.new("TextButton", window.TabScroll)
-	tabBtn.Size = UDim2.new(0, 92, 1, -6)
+	tabBtn.Size = UDim2.new(0, 96, 1, -6)
 	tabBtn.BackgroundTransparency = 1
 	tabBtn.Text = (iconSymbol or "") .. " " .. tabName:upper()
 	tabBtn.TextColor3 = window.Colors.TextSub
@@ -531,25 +497,25 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	local function ActivateTab()
 		for _, t in ipairs(window.Tabs) do
 			t.Page.Visible = false
-			TweenService:Create(t.Button, TweenInfo.new(0.25), {
+			TweenService:Create(t.Button, TweenInfo.new(0.3), {
 				TextColor3 = window.Colors.TextSub
 			}):Play()
 		end
 
 		page.Visible = true
-		page.Position = UDim2.new(0, 0, 0, 8)
-		TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		page.Position = UDim2.new(0, 0, 0, 10)
+		TweenService:Create(page, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			Position = UDim2.new(0, 0, 0, 0)
 		}):Play()
 
 		-- Trượt thanh Liquid Indicator tới Tab
 		window.LiquidTabIndicator.Visible = true
-		TweenService:Create(window.LiquidTabIndicator, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		TweenService:Create(window.LiquidTabIndicator, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 			Position = UDim2.new(0, tabBtn.Position.X.Offset, 0, 3),
 			Size = UDim2.new(0, tabBtn.AbsoluteSize.X, 1, -6)
 		}):Play()
 
-		TweenService:Create(tabBtn, TweenInfo.new(0.25), {
+		TweenService:Create(tabBtn, TweenInfo.new(0.3), {
 			TextColor3 = Color3.fromRGB(255, 255, 255)
 		}):Play()
 	end
@@ -560,19 +526,19 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	TabObj.Button = tabBtn
 	table.insert(window.Tabs, TabObj)
 
-	window.TabScroll.CanvasSize = UDim2.new(0, #window.Tabs * 98, 0, 0)
+	window.TabScroll.CanvasSize = UDim2.new(0, #window.Tabs * 100, 0, 0)
 
 	if #window.Tabs == 1 then
 		task.defer(function()
-			tabBtn.Position = UDim2.new(0, ( #window.Tabs - 1 ) * 98, 0, 3)
+			tabBtn.Position = UDim2.new(0, ( #window.Tabs - 1 ) * 100, 0, 3)
 			ActivateTab()
 		end)
 	else
-		tabBtn.Position = UDim2.new(0, ( #window.Tabs - 1 ) * 98, 0, 3)
+		tabBtn.Position = UDim2.new(0, ( #window.Tabs - 1 ) * 100, 0, 3)
 	end
 
 	-- -------------------------------------------------------------
-	-- SLIDER COMPONENT GLASS
+	-- SLIDER COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddSlider(options)
 		options = options or {}
@@ -590,7 +556,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		local titleLbl = Instance.new("TextLabel", card)
 		titleLbl.Size = UDim2.new(0.5, 0, 0, 18)
-		titleLbl.Position = UDim2.new(0, 10, 0, 5)
+		titleLbl.Position = UDim2.new(0, 10, 0, 6)
 		titleLbl.BackgroundTransparency = 1
 		titleLbl.Text = sliderText:upper()
 		titleLbl.TextColor3 = window.Colors.TextMain
@@ -600,7 +566,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		local valLbl = Instance.new("TextLabel", card)
 		valLbl.Size = UDim2.new(0.25, 0, 0, 18)
-		valLbl.Position = UDim2.new(0.48, 0, 0, 5)
+		valLbl.Position = UDim2.new(0.48, 0, 0, 6)
 		valLbl.BackgroundTransparency = 1
 		valLbl.Text = "VAL: " .. tostring(default)
 		valLbl.TextColor3 = window.Colors.AccentCyan
@@ -609,7 +575,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		local resetBtn = Instance.new("TextButton", card)
 		resetBtn.Size = UDim2.new(0, 42, 0, 16)
-		resetBtn.Position = UDim2.new(1, -48, 0, 5)
+		resetBtn.Position = UDim2.new(1, -48, 0, 6)
 		resetBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 		resetBtn.BackgroundTransparency = 0.5
 		resetBtn.Text = "RESET"
@@ -620,7 +586,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		local sliderBar = Instance.new("Frame", card)
 		sliderBar.Size = UDim2.new(1, -20, 0, 5)
-		sliderBar.Position = UDim2.new(0, 10, 0, 33)
+		sliderBar.Position = UDim2.new(0, 10, 0, 35)
 		sliderBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 		sliderBar.BackgroundTransparency = 0.5
 		AddUICorner(sliderBar, 3)
@@ -664,7 +630,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		resetBtn.MouseButton1Click:Connect(function()
 			valLbl.Text = "VAL: " .. tostring(default)
-			TweenService:Create(sliderFill, TweenInfo.new(0.2), {
+			TweenService:Create(sliderFill, TweenInfo.new(0.25), {
 				Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
 			}):Play()
 			callback(default)
@@ -672,7 +638,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- TOGGLE COMPONENT GLASS
+	-- TOGGLE COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddToggle(options)
 		options = options or {}
@@ -697,27 +663,27 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		window:BindFont(titleLbl, "Bold")
 
 		local switchBtn = Instance.new("TextButton", card)
-		switchBtn.Size = UDim2.new(0, 38, 0, 18)
-		switchBtn.Position = UDim2.new(1, -44, 0.5, -9)
+		switchBtn.Size = UDim2.new(0, 40, 0, 20)
+		switchBtn.Position = UDim2.new(1, -46, 0.5, -10)
 		switchBtn.BackgroundColor3 = defaultState and window.Colors.Accent or Color3.fromRGB(0, 0, 0)
 		switchBtn.BackgroundTransparency = defaultState and 0 or 0.5
 		switchBtn.Text = ""
-		AddUICorner(switchBtn, 9)
+		AddUICorner(switchBtn, 10)
 
 		local dot = Instance.new("Frame", switchBtn)
-		dot.Size = UDim2.new(0, 12, 0, 12)
+		dot.Size = UDim2.new(0, 14, 0, 14)
 		dot.Position = UDim2.new(0, defaultState and 23 or 3, 0, 3)
 		dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		AddUICorner(dot, 6)
+		AddUICorner(dot, 7)
 
 		local state = defaultState
 		switchBtn.MouseButton1Click:Connect(function()
 			state = not state
-			TweenService:Create(switchBtn, TweenInfo.new(0.2), {
+			TweenService:Create(switchBtn, TweenInfo.new(0.25), {
 				BackgroundColor3 = state and window.Colors.Accent or Color3.fromRGB(0, 0, 0),
 				BackgroundTransparency = state and 0 or 0.5
 			}):Play()
-			TweenService:Create(dot, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			TweenService:Create(dot, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
 				Position = UDim2.new(0, state and 23 or 3, 0, 3)
 			}):Play()
 			callback(state)
@@ -725,7 +691,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- DROPDOWN COMPONENT GLASS
+	-- DROPDOWN COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddDropdown(options)
 		options = options or {}
@@ -764,9 +730,9 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		actionBtn.Size = UDim2.new(0.3, -5, 0, 22)
 		actionBtn.Position = UDim2.new(0.65, 5, 0, 22)
 		actionBtn.BackgroundColor3 = window.Colors.AccentCyan
-		actionBtn.Text = "GO"
+		actionBtn.Text = "SELECT"
 		actionBtn.TextColor3 = Color3.fromRGB(10, 10, 15)
-		actionBtn.TextSize = 10
+		actionBtn.TextSize = 9
 		AddUICorner(actionBtn, 4)
 		window:BindFont(actionBtn, "Bold")
 
@@ -783,7 +749,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- BUTTON COMPONENT GLASS
+	-- BUTTON COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddButton(options)
 		options = options or {}
@@ -809,7 +775,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		btn.MouseButton1Click:Connect(function()
 			TweenService:Create(btn, TweenInfo.new(0.08), { Size = UDim2.new(1, -18, 1, -18), Position = UDim2.new(0, 9, 0, 9) }):Play()
 			task.wait(0.08)
-			TweenService:Create(btn, TweenInfo.new(0.1), { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.new(0, 6, 0, 6) }):Play()
+			TweenService:Create(btn, TweenInfo.new(0.12), { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.new(0, 6, 0, 6) }):Play()
 			callback()
 		end)
 	end
