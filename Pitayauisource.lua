@@ -7,10 +7,9 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Stats = game:GetService("Stats")
-local Workspace = game:GetService("Workspace")
 
 -- =================================================================
--- BẢNG THEMES PHONG CÁCH PITAYA & MODERN DARK
+-- BẢNG THEMES & FONTS
 -- =================================================================
 PitayaUI.Themes = {
 	PitayaUI = {
@@ -25,8 +24,7 @@ PitayaUI.Themes = {
 		Accent = Color3.fromRGB(255, 42, 117),         -- Pitaya Pink
 		AccentSecondary = Color3.fromRGB(64, 224, 208),-- Pitaya Cyan
 		SidebarUnselected = Color3.fromRGB(240, 240, 245),
-		SidebarSelected = Color3.fromRGB(255, 42, 117),
-		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+		SidebarSelected = Color3.fromRGB(255, 42, 117)
 	},
 	Dark = {
 		Background = Color3.fromRGB(15, 15, 18),
@@ -40,8 +38,7 @@ PitayaUI.Themes = {
 		Accent = Color3.fromRGB(0, 200, 255),
 		AccentSecondary = Color3.fromRGB(255, 42, 117),
 		SidebarUnselected = Color3.fromRGB(30, 30, 38),
-		SidebarSelected = Color3.fromRGB(0, 200, 255),
-		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+		SidebarSelected = Color3.fromRGB(0, 200, 255)
 	}
 }
 
@@ -92,7 +89,7 @@ end
 function PitayaUI:GetThemes()
 	local list = {}
 	for name, _ in pairs(PitayaUI.Themes) do table.insert(list, name) end
-	table.sort(list) me
+	table.sort(list)
 	return list
 end
 
@@ -155,12 +152,12 @@ function PitayaUI:CreateWindow(config)
 	end
 	WindowObj.ScreenGui = ScreenGui
 
-	-- Kích thước Window chính
-	local targetWidth, targetHeight = 650, 420
+	-- Kích thước Window
+	local targetWidth, targetHeight = 650, 380
 	WindowObj.SavedWidth = targetWidth
 	WindowObj.SavedHeight = targetHeight
 
-	-- Notification Frame
+	-- Notification Container
 	local NotifContainer = Instance.new("Frame", ScreenGui)
 	NotifContainer.Name = "NotifContainer"
 	NotifContainer.Size = UDim2.new(0, 260, 1, -40)
@@ -173,7 +170,7 @@ function PitayaUI:CreateWindow(config)
 	NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	NotifList.Padding = UDim.new(0, 8)
 
-	-- Nút nổi Floating Buttons (Góc phải màn hình)
+	-- Floating Buttons (Góc phải)
 	local FloatContainer = Instance.new("Frame", ScreenGui)
 	FloatContainer.Name = "FloatingControls"
 	FloatContainer.Size = UDim2.new(0, 70, 0, 100)
@@ -202,7 +199,7 @@ function PitayaUI:CreateWindow(config)
 	AddUICorner(MinBtn, 8)
 	AddUIStroke(MinBtn, WindowObj.Colors.Border, 1)
 
-	-- MAIN FRAME (Cửa sổ chính Glassmorphic)
+	-- MAIN FRAME
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, targetWidth, 0, targetHeight)
@@ -214,7 +211,7 @@ function PitayaUI:CreateWindow(config)
 	MainFrame.ClipsDescendants = false
 	AddUICorner(MainFrame, 12)
 	
-	local mainGlow = AddUIStroke(MainFrame, WindowObj.Colors.AccentSecondary, 2)
+	AddUIStroke(MainFrame, WindowObj.Colors.AccentSecondary, 2)
 	WindowObj:BindTheme(MainFrame, "BackgroundColor3", "Window")
 	WindowObj.MainFrame = MainFrame
 
@@ -248,7 +245,7 @@ function PitayaUI:CreateWindow(config)
 	TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
 	WindowObj:BindFont(TitleLbl, "Bold")
 
-	-- Nút - và X góc trên phải
+	-- Topbar Controls
 	local WindowControls = Instance.new("Frame", Topbar)
 	WindowControls.Size = UDim2.new(0, 60, 1, 0)
 	WindowControls.Position = UDim2.new(1, -65, 0, 0)
@@ -272,7 +269,7 @@ function PitayaUI:CreateWindow(config)
 	MinimizeBtnHeader.TextSize = 14
 	MinimizeBtnHeader.MouseButton1Click:Connect(ToggleUI)
 
-	-- HORIZONTAL TAB BAR (Thanh Tab Ngang Chuẩn Mẫu)
+	-- TAB BAR NGANG
 	local TabBarFrame = Instance.new("Frame", MainFrame)
 	TabBarFrame.Name = "TabBarFrame"
 	TabBarFrame.Size = UDim2.new(1, -24, 0, 36)
@@ -293,49 +290,14 @@ function PitayaUI:CreateWindow(config)
 	TabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
 	TabListLayout.Padding = UDim.new(0, 6)
 
-	-- CONTENT CONTAINER
+	-- CONTENT AREA (Mở rộng toàn bộ chiều cao còn lại)
 	local ContentArea = Instance.new("Frame", MainFrame)
 	ContentArea.Name = "ContentArea"
-	ContentArea.Size = UDim2.new(1, -24, 1, -140)
+	ContentArea.Size = UDim2.new(1, -24, 1, -90)
 	ContentArea.Position = UDim2.new(0, 12, 0, 84)
 	ContentArea.BackgroundTransparency = 1
 	WindowObj.ContentArea = ContentArea
 	WindowObj.TabScroll = TabScroll
-
-	-- CONSOLE / OUTPUT LOG PANEL (Khung Nhật Ký Hoạt Động)
-	local ConsoleFrame = Instance.new("Frame", MainFrame)
-	ConsoleFrame.Name = "ConsoleFrame"
-	ConsoleFrame.Size = UDim2.new(1, -24, 0, 42)
-	ConsoleFrame.Position = UDim2.new(0, 12, 1, -52)
-	ConsoleFrame.BackgroundColor3 = Color3.fromRGB(12, 13, 18)
-	AddUICorner(ConsoleFrame, 6)
-	AddUIStroke(ConsoleFrame, Color3.fromRGB(40, 42, 55), 1)
-
-	local ConsoleScroll = Instance.new("ScrollingFrame", ConsoleFrame)
-	ConsoleScroll.Size = UDim2.new(1, -12, 1, -8)
-	ConsoleScroll.Position = UDim2.new(0, 6, 0, 4)
-	ConsoleScroll.BackgroundTransparency = 1
-	ConsoleScroll.ScrollBarThickness = 2
-	ConsoleScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-	local ConsoleLayout = Instance.new("UIListLayout", ConsoleScroll)
-	ConsoleLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	ConsoleLayout.Padding = UDim.new(0, 2)
-
-	function WindowObj:Log(prefix, text, color)
-		color = color or Color3.fromRGB(0, 230, 255)
-		local logLabel = Instance.new("TextLabel", ConsoleScroll)
-		logLabel.Size = UDim2.new(1, 0, 0, 14)
-		logLabel.BackgroundTransparency = 1
-		logLabel.Text = string.format("[%s]: %s", prefix:upper(), text)
-		logLabel.TextColor3 = color
-		logLabel.TextSize = 11
-		logLabel.TextXAlignment = Enum.TextXAlignment.Left
-		WindowObj:BindFont(logLabel, "Main")
-
-		ConsoleScroll.CanvasSize = UDim2.new(0, 0, 0, ConsoleLayout.AbsoluteContentSize.Y)
-		ConsoleScroll.CanvasPosition = Vector2.new(0, ConsoleScroll.CanvasSize.Y.Offset)
-	end
 
 	-- FOOTER STATUS BAR
 	local FooterFrame = Instance.new("Frame", ScreenGui)
@@ -361,8 +323,7 @@ function PitayaUI:CreateWindow(config)
 		end
 	end)
 
-	WindowObj:Log("SYSTEM", "Script Hub is connected.", Color3.fromRGB(255, 200, 50))
-	WindowObj:Log("USER", "Loading " .. LocalPlayer.Name .. " session...", Color3.fromRGB(255, 255, 255))
+	function WindowObj:Log() end -- Hàm rỗng để đảm bảo tương thích không gây lỗi
 
 	return WindowObj
 end
@@ -404,7 +365,7 @@ function PitayaUI:Notify(title, text, duration)
 end
 
 -- =================================================================
--- TẠO TAB & COMPONENTS (TOP HORIZONTAL TAB LAYOUT)
+-- TẠO TAB & COMPONENTS
 -- =================================================================
 function PitayaUI:CreateTab(tabName, iconSymbol)
 	local TabObj = {}
@@ -447,13 +408,12 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	TabObj.Button = tabBtn
 	table.insert(window.Tabs, TabObj)
 
-	-- Tự tính toán độ rộng thanh Tab
 	window.TabScroll.CanvasSize = UDim2.new(0, #window.Tabs * 102, 0, 0)
 
 	if #window.Tabs == 1 then ActivateTab() end
 
 	-- -------------------------------------------------------------
-	-- SLIDER COMPONENT (KÈM NÚT RESET)
+	-- SLIDER COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddSlider(options)
 		options = options or {}
@@ -513,7 +473,6 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 			valLbl.Text = "VAL: " .. tostring(value)
 			sliderFill.Size = UDim2.new(pos, 0, 1, 0)
 			callback(value)
-			window:Log("MOVEMENT", sliderText .. " set to " .. tostring(value), window.Colors.AccentSecondary)
 		end
 
 		sliderBar.InputBegan:Connect(function(input)
@@ -543,7 +502,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	end
 
 	-- -------------------------------------------------------------
-	-- TOGGLE COMPONENT (CÔNG TẮC BẬT TẮT)
+	-- TOGGLE COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddToggle(options)
 		options = options or {}
@@ -588,17 +547,16 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 				Position = UDim2.new(0, state and 22 or 3, 0, 3)
 			}):Play()
 			callback(state)
-			window:Log("TOGGLE", toggleText .. " " .. (state and "activated." or "deactivated."), state and window.Colors.Accent or window.Colors.TextSub)
 		end)
 	end
 
 	-- -------------------------------------------------------------
-	-- DROPDOWN + ACTION BUTTON
+	-- DROPDOWN COMPONENT
 	-- -------------------------------------------------------------
 	function TabObj:AddDropdown(options)
 		options = options or {}
-		local dropText = options.Text or "TELEPORT TO:"
-		local items = options.Items or {"SAFE ZONE", "STORE", "SPAWN"}
+		local dropText = options.Text or "DROPDOWN:"
+		local items = options.Items or {"OPTION 1", "OPTION 2"}
 		local callback = options.Callback or function() end
 
 		local card = Instance.new("Frame", page)
@@ -644,7 +602,6 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		actionBtn.MouseButton1Click:Connect(function()
 			callback(selectedItem)
-			window:Log("ACTION", "Teleporting to " .. selectedItem, window.Colors.AccentSecondary)
 		end)
 	end
 
@@ -672,7 +629,6 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 		btn.MouseButton1Click:Connect(function()
 			callback()
-			window:Log("BUTTON", btnText .. " executed.", window.Colors.Accent)
 		end)
 	end
 
