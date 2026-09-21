@@ -13,16 +13,16 @@ local Workspace = game:GetService("Workspace")
 -- =================================================================
 PitayaUI.Themes = {
 	PitayaUI = {
-		Background = Color3.fromRGB(15, 15, 20),
-		Window = Color3.fromRGB(22, 22, 28),
-		Border = Color3.fromRGB(45, 45, 55),
-		TextMain = Color3.fromRGB(255, 255, 255),
-		TextSub = Color3.fromRGB(150, 150, 160),
-		Accent = Color3.fromRGB(150, 80, 250),
-		AccentHover = Color3.fromRGB(170, 100, 255),
-		SidebarUnselected = Color3.fromRGB(35, 35, 45),
-		SidebarHover = Color3.fromRGB(50, 50, 65),
-		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+		Background = Color3.fromRGB(18, 10, 16),
+		Window = Color3.fromRGB(26, 13, 21),
+		Border = Color3.fromRGB(44, 21, 32),
+		TextMain = Color3.fromRGB(245, 238, 241),
+		TextSub = Color3.fromRGB(166, 127, 143),
+		Accent = Color3.fromRGB(232, 20, 111),
+		AccentHover = Color3.fromRGB(250, 45, 130),
+		SidebarUnselected = Color3.fromRGB(23, 12, 18),
+		SidebarHover = Color3.fromRGB(40, 20, 30),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(76, 199, 89)}
 	},
 	Dark = {
 		Background = Color3.fromRGB(18, 18, 18),
