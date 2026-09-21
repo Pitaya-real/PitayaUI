@@ -99,7 +99,7 @@ PitayaUI.Themes = {
 }
 
 -- =================================================================
--- BẢNG PHÔNG CHỮ SẴN CÓ (FONT PRESETS)
+-- BẢNG PHÔNG CHỮ SẴN CÓ
 -- =================================================================
 PitayaUI.FontPresets = {
 	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
@@ -210,6 +210,8 @@ function PitayaUI:CreateWindow(config)
 	local WindowObj = setmetatable({}, PitayaUI)
 	WindowObj.TitleText = config.Title or "Pitaya Hub | Reilo"
 	WindowObj.LogoId = config.Logo or "rbxassetid://73866843639743"
+	WindowObj.ShowLoading = config.Loading == nil and true or config.Loading
+	WindowObj.LoadingTitle = config.LoadingTitle or "Pitaya Hub"
 	WindowObj.Tabs = {}
 	WindowObj.ThemeObjects = {}
 	WindowObj.FontObjects = {}
@@ -262,6 +264,98 @@ function PitayaUI:CreateWindow(config)
 	WindowObj.SavedWidth = targetWidth
 	WindowObj.SavedHeight = targetHeight
 
+	-- MÀN HÌNH LOADING SCREEN
+	local LoadingFrame
+	if WindowObj.ShowLoading then
+		LoadingFrame = Instance.new("Frame", ScreenGui)
+		LoadingFrame.Name = "LoadingFrame"
+		LoadingFrame.Size = UDim2.new(0, 320, 0, 190)
+		LoadingFrame.Position = UDim2.new(0.5, -160, 0.5, -95)
+		LoadingFrame.BackgroundColor3 = WindowObj.Colors.Window
+		LoadingFrame.ClipsDescendants = true
+		AddUICorner(LoadingFrame, 12)
+		local loadStroke = AddUIStroke(LoadingFrame, WindowObj.Colors.Border)
+		
+		WindowObj:BindTheme(LoadingFrame, "BackgroundColor3", "Window")
+		WindowObj:BindTheme(loadStroke, "Color", "Border")
+
+		local LoadLogo = Instance.new("ImageLabel", LoadingFrame)
+		LoadLogo.Size = UDim2.new(0, 50, 0, 50)
+		LoadLogo.Position = UDim2.new(0.5, -25, 0, 18)
+		LoadLogo.BackgroundTransparency = 1
+		LoadLogo.Image = WindowObj.LogoId
+
+		local LoadTitle = Instance.new("TextLabel", LoadingFrame)
+		LoadTitle.Size = UDim2.new(1, 0, 0, 20)
+		LoadTitle.Position = UDim2.new(0, 0, 0, 75)
+		LoadTitle.BackgroundTransparency = 1
+		LoadTitle.Text = WindowObj.LoadingTitle
+		LoadTitle.TextColor3 = WindowObj.Colors.TextMain
+		LoadTitle.TextSize = 14
+		LoadTitle.RichText = true
+		WindowObj:BindTheme(LoadTitle, "TextColor3", "TextMain")
+		WindowObj:BindFont(LoadTitle, "Bold")
+
+		local StatusLabel = Instance.new("TextLabel", LoadingFrame)
+		StatusLabel.Size = UDim2.new(1, 0, 0, 18)
+		StatusLabel.Position = UDim2.new(0, 0, 0, 98)
+		StatusLabel.BackgroundTransparency = 1
+		StatusLabel.Text = "Đang tải tài nguyên..."
+		StatusLabel.TextColor3 = WindowObj.Colors.TextSub
+		StatusLabel.TextSize = 11
+		StatusLabel.RichText = true
+		WindowObj:BindTheme(StatusLabel, "TextColor3", "TextSub")
+		WindowObj:BindFont(StatusLabel, "Main")
+
+		local BarBg = Instance.new("Frame", LoadingFrame)
+		BarBg.Size = UDim2.new(0.8, 0, 0, 6)
+		BarBg.Position = UDim2.new(0.1, 0, 0, 130)
+		BarBg.BackgroundColor3 = WindowObj.Colors.SidebarUnselected
+		AddUICorner(BarBg, 3)
+		WindowObj:BindTheme(BarBg, "BackgroundColor3", "SidebarUnselected")
+
+		local BarFill = Instance.new("Frame", BarBg)
+		BarFill.Size = UDim2.new(0, 0, 1, 0)
+		BarFill.BackgroundColor3 = WindowObj.Colors.Accent
+		AddUICorner(BarFill, 3)
+		WindowObj:BindTheme(BarFill, "BackgroundColor3", "Accent")
+
+		local PercentLabel = Instance.new("TextLabel", LoadingFrame)
+		PercentLabel.Size = UDim2.new(1, 0, 0, 18)
+		PercentLabel.Position = UDim2.new(0, 0, 0, 145)
+		PercentLabel.BackgroundTransparency = 1
+		PercentLabel.Text = "0%"
+		PercentLabel.TextColor3 = WindowObj.Colors.Accent
+		PercentLabel.TextSize = 11
+		WindowObj:BindTheme(PercentLabel, "TextColor3", "Accent")
+		WindowObj:BindFont(PercentLabel, "Bold")
+		
+		-- Chạy Animation Loading
+		task.spawn(function()
+			local steps = {
+				{p = 0.25, txt = "Đang khởi tạo Theme..."},
+				{p = 0.55, txt = "Đang cấu hình giao diện..."},
+				{p = 0.85, txt = "Đang chuẩn bị thành phần..."},
+				{p = 1.00, txt = "Hoàn tất!"}
+			}
+			for _, step in ipairs(steps) do
+				TweenService:Create(BarFill, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+					Size = UDim2.new(step.p, 0, 1, 0)
+				}):Play()
+				StatusLabel.Text = step.txt
+				PercentLabel.Text = math.floor(step.p * 100) .. "%"
+				task.wait(0.4)
+			end
+			task.wait(0.2)
+			TweenService:Create(LoadingFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+				Size = UDim2.new(0, 0, 0, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 0)
+			}):Play()
+			task.wait(0.3)
+			LoadingFrame:Destroy()
+		end)
+	end
+
 	-- Container cho Notifications
 	local NotifContainer = Instance.new("Frame", ScreenGui)
 	NotifContainer.Name = "NotifContainer"
@@ -299,12 +393,19 @@ function PitayaUI:CreateWindow(config)
 	MainFrame.Active = true
 	MainFrame.Draggable = true
 	MainFrame.ClipsDescendants = true
+	MainFrame.Visible = not WindowObj.ShowLoading
 	AddUICorner(MainFrame, 10)
 	local mainStroke = AddUIStroke(MainFrame, WindowObj.Colors.Border)
 
 	WindowObj:BindTheme(MainFrame, "BackgroundColor3", "Window")
 	WindowObj:BindTheme(mainStroke, "Color", "Border")
 	WindowObj.MainFrame = MainFrame
+
+	if WindowObj.ShowLoading then
+		task.delay(1.9, function()
+			MainFrame.Visible = true
+		end)
+	end
 
 	-- Animation Mở / Đóng Cửa Sổ
 	local isOpen = true
@@ -365,6 +466,7 @@ function PitayaUI:CreateWindow(config)
 	TitleLabel.Text = WindowObj.TitleText
 	TitleLabel.TextColor3 = WindowObj.Colors.TextSub
 	TitleLabel.TextSize = 13
+	TitleLabel.RichText = true
 	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
 	WindowObj:BindTheme(TitleLabel, "TextColor3", "TextSub")
 	WindowObj:BindFont(TitleLabel, "Bold")
@@ -456,6 +558,7 @@ function PitayaUI:CreateWindow(config)
 	end)
 
 	task.spawn(function()
+		if WindowObj.ShowLoading then task.wait(2) end
 		WindowObj:Notify("Hệ Thống", "Giao diện đã tải hoàn tất!", 4)
 	end)
 
@@ -486,6 +589,7 @@ function PitayaUI:Notify(title, text, duration)
 	titleLbl.Text = title
 	titleLbl.TextColor3 = self.Colors.Accent
 	titleLbl.TextSize = 13
+	titleLbl.RichText = true
 	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
 	titleLbl.TextTransparency = 1
 	self:BindTheme(titleLbl, "TextColor3", "Accent")
@@ -498,6 +602,7 @@ function PitayaUI:Notify(title, text, duration)
 	descLbl.Text = text
 	descLbl.TextColor3 = self.Colors.TextMain
 	descLbl.TextSize = 12
+	descLbl.RichText = true
 	descLbl.TextXAlignment = Enum.TextXAlignment.Left
 	descLbl.TextWrapped = true
 	descLbl.TextTransparency = 1
@@ -564,6 +669,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		tabIcon.Text = iconSymbol
 		tabIcon.TextColor3 = window.Colors.TextSub
 		tabIcon.TextSize = 14
+		tabIcon.RichText = true
 		tabIcon.TextXAlignment = Enum.TextXAlignment.Center
 		window:BindTheme(tabIcon, "TextColor3", "TextSub")
 		window:BindFont(tabIcon, "Medium")
@@ -577,6 +683,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	tabTextLabel.Text = tabName
 	tabTextLabel.TextColor3 = window.Colors.TextSub
 	tabTextLabel.TextSize = 13
+	tabTextLabel.RichText = true
 	tabTextLabel.TextXAlignment = Enum.TextXAlignment.Left
 	window:BindTheme(tabTextLabel, "TextColor3", "TextSub")
 	window:BindFont(tabTextLabel, "Medium")
@@ -633,27 +740,41 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 	if #window.Tabs == 1 then ActivateTab() end
 
-	function TabObj:AddLabel(text)
+	-- HÀM HỖ TRỢ HIỂN THỊ CHỮ TÔ ĐẬM
+	local function FormatText(text, isBold)
+		if isBold and not string.find(text, "<b>") then
+			return "<b>" .. text .. "</b>"
+		end
+		return text
+	end
+
+	function TabObj:AddLabel(text, options)
+		options = type(options) == "table" and options or {}
+		local isBold = options.BoldText or false
+
 		local label = Instance.new("TextLabel", page)
 		label.Size = UDim2.new(1, 0, 0, 22)
 		label.BackgroundTransparency = 1
-		label.Text = text
+		label.RichText = true
+		label.Text = FormatText(text, isBold)
 		label.TextColor3 = window.Colors.TextSub
 		label.TextSize = 12
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindTheme(label, "TextColor3", "TextSub")
-		window:BindFont(label, "Main")
+		window:BindFont(label, isBold and "Bold" or "Main")
 	end
 
 	function TabObj:AddButton(options)
 		options = options or {}
 		local btnText = options.Text or "Button"
+		local isBold = options.BoldText or false
 		local callback = options.Callback or function() end
 
 		local btn = Instance.new("TextButton", page)
 		btn.Size = UDim2.new(1, -5, 0, 38)
 		btn.BackgroundColor3 = window.Colors.Accent
-		btn.Text = btnText
+		btn.RichText = true
+		btn.Text = FormatText(btnText, isBold)
 		btn.TextColor3 = window.Colors.TextMain
 		btn.TextSize = 13
 		btn.AutoButtonColor = false
@@ -681,6 +802,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	function TabObj:AddToggle(options)
 		options = options or {}
 		local toggleText = options.Text or "Toggle"
+		local isBold = options.BoldText or false
 		local defaultState = options.Default or false
 		local callback = options.Callback or function() end
 
@@ -696,12 +818,13 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		label.Size = UDim2.new(1, -65, 1, 0)
 		label.Position = UDim2.new(0, 12, 0, 0)
 		label.BackgroundTransparency = 1
-		label.Text = toggleText
+		label.RichText = true
+		label.Text = FormatText(toggleText, isBold)
 		label.TextColor3 = window.Colors.TextMain
 		label.TextSize = 13
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindTheme(label, "TextColor3", "TextMain")
-		window:BindFont(label, "Medium")
+		window:BindFont(label, isBold and "Bold" or "Medium")
 
 		local btn = Instance.new("TextButton", frame)
 		btn.Size = UDim2.new(0, 44, 0, 22)
@@ -734,6 +857,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	function TabObj:AddSlider(options)
 		options = options or {}
 		local sliderText = options.Text or "Slider"
+		local isBold = options.BoldText or false
 		local min = options.Min or 0
 		local max = options.Max or 100
 		local default = options.Default or min
@@ -751,12 +875,13 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		label.Size = UDim2.new(1, -60, 0, 22)
 		label.Position = UDim2.new(0, 12, 0, 2)
 		label.BackgroundTransparency = 1
-		label.Text = sliderText
+		label.RichText = true
+		label.Text = FormatText(sliderText, isBold)
 		label.TextColor3 = window.Colors.TextMain
 		label.TextSize = 13
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindTheme(label, "TextColor3", "TextMain")
-		window:BindFont(label, "Medium")
+		window:BindFont(label, isBold and "Bold" or "Medium")
 
 		local valLabel = Instance.new("TextLabel", frame)
 		valLabel.Size = UDim2.new(0, 50, 0, 22)
@@ -813,6 +938,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	function TabObj:AddDropdown(options)
 		options = options or {}
 		local dropText = options.Text or "Dropdown"
+		local isBold = options.BoldText or false
 		local items = options.Items or {}
 		local defaultItem = options.Default or items[1] or ""
 		local callback = options.Callback or function() end
@@ -839,12 +965,13 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		label.Size = UDim2.new(1, -40, 0, headerHeight)
 		label.Position = UDim2.new(0, 12, 0, 0)
 		label.BackgroundTransparency = 1
-		label.Text = dropText .. ": " .. tostring(currentChoice)
+		label.RichText = true
+		label.Text = FormatText(dropText, isBold) .. ": " .. tostring(currentChoice)
 		label.TextColor3 = window.Colors.TextMain
 		label.TextSize = 13
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindTheme(label, "TextColor3", "TextMain")
-		window:BindFont(label, "Medium")
+		window:BindFont(label, isBold and "Bold" or "Medium")
 
 		local arrow = Instance.new("TextLabel", frame)
 		arrow.Size = UDim2.new(0, 30, 0, headerHeight)
@@ -911,7 +1038,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 
 				itemBtn.MouseButton1Click:Connect(function()
 					currentChoice = v
-					label.Text = dropText .. ": " .. tostring(currentChoice)
+					label.Text = FormatText(dropText, isBold) .. ": " .. tostring(currentChoice)
 					callback(v)
 					ToggleDrop()
 				end)
@@ -937,6 +1064,7 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 	function TabObj:AddTextBox(options)
 		options = options or {}
 		local boxText = options.Text or "Input"
+		local isBold = options.BoldText or false
 		local placeholder = options.Placeholder or "Enter text..."
 		local callback = options.Callback or function() end
 
@@ -952,12 +1080,13 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 		label.Size = UDim2.new(0, 100, 1, 0)
 		label.Position = UDim2.new(0, 12, 0, 0)
 		label.BackgroundTransparency = 1
-		label.Text = boxText
+		label.RichText = true
+		label.Text = FormatText(boxText, isBold)
 		label.TextColor3 = window.Colors.TextMain
 		label.TextSize = 13
 		label.TextXAlignment = Enum.TextXAlignment.Left
 		window:BindTheme(label, "TextColor3", "TextMain")
-		window:BindFont(label, "Medium")
+		window:BindFont(label, isBold and "Bold" or "Medium")
 
 		local textBox = Instance.new("TextBox", frame)
 		textBox.Size = UDim2.new(1, -125, 0, 26)
