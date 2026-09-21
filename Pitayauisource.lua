@@ -208,8 +208,8 @@ end
 function PitayaUI:CreateWindow(config)
 	config = config or {}
 	local WindowObj = setmetatable({}, PitayaUI)
-	WindowObj.TitleText = config.Title or "Pitaya Hub"
-	WindowObj.LogoId = config.Logo or "rbxassetid://90272501948122"
+	WindowObj.TitleText = config.Title or "Pitaya Hub | Reilo"
+	WindowObj.LogoId = config.Logo or "rbxassetid://73866843639743"
 	WindowObj.Tabs = {}
 	WindowObj.ThemeObjects = {}
 	WindowObj.FontObjects = {}
