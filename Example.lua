@@ -27,7 +27,7 @@ end
 -- 3. TẠO CỬA SỔ CHÍNH (WINDOW)
 local Window = PitayaUI:CreateWindow({
 	Title = "Pitaya Hub | Premium",
-	Logo = "rbxassetid://115347218827913",
+	Logo = "rbxassetid://73866843639743",
 	Theme = "PitayaUI",
 	Font = "Gotham"
 })
