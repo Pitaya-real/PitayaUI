@@ -24,12 +24,14 @@ local function getRootPart()
 	return char:FindFirstChild("HumanoidRootPart")
 end
 
--- 3. TẠO CỬA SỔ CHÍNH (WINDOW)
+-- 3. TẠO CỬA SỔ CHÍNH (WINDOW) VỚI LOADING SCREEN
 local Window = PitayaUI:CreateWindow({
 	Title = "Pitaya Hub | Premium",
 	Logo = "rbxassetid://73866843639743",
 	Theme = "PitayaUI",
-	Font = "Gotham"
+	Font = "Gotham",
+	Loading = true, -- Bật màn hình Loading Screen trước khi hiện UI
+	LoadingTitle = "<b>Pitaya Hub</b> Premium"
 })
 
 -- =================================================================
@@ -37,11 +39,13 @@ local Window = PitayaUI:CreateWindow({
 -- =================================================================
 local PlayerTab = Window:CreateTab("Nhân Vật", "👤")
 
-PlayerTab:AddLabel("--- Chỉ Số Cơ Bản ---")
+-- Ví dụ tự động tô đậm bằng BoldText = true hoặc dùng HTML tag <b>...</b>
+PlayerTab:AddLabel("--- Chỉ Số Cơ Bản ---", {BoldText = true})
 
--- Slider: Tốc độ di chuyển
+-- Slider: Tốc độ di chuyển (Tô đậm chữ)
 PlayerTab:AddSlider({
 	Text = "Tốc Độ Di Chuyển (Speed)",
+	BoldText = true,
 	Min = 16,
 	Max = 250,
 	Default = 16,
@@ -68,7 +72,7 @@ PlayerTab:AddSlider({
 	end
 })
 
-PlayerTab:AddLabel("--- Kỹ Năng Đặt Biệt ---")
+PlayerTab:AddLabel("--- Kỹ Năng Đặt Biệt ---", {BoldText = true})
 
 -- Toggle: Nhảy vô hạn (Inf Jump)
 local infJumpEnabled = false
@@ -83,16 +87,18 @@ end)
 
 PlayerTab:AddToggle({
 	Text = "Nhảy Vô Hạn (Inf Jump)",
+	BoldText = true,
 	Default = false,
 	Callback = function(state)
 		infJumpEnabled = state
-		Window:Notify("Hệ Thống", "Nhảy vô hạn: " .. (state and "ĐÃ BẬT" or "ĐÃ TẮT"), 2)
+		Window:Notify("Hệ Thống", "Nhảy vô hạn: " .. (state and "<b>ĐÃ BẬT</b>" or "<b>ĐÃ TẮT</b>"), 2)
 	end
 })
 
 -- Button: Tự sát
 PlayerTab:AddButton({
 	Text = "Tự Sát (Reset Character)",
+	BoldText = true,
 	Callback = function()
 		local hum = getHumanoid()
 		if hum then 
@@ -106,7 +112,7 @@ PlayerTab:AddButton({
 -- =================================================================
 local VisualTab = Window:CreateTab("Thế Giới", "🌐")
 
-VisualTab:AddLabel("--- Camera & Môi Trường ---")
+VisualTab:AddLabel("--- Camera & Môi Trường ---", {BoldText = true})
 
 -- Slider: Field of View (FOV)
 VisualTab:AddSlider({
@@ -121,12 +127,13 @@ VisualTab:AddSlider({
 	end
 })
 
--- Toggle: Fullbright (Nhìn trong tối)
+-- Toggle: Fullbright
 local oldAmbient = Lighting.Ambient
 local oldBrightness = Lighting.Brightness
 
 VisualTab:AddToggle({
 	Text = "Bật Sáng Tối Đa (Fullbright)",
+	BoldText = true,
 	Default = false,
 	Callback = function(state)
 		if state then
@@ -139,11 +146,12 @@ VisualTab:AddToggle({
 	end
 })
 
-VisualTab:AddLabel("--- Dịch Chuyển ---")
+VisualTab:AddLabel("--- Dịch Chuyển ---", {BoldText = true})
 
--- TextBox: Teleport đến người chơi khác bằng tên
+-- TextBox: Teleport
 VisualTab:AddTextBox({
 	Text = "Teleport",
+	BoldText = true,
 	Placeholder = "Nhập tên người chơi...",
 	Callback = function(text, enterPressed)
 		if enterPressed and text ~= "" then
@@ -155,7 +163,7 @@ VisualTab:AddTextBox({
 					
 					if myRoot and targetRoot then
 						myRoot.CFrame = targetRoot.CFrame
-						Window:Notify("Dịch Chuyển", "Đã tới vị trí: " .. target.Name, 3)
+						Window:Notify("Dịch Chuyển", "Đã tới vị trí: <b>" .. target.Name .. "</b>", 3)
 						targetFound = true
 						break
 					end
@@ -174,34 +182,37 @@ VisualTab:AddTextBox({
 -- =================================================================
 local SettingsTab = Window:CreateTab("Cài Đặt", "⚙️")
 
-SettingsTab:AddLabel("--- Tùy Chỉnh UI ---")
+SettingsTab:AddLabel("--- Tùy Chỉnh UI ---", {BoldText = true})
 
 -- Dropdown: Đổi Theme
 SettingsTab:AddDropdown({
 	Text = "Chủ Đề",
+	BoldText = true,
 	Items = Window:GetThemes(),
 	Default = "PitayaUI",
 	Callback = function(selectedTheme)
 		Window:SetTheme(selectedTheme)
-		Window:Notify("Theme", "Đã chuyển giao diện sang: " .. selectedTheme, 2)
+		Window:Notify("Theme", "Đã chuyển giao diện sang: <b>" .. selectedTheme .. "</b>", 2)
 	end
 })
 
 -- Dropdown: Đổi Font
 SettingsTab:AddDropdown({
 	Text = "Phông Chữ",
+	BoldText = true,
 	Items = Window:GetFonts(),
 	Default = "Gotham",
 	Callback = function(selectedFont)
 		Window:SetFont(selectedFont)
-		Window:Notify("Phông Chữ", "Đã cập nhật Font: " .. selectedFont, 2)
+		Window:Notify("Phông Chữ", "Đã cập nhật Font: <b>" .. selectedFont .. "</b>", 2)
 	end
 })
 
 -- Button: Test Notification
 SettingsTab:AddButton({
 	Text = "Kiểm Tra Thông Báo Mẫu",
+	BoldText = true,
 	Callback = function()
-		Window:Notify("Thông Báo Mẫu", "Toàn bộ chức năng UI đang chạy ổn định!", 4)
+		Window:Notify("Thông Báo Mẫu", "Toàn bộ chức năng UI đang chạy <b>ổn định</b>!", 4)
 	end
 })
