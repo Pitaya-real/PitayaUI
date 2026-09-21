@@ -6,417 +6,791 @@ local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
+local Workspace = game:GetService("Workspace")
 
 -- =================================================================
--- HÀM TRỢ GIÚP GIAO DIỆN
+-- BẢNG THEMES SẴN CÓ
 -- =================================================================
-local function AddUICorner(parent, radiusScale, radiusOffset)
+PitayaUI.Themes = {
+	PitayaUI = {
+		Background = Color3.fromRGB(15, 15, 20),
+		Window = Color3.fromRGB(22, 22, 28),
+		Border = Color3.fromRGB(45, 45, 55),
+		TextMain = Color3.fromRGB(255, 255, 255),
+		TextSub = Color3.fromRGB(150, 150, 160),
+		Accent = Color3.fromRGB(150, 80, 250),
+		AccentHover = Color3.fromRGB(170, 100, 255),
+		SidebarUnselected = Color3.fromRGB(35, 35, 45),
+		SidebarHover = Color3.fromRGB(50, 50, 65),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Dark = {
+		Background = Color3.fromRGB(18, 18, 18),
+		Window = Color3.fromRGB(28, 28, 28),
+		Border = Color3.fromRGB(50, 50, 50),
+		TextMain = Color3.fromRGB(240, 240, 240),
+		TextSub = Color3.fromRGB(160, 160, 160),
+		Accent = Color3.fromRGB(80, 140, 240),
+		AccentHover = Color3.fromRGB(100, 160, 255),
+		SidebarUnselected = Color3.fromRGB(38, 38, 38),
+		SidebarHover = Color3.fromRGB(55, 55, 55),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Ocean = {
+		Background = Color3.fromRGB(10, 20, 30),
+		Window = Color3.fromRGB(16, 30, 45),
+		Border = Color3.fromRGB(30, 60, 85),
+		TextMain = Color3.fromRGB(240, 248, 255),
+		TextSub = Color3.fromRGB(130, 170, 200),
+		Accent = Color3.fromRGB(0, 170, 230),
+		AccentHover = Color3.fromRGB(30, 190, 255),
+		SidebarUnselected = Color3.fromRGB(22, 42, 62),
+		SidebarHover = Color3.fromRGB(32, 58, 85),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Emerald = {
+		Background = Color3.fromRGB(12, 24, 18),
+		Window = Color3.fromRGB(18, 36, 28),
+		Border = Color3.fromRGB(35, 70, 52),
+		TextMain = Color3.fromRGB(240, 255, 245),
+		TextSub = Color3.fromRGB(140, 185, 160),
+		Accent = Color3.fromRGB(46, 204, 113),
+		AccentHover = Color3.fromRGB(72, 220, 134),
+		SidebarUnselected = Color3.fromRGB(26, 50, 38),
+		SidebarHover = Color3.fromRGB(38, 72, 55),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Midnight = {
+		Background = Color3.fromRGB(8, 8, 14),
+		Window = Color3.fromRGB(14, 14, 24),
+		Border = Color3.fromRGB(30, 30, 50),
+		TextMain = Color3.fromRGB(235, 235, 250),
+		TextSub = Color3.fromRGB(130, 130, 160),
+		Accent = Color3.fromRGB(110, 90, 240),
+		AccentHover = Color3.fromRGB(130, 110, 255),
+		SidebarUnselected = Color3.fromRGB(22, 22, 38),
+		SidebarHover = Color3.fromRGB(34, 34, 56),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Cyberpunk = {
+		Background = Color3.fromRGB(20, 18, 10),
+		Window = Color3.fromRGB(28, 25, 14),
+		Border = Color3.fromRGB(70, 60, 20),
+		TextMain = Color3.fromRGB(255, 255, 240),
+		TextSub = Color3.fromRGB(180, 170, 110),
+		Accent = Color3.fromRGB(255, 210, 0),
+		AccentHover = Color3.fromRGB(255, 225, 50),
+		SidebarUnselected = Color3.fromRGB(40, 36, 20),
+		SidebarHover = Color3.fromRGB(60, 54, 30),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	},
+	Blood = {
+		Background = Color3.fromRGB(20, 12, 12),
+		Window = Color3.fromRGB(30, 18, 18),
+		Border = Color3.fromRGB(65, 30, 30),
+		TextMain = Color3.fromRGB(255, 240, 240),
+		TextSub = Color3.fromRGB(180, 130, 130),
+		Accent = Color3.fromRGB(235, 60, 60),
+		AccentHover = Color3.fromRGB(255, 85, 85),
+		SidebarUnselected = Color3.fromRGB(42, 24, 24),
+		SidebarHover = Color3.fromRGB(62, 35, 35),
+		Dots = {Color3.fromRGB(255, 90, 90), Color3.fromRGB(255, 180, 50), Color3.fromRGB(50, 200, 100)}
+	}
+}
+
+-- =================================================================
+-- BẢNG PHÔNG CHỮ SẴN CÓ (FONT PRESETS)
+-- =================================================================
+PitayaUI.FontPresets = {
+	Gotham = { Main = Enum.Font.Gotham, Bold = Enum.Font.GothamBold, Medium = Enum.Font.GothamMedium },
+	Roboto = { Main = Enum.Font.Roboto, Bold = Enum.Font.RobotoCondensed, Medium = Enum.Font.Roboto },
+	FredokaOne = { Main = Enum.Font.FredokaOne, Bold = Enum.Font.FredokaOne, Medium = Enum.Font.FredokaOne },
+	SourceSans = { Main = Enum.Font.SourceSans, Bold = Enum.Font.SourceSansBold, Medium = Enum.Font.SourceSansSemibold },
+	Ubuntu = { Main = Enum.Font.Ubuntu, Bold = Enum.Font.Ubuntu, Medium = Enum.Font.Ubuntu },
+	Arcade = { Main = Enum.Font.Arcade, Bold = Enum.Font.Arcade, Medium = Enum.Font.Arcade },
+	BuilderSans = { Main = Enum.Font.BuilderSans, Bold = Enum.Font.BuilderSansBold, Medium = Enum.Font.BuilderSansMedium }
+}
+
+local function AddUICorner(parent, radius)
 	local corner = Instance.new("UICorner", parent)
-	corner.CornerRadius = UDim.new(radiusScale or 0, radiusOffset or 8)
+	corner.CornerRadius = UDim.new(0, radius)
 	return corner
 end
 
-local function AddUIStroke(parent, color, thickness, transparency)
+local function AddUIStroke(parent, color)
 	local stroke = Instance.new("UIStroke", parent)
-	stroke.Color = color or Color3.fromRGB(255, 255, 255)
-	stroke.Thickness = thickness or 1
-	stroke.Transparency = transparency or 0
-	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.Color = color
+	stroke.Thickness = 1
 	return stroke
 end
 
-local function MakeDraggable(guiObject, handleObject)
-	handleObject = handleObject or guiObject
-	local dragging, dragStart, startPos
+-- =================================================================
+-- QUẢN LÝ THEME VÀ FONT CỦA WINDOW
+-- =================================================================
+function PitayaUI:BindTheme(instance, property, role)
+	table.insert(self.ThemeObjects, {
+		Instance = instance,
+		Property = property,
+		Role = role
+	})
+	if self.Colors[role] then
+		instance[property] = self.Colors[role]
+	end
+	return instance
+end
 
-	handleObject.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = true
-			dragStart = input.Position
-			startPos = guiObject.Position
-		end
-	end)
+function PitayaUI:SetTheme(themeName)
+	local targetTheme = PitayaUI.Themes[themeName]
+	if not targetTheme then return end
 
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - dragStart
-			guiObject.Position = UDim2.new(
-				startPos.X.Scale, startPos.X.Offset + delta.X,
-				startPos.Y.Scale, startPos.Y.Offset + delta.Y
-			)
-		end
-	end)
+	self.CurrentThemeName = themeName
+	for k, v in pairs(targetTheme) do
+		self.Colors[k] = v
+	end
 
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			dragging = false
+	for _, item in ipairs(self.ThemeObjects) do
+		if item.Instance and item.Instance.Parent then
+			if self.Colors[item.Role] then
+				TweenService:Create(item.Instance, TweenInfo.new(0.3), {
+					[item.Property] = self.Colors[item.Role]
+				}):Play()
+			end
 		end
-	end)
+	end
+end
+
+function PitayaUI:GetThemes()
+	local list = {}
+	for name, _ in pairs(PitayaUI.Themes) do
+		table.insert(list, name)
+	end
+	table.sort(list)
+	return list
+end
+
+function PitayaUI:BindFont(instance, fontRole)
+	table.insert(self.FontObjects, {
+		Instance = instance,
+		Role = fontRole or "Main"
+	})
+	if self.Fonts[fontRole] then
+		instance.Font = self.Fonts[fontRole]
+	end
+	return instance
+end
+
+function PitayaUI:SetFont(fontName)
+	local targetPreset = PitayaUI.FontPresets[fontName]
+	if not targetPreset then return end
+
+	self.CurrentFontName = fontName
+	self.Fonts = targetPreset
+
+	for _, item in ipairs(self.FontObjects) do
+		if item.Instance and item.Instance.Parent and self.Fonts[item.Role] then
+			item.Instance.Font = self.Fonts[item.Role]
+		end
+	end
+end
+
+function PitayaUI:GetFonts()
+	local list = {}
+	for name, _ in pairs(PitayaUI.FontPresets) do
+		table.insert(list, name)
+	end
+	table.sort(list)
+	return list
 end
 
 -- =================================================================
--- TẠO CỬA SỔ CHÍNH & TÍNH NĂNG NÂNG CẤP
+-- TẠO CỬA SỔ CHÍNH (CREATE WINDOW)
 -- =================================================================
 function PitayaUI:CreateWindow(config)
 	config = config or {}
 	local WindowObj = setmetatable({}, PitayaUI)
-	WindowObj.TitleText = config.Title or "SCRIPT MASTER HUB - PITAYA EDITION v3.5"
-	WindowObj.LogoId = config.Logo or "rbxassetid://10723321812" -- ID Logo Pitaya
+	WindowObj.TitleText = config.Title or "Pitaya Hub"
+	WindowObj.LogoId = config.Logo or "rbxassetid://90272501948122"
 	WindowObj.Tabs = {}
+	WindowObj.ThemeObjects = {}
+	WindowObj.FontObjects = {}
 
-	WindowObj.Colors = {
-		WindowBg = Color3.fromRGB(232, 236, 242),
-		TabBarBg = Color3.fromRGB(28, 32, 42),
-		CardBg = Color3.fromRGB(255, 255, 255),
-		CardTransparency = 0.2,
-		TextMain = Color3.fromRGB(20, 25, 35),
-		TextSub = Color3.fromRGB(120, 130, 145),
-		AccentPink = Color3.fromRGB(245, 65, 125),
-		AccentCyan = Color3.fromRGB(0, 220, 230),
-		DarkBtnBg = Color3.fromRGB(32, 36, 48)
-	}
+	-- Khởi tạo Theme
+	local selectedTheme = config.Theme or "PitayaUI"
+	local baseTheme = PitayaUI.Themes[selectedTheme] or PitayaUI.Themes.PitayaUI
+	WindowObj.Colors = {}
+	for k, v in pairs(baseTheme) do
+		WindowObj.Colors[k] = v
+	end
+	WindowObj.CurrentThemeName = selectedTheme
+
+	-- Khởi tạo Font
+	local selectedFont = config.Font or "Gotham"
+	WindowObj.Fonts = PitayaUI.FontPresets[selectedFont] or PitayaUI.FontPresets.Gotham
+	WindowObj.CurrentFontName = selectedFont
 
 	local ScreenGui = Instance.new("ScreenGui")
-	ScreenGui.Name = "PitayaMasterHub_UI"
+	ScreenGui.Name = game:GetService("HttpService"):GenerateGUID(false)
 	ScreenGui.ResetOnSpawn = false
 
-	if gethui then ScreenGui.Parent = gethui()
-	elseif syn and syn.protect_gui then syn.protect_gui(ScreenGui) ScreenGui.Parent = game:GetService("CoreGui")
+	if gethui then
+		ScreenGui.Parent = gethui()
+	elseif syn and syn.protect_gui then
+		syn.protect_gui(ScreenGui)
+		ScreenGui.Parent = game:GetService("CoreGui")
 	else
-		pcall(function() ScreenGui.Parent = game:GetService("CoreGui") end)
-		if not ScreenGui.Parent then ScreenGui.Parent = PlayerGui end
+		local success, _ = pcall(function()
+			ScreenGui.Parent = game:GetService("CoreGui")
+		end)
+		if not success then
+			local targetGui = (typeof(PlayerGui) ~= "nil" and PlayerGui) or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+			ScreenGui.Parent = targetGui
+		end	
 	end
+
 	WindowObj.ScreenGui = ScreenGui
 
-	-- KHUNG CHÍNH (MAIN FRAME)
+	-- Kích thước ban đầu dựa theo màn hình thiết bị
+	local Camera = Workspace.CurrentCamera
+	local viewportSize = Camera and Camera.ViewportSize or Vector2.new(1280, 720)
+
+	local targetWidth = math.floor(math.min(620, viewportSize.X * 0.88))
+	local targetHeight = math.floor(math.min(380, viewportSize.Y * 0.85))
+
+	targetWidth = math.clamp(targetWidth, 340, 1200)
+	targetHeight = math.clamp(targetHeight, 230, 800)
+
+	WindowObj.SavedWidth = targetWidth
+	WindowObj.SavedHeight = targetHeight
+
+	-- Container cho Notifications
+	local NotifContainer = Instance.new("Frame", ScreenGui)
+	NotifContainer.Name = "NotifContainer"
+	NotifContainer.Size = UDim2.new(0, 280, 1, -40)
+	NotifContainer.Position = UDim2.new(1, -300, 0, 20)
+	NotifContainer.BackgroundTransparency = 1
+	WindowObj.NotifContainer = NotifContainer
+
+	local NotifList = Instance.new("UIListLayout", NotifContainer)
+	NotifList.SortOrder = Enum.SortOrder.LayoutOrder
+	NotifList.VerticalAlignment = Enum.VerticalAlignment.Bottom
+	NotifList.Padding = UDim.new(0, 10)
+
+	-- Nút bật/tắt UI
+	local ToggleBtn = Instance.new("ImageButton", ScreenGui)
+	ToggleBtn.Name = "OpenCloseToggle"
+	ToggleBtn.Size = UDim2.new(0, 46, 0, 46)
+	ToggleBtn.Position = UDim2.new(0, 25, 0, 100)
+	ToggleBtn.BackgroundColor3 = WindowObj.Colors.Window
+	ToggleBtn.Image = WindowObj.LogoId
+	ToggleBtn.Active = true
+	ToggleBtn.Draggable = true
+	AddUICorner(ToggleBtn, 23)
+	local toggleStroke = AddUIStroke(ToggleBtn, WindowObj.Colors.Accent)
+
+	WindowObj:BindTheme(ToggleBtn, "BackgroundColor3", "Window")
+	WindowObj:BindTheme(toggleStroke, "Color", "Accent")
+
+	-- Khung chính UI
 	local MainFrame = Instance.new("Frame", ScreenGui)
 	MainFrame.Name = "MainFrame"
-	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	MainFrame.Size = UDim2.new(0, 520, 0, 360)
-	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-	MainFrame.BackgroundColor3 = WindowObj.Colors.WindowBg
-	MainFrame.BackgroundTransparency = 0.05
-	MainFrame.ClipsDescendants = false
-	AddUICorner(MainFrame, 0, 14)
-	AddUIStroke(MainFrame, Color3.fromRGB(255, 255, 255), 2, 0.2)
+	MainFrame.Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight)
+	MainFrame.Position = UDim2.new(0.5, -WindowObj.SavedWidth / 2, 0.5, -WindowObj.SavedHeight / 2)
+	MainFrame.BackgroundColor3 = WindowObj.Colors.Window
+	MainFrame.Active = true
+	MainFrame.Draggable = true
+	MainFrame.ClipsDescendants = true
+	AddUICorner(MainFrame, 10)
+	local mainStroke = AddUIStroke(MainFrame, WindowObj.Colors.Border)
+
+	WindowObj:BindTheme(MainFrame, "BackgroundColor3", "Window")
+	WindowObj:BindTheme(mainStroke, "Color", "Border")
 	WindowObj.MainFrame = MainFrame
 
-	-- 1. TỰ ĐỘNG CĂN CHỈNH KÍCH THƯỚC THEO THIẾT BỊ (RESPONSIVE UISCALE)
-	local UiScale = Instance.new("UIScale", MainFrame)
-	local function AutoScale()
-		local viewportSize = Camera.ViewportSize
-		local scaleFactor = math.clamp(viewportSize.Y / 550, 0.65, 1.15)
-		UiScale.Scale = scaleFactor
+	-- Animation Mở / Đóng Cửa Sổ
+	local isOpen = true
+	ToggleBtn.MouseButton1Click:Connect(function()
+		isOpen = not isOpen
+		if isOpen then
+			MainFrame.Visible = true
+			TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(0, WindowObj.SavedWidth, 0, WindowObj.SavedHeight),
+				Position = UDim2.new(0.5, -WindowObj.SavedWidth / 2, 0.5, -WindowObj.SavedHeight / 2)
+			}):Play()
+		else
+			local tween = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+				Size = UDim2.new(0, 0, 0, 0),
+				Position = UDim2.new(0.5, 0, 0.5, 0)
+			})
+			tween:Play()
+			tween.Completed:Connect(function()
+				if not isOpen then MainFrame.Visible = false end
+			end)
+		end
+	end)
+
+	-- Header
+	local Header = Instance.new("Frame", MainFrame)
+	Header.Size = UDim2.new(1, 0, 0, 40)
+	Header.BackgroundTransparency = 1
+
+	local dotButtons = {}
+	for i, color in ipairs(WindowObj.Colors.Dots) do
+		local dot = Instance.new("TextButton", Header)
+		dot.Size = UDim2.new(0, 10, 0, 10)
+		dot.Position = UDim2.new(0, 15 + (i - 1) * 18, 0, 15)
+		dot.BackgroundColor3 = color
+		dot.Text = ""
+		dot.AutoButtonColor = false
+		AddUICorner(dot, 5)
+		table.insert(dotButtons, dot)
 	end
-	AutoScale()
-	Camera:GetPropertyChangedSignal("ViewportSize"):Connect(AutoScale)
 
-	-- 2. NÚT FLOATING TRÔI NỔI (BẬT / TẮT UI MỌI LÚC)
-	local FloatingBtn = Instance.new("ImageButton", ScreenGui)
-	FloatingBtn.Name = "PitayaFloatingBtn"
-	FloatingBtn.Size = UDim2.new(0, 48, 0, 48)
-	FloatingBtn.Position = UDim2.new(0.08, 0, 0.25, 0)
-	FloatingBtn.BackgroundColor3 = WindowObj.Colors.TabBarBg
-	FloatingBtn.Image = WindowObj.LogoId
-	FloatingBtn.AutoButtonColor = true
-	AddUICorner(FloatingBtn, 1, 0)
-	AddUIStroke(FloatingBtn, WindowObj.Colors.AccentPink, 2)
-	MakeDraggable(FloatingBtn)
+	local RedButton = dotButtons[1]
+	local YellowButton = dotButtons[2]
 
-	local isMainVisible = true
-	FloatingBtn.MouseButton1Click:Connect(function()
-		isMainVisible = not isMainVisible
-		MainFrame.Visible = isMainVisible
+	RedButton.MouseButton1Click:Connect(function()
+		if ScreenGui then ScreenGui:Destroy() end
 	end)
 
-	-- TOPBAR & KÉO THẢ
-	local Topbar = Instance.new("Frame", MainFrame)
-	Topbar.Name = "Topbar"
-	Topbar.Size = UDim2.new(1, 0, 0, 38)
-	Topbar.BackgroundTransparency = 1
-	MakeDraggable(MainFrame, Topbar)
-
-	local LogoImg = Instance.new("ImageLabel", Topbar)
-	LogoImg.Size = UDim2.new(0, 24, 0, 24)
-	LogoImg.Position = UDim2.new(0, 12, 0, 7)
-	LogoImg.BackgroundTransparency = 1
-	LogoImg.Image = WindowObj.LogoId
-
-	local TitleLbl = Instance.new("TextLabel", Topbar)
-	TitleLbl.Size = UDim2.new(1, -110, 1, 0)
-	TitleLbl.Position = UDim2.new(0, 42, 0, 0)
-	TitleLbl.BackgroundTransparency = 1
-	TitleLbl.Text = WindowObj.TitleText
-	TitleLbl.TextColor3 = WindowObj.Colors.TextMain
-	TitleLbl.TextSize = 13
-	TitleLbl.Font = Enum.Font.FredokaOne
-	TitleLbl.TextXAlignment = Enum.TextXAlignment.Left
-
-	-- NÚT THU NHỎ VÀ ĐÓNG
-	local ControlsContainer = Instance.new("Frame", Topbar)
-	ControlsContainer.Size = UDim2.new(0, 50, 1, 0)
-	ControlsContainer.Position = UDim2.new(1, -55, 0, 0)
-	ControlsContainer.BackgroundTransparency = 1
-
-	local MinimizeBtn = Instance.new("TextButton", ControlsContainer)
-	MinimizeBtn.Size = UDim2.new(0, 20, 0, 20)
-	MinimizeBtn.Position = UDim2.new(0, 0, 0.5, -10)
-	MinimizeBtn.BackgroundTransparency = 1
-	MinimizeBtn.Text = "─"
-	MinimizeBtn.TextColor3 = WindowObj.Colors.TextMain
-	MinimizeBtn.TextSize = 12
-	MinimizeBtn.Font = Enum.Font.GothamBold
-
-	local CloseBtn = Instance.new("TextButton", ControlsContainer)
-	CloseBtn.Size = UDim2.new(0, 20, 0, 20)
-	CloseBtn.Position = UDim2.new(0, 25, 0.5, -10)
-	CloseBtn.BackgroundTransparency = 1
-	CloseBtn.Text = "✕"
-	CloseBtn.TextColor3 = WindowObj.Colors.TextMain
-	CloseBtn.TextSize = 13
-	CloseBtn.Font = Enum.Font.GothamBold
-
-	MinimizeBtn.MouseButton1Click:Connect(function()
-		isMainVisible = false
-		MainFrame.Visible = false
+	local isMinimized = false
+	YellowButton.MouseButton1Click:Connect(function()
+		isMinimized = not isMinimized
+		MainFrame.Visible = not isMinimized
 	end)
 
-	CloseBtn.MouseButton1Click:Connect(function()
-		ScreenGui:Destroy()
-	end)
+	local TitleLabel = Instance.new("TextLabel", Header)
+	TitleLabel.Size = UDim2.new(1, -100, 1, 0)
+	TitleLabel.Position = UDim2.new(0, 80, 0, 0)
+	TitleLabel.BackgroundTransparency = 1
+	TitleLabel.Text = WindowObj.TitleText
+	TitleLabel.TextColor3 = WindowObj.Colors.TextSub
+	TitleLabel.TextSize = 13
+	TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
+	WindowObj:BindTheme(TitleLabel, "TextColor3", "TextSub")
+	WindowObj:BindFont(TitleLabel, "Bold")
+	WindowObj.TitleLabel = TitleLabel
 
-	-- 3. THANH TAB CUỘN NGANG (SỬA LỖI TRÔI VỆT NEON VÀ CUỘN NHIỀU TAB)
-	local TabBarContainer = Instance.new("Frame", MainFrame)
-	TabBarContainer.Name = "TabBarContainer"
-	TabBarContainer.Size = UDim2.new(1, -20, 0, 42)
-	TabBarContainer.Position = UDim2.new(0, 10, 0, 38)
-	TabBarContainer.BackgroundColor3 = WindowObj.Colors.TabBarBg
-	AddUICorner(TabBarContainer, 0, 10)
+	local HeaderLine = Instance.new("Frame", Header)
+	HeaderLine.Size = UDim2.new(1, 0, 0, 1)
+	HeaderLine.Position = UDim2.new(0, 0, 1, 0)
+	HeaderLine.BackgroundColor3 = WindowObj.Colors.Border
+	WindowObj:BindTheme(HeaderLine, "BackgroundColor3", "Border")
 
-	local TabScroll = Instance.new("ScrollingFrame", TabBarContainer)
-	TabScroll.Size = UDim2.new(1, -10, 1, 0)
-	TabScroll.Position = UDim2.new(0, 5, 0, 0)
-	TabScroll.BackgroundTransparency = 1
-	TabScroll.ScrollBarThickness = 2
-	TabScroll.ScrollBarImageColor3 = WindowObj.Colors.AccentCyan
-	TabScroll.ClipsDescendants = true
-	TabScroll.ScrollingDirection = Enum.ScrollingDirection.Horizontal
+	-- Sidebar
+	local Sidebar = Instance.new("Frame", MainFrame)
+	Sidebar.Size = UDim2.new(0, 140, 1, -41)
+	Sidebar.Position = UDim2.new(0, 0, 0, 41)
+	Sidebar.BackgroundTransparency = 1
 
-	local TabListLayout = Instance.new("UIListLayout", TabScroll)
-	TabListLayout.FillDirection = Enum.FillDirection.Horizontal
-	TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabListLayout.Padding = UDim.new(0, 6)
-	TabListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	local SidebarLine = Instance.new("Frame", Sidebar)
+	SidebarLine.Size = UDim2.new(0, 1, 1, 0)
+	SidebarLine.Position = UDim2.new(1, 0, 0, 0)
+	SidebarLine.BackgroundColor3 = WindowObj.Colors.Border
+	WindowObj:BindTheme(SidebarLine, "BackgroundColor3", "Border")
 
-	local ActiveLineIndicator = Instance.new("Frame", TabScroll)
-	ActiveLineIndicator.Name = "ActiveLineIndicator"
-	ActiveLineIndicator.Size = UDim2.new(0, 40, 0, 3)
-	ActiveLineIndicator.Position = UDim2.new(0, 0, 1, -5)
-	ActiveLineIndicator.BackgroundColor3 = WindowObj.Colors.AccentCyan
-	ActiveLineIndicator.BorderSizePixel = 0
-	ActiveLineIndicator.Visible = false
-	ActiveLineIndicator.ZIndex = 5
-	AddUICorner(ActiveLineIndicator, 0, 2)
+	local SidebarLogo = Instance.new("ImageLabel", Sidebar)
+	SidebarLogo.Size = UDim2.new(0, 48, 0, 48)
+	SidebarLogo.Position = UDim2.new(0.5, -24, 0, 10)
+	SidebarLogo.BackgroundTransparency = 1
+	SidebarLogo.Image = WindowObj.LogoId
 
-	WindowObj.ActiveLineIndicator = ActiveLineIndicator
+	local TabListContainer = Instance.new("Frame", Sidebar)
+	TabListContainer.Size = UDim2.new(1, -16, 1, -75)
+	TabListContainer.Position = UDim2.new(0, 8, 0, 68)
+	TabListContainer.BackgroundTransparency = 1
 
-	-- NỘI DUNG TABS
+	local UIList = Instance.new("UIListLayout", TabListContainer)
+	UIList.SortOrder = Enum.SortOrder.LayoutOrder
+	UIList.Padding = UDim.new(0, 6)
+
 	local ContentArea = Instance.new("Frame", MainFrame)
-	ContentArea.Name = "ContentArea"
-	ContentArea.Size = UDim2.new(1, -20, 1, -90)
-	ContentArea.Position = UDim2.new(0, 10, 0, 85)
+	ContentArea.Size = UDim2.new(1, -141, 1, -41)
+	ContentArea.Position = UDim2.new(0, 141, 0, 41)
 	ContentArea.BackgroundTransparency = 1
-
 	WindowObj.ContentArea = ContentArea
-	WindowObj.TabScroll = TabScroll
-	WindowObj.TabListLayout = TabListLayout
+	WindowObj.TabListContainer = TabListContainer
 
-	-- 4. NÚT KÉO GIÃN THU NHỎ UI (RESIZE HANDLE)
+	-- KÉO GIÃN THU PHÓNG (RESIZE & AUTO SAVE SIZE)
 	local ResizeHandle = Instance.new("TextButton", MainFrame)
 	ResizeHandle.Name = "ResizeHandle"
-	ResizeHandle.Size = UDim2.new(0, 16, 0, 16)
-	ResizeHandle.Position = UDim2.new(1, -16, 1, -16)
+	ResizeHandle.Size = UDim2.new(0, 18, 0, 18)
+	ResizeHandle.Position = UDim2.new(1, -18, 1, -18)
 	ResizeHandle.BackgroundTransparency = 1
 	ResizeHandle.Text = "◢"
 	ResizeHandle.TextColor3 = WindowObj.Colors.TextSub
-	ResizeHandle.TextSize = 12
-	ResizeHandle.Font = Enum.Font.GothamBold
+	ResizeHandle.TextSize = 13
+	ResizeHandle.ZIndex = 100
+	WindowObj:BindTheme(ResizeHandle, "TextColor3", "TextSub")
+	WindowObj:BindFont(ResizeHandle, "Bold")
 
-	local resizing, resizeStart, startSize
+	local isResizing = false
+	local dragStart, startSize
+
 	ResizeHandle.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = true
-			resizeStart = input.Position
+			isResizing = true
+			dragStart = input.Position
 			startSize = MainFrame.Size
 		end
 	end)
 
 	UserInputService.InputChanged:Connect(function(input)
-		if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			local delta = input.Position - resizeStart
-			local newX = math.clamp(startSize.X.Offset + delta.X, 400, 800)
-			local newY = math.clamp(startSize.Y.Offset + delta.Y, 280, 550)
-			MainFrame.Size = UDim2.new(0, newX, 0, newY)
+		if isResizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local currentCam = Workspace.CurrentCamera
+			local screenBounds = currentCam and currentCam.ViewportSize or Vector2.new(1280, 720)
+
+			local delta = input.Position - dragStart
+			local newWidth = math.clamp(startSize.X.Offset + delta.X, 340, math.max(340, screenBounds.X - 20))
+			local newHeight = math.clamp(startSize.Y.Offset + delta.Y, 230, math.max(230, screenBounds.Y - 20))
+
+			WindowObj.SavedWidth = newWidth
+			WindowObj.SavedHeight = newHeight
+			MainFrame.Size = UDim2.new(0, newWidth, 0, newHeight)
 		end
 	end)
 
 	UserInputService.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			resizing = false
+			isResizing = false
 		end
+	end)
+
+	task.spawn(function()
+		WindowObj:Notify("Hệ Thống", "Giao diện đã tải hoàn tất!", 4)
 	end)
 
 	return WindowObj
 end
 
 -- =================================================================
--- TẠO TAB MỚI
+-- THÔNG BÁO (NOTIFICATION)
+-- =================================================================
+function PitayaUI:Notify(title, text, duration)
+	duration = duration or 3
+	local notifFrame = Instance.new("Frame", self.NotifContainer)
+	notifFrame.Size = UDim2.new(1, 0, 0, 60)
+	notifFrame.Position = UDim2.new(1, 50, 0, 0)
+	notifFrame.BackgroundColor3 = self.Colors.Window
+	notifFrame.BackgroundTransparency = 1
+	AddUICorner(notifFrame, 6)
+	local stroke = AddUIStroke(notifFrame, self.Colors.Border)
+	stroke.Transparency = 1
+
+	self:BindTheme(notifFrame, "BackgroundColor3", "Window")
+	self:BindTheme(stroke, "Color", "Border")
+
+	local titleLbl = Instance.new("TextLabel", notifFrame)
+	titleLbl.Size = UDim2.new(1, -20, 0, 20)
+	titleLbl.Position = UDim2.new(0, 10, 0, 5)
+	titleLbl.BackgroundTransparency = 1
+	titleLbl.Text = title
+	titleLbl.TextColor3 = self.Colors.Accent
+	titleLbl.TextSize = 13
+	titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+	titleLbl.TextTransparency = 1
+	self:BindTheme(titleLbl, "TextColor3", "Accent")
+	self:BindFont(titleLbl, "Bold")
+
+	local descLbl = Instance.new("TextLabel", notifFrame)
+	descLbl.Size = UDim2.new(1, -20, 0, 25)
+	descLbl.Position = UDim2.new(0, 10, 0, 25)
+	descLbl.BackgroundTransparency = 1
+	descLbl.Text = text
+	descLbl.TextColor3 = self.Colors.TextMain
+	descLbl.TextSize = 12
+	descLbl.TextXAlignment = Enum.TextXAlignment.Left
+	descLbl.TextWrapped = true
+	descLbl.TextTransparency = 1
+	self:BindTheme(descLbl, "TextColor3", "TextMain")
+	self:BindFont(descLbl, "Main")
+
+	TweenService:Create(notifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+		Position = UDim2.new(0, 0, 0, 0),
+		BackgroundTransparency = 0
+	}):Play()
+	TweenService:Create(stroke, TweenInfo.new(0.4), {Transparency = 0}):Play()
+	TweenService:Create(titleLbl, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+	TweenService:Create(descLbl, TweenInfo.new(0.4), {TextTransparency = 0}):Play()
+
+	task.delay(duration, function()
+		local hideTween = TweenService:Create(notifFrame, TweenInfo.new(0.4, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+			Position = UDim2.new(1, 50, 0, 0),
+			BackgroundTransparency = 1
+		})
+		TweenService:Create(stroke, TweenInfo.new(0.4), {Transparency = 1}):Play()
+		TweenService:Create(titleLbl, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+		TweenService:Create(descLbl, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+
+		hideTween:Play()
+		hideTween.Completed:Connect(function()
+			notifFrame:Destroy()
+		end)
+	end)
+end
+
+-- =================================================================
+-- TẠO TAB & PHẦN TỬ UI (TABS & COMPONENTS)
 -- =================================================================
 function PitayaUI:CreateTab(tabName, iconSymbol)
 	local TabObj = {}
 	local window = self
 
 	local page = Instance.new("ScrollingFrame", window.ContentArea)
-	page.Size = UDim2.new(1, 0, 1, 0)
+	page.Size = UDim2.new(1, -20, 1, -20)
+	page.Position = UDim2.new(0, 10, 0, 10)
 	page.BackgroundTransparency = 1
-	page.ScrollBarThickness = 3
-	page.ScrollBarImageColor3 = window.Colors.AccentCyan
+	page.ScrollBarThickness = 2
 	page.Visible = false
 
 	local PageList = Instance.new("UIListLayout", page)
 	PageList.SortOrder = Enum.SortOrder.LayoutOrder
 	PageList.Padding = UDim.new(0, 8)
 
-	local tabBtn = Instance.new("TextButton", window.TabScroll)
-	tabBtn.Size = UDim2.new(0, 70, 1, 0)
-	tabBtn.BackgroundTransparency = 1
+	local tabBtn = Instance.new("TextButton", window.TabListContainer)
+	tabBtn.Size = UDim2.new(1, 0, 0, 36)
+	tabBtn.BackgroundColor3 = window.Colors.SidebarUnselected
 	tabBtn.Text = ""
+	tabBtn.AutoButtonColor = false
+	AddUICorner(tabBtn, 8)
+	window:BindTheme(tabBtn, "BackgroundColor3", "SidebarUnselected")
 
-	local iconLbl = Instance.new("TextLabel", tabBtn)
-	iconLbl.Size = UDim2.new(1, 0, 0, 18)
-	iconLbl.Position = UDim2.new(0, 0, 0, 4)
-	iconLbl.BackgroundTransparency = 1
-	iconLbl.Text = iconSymbol or "★"
-	iconLbl.TextColor3 = window.Colors.TextSub
-	iconLbl.TextSize = 13
-	iconLbl.Font = Enum.Font.GothamBold
+	local hasIcon = iconSymbol and iconSymbol ~= ""
 
-	local textLbl = Instance.new("TextLabel", tabBtn)
-	textLbl.Size = UDim2.new(1, 0, 0, 14)
-	textLbl.Position = UDim2.new(0, 0, 0, 22)
-	textLbl.BackgroundTransparency = 1
-	textLbl.Text = tabName:upper()
-	textLbl.TextColor3 = window.Colors.TextSub
-	textLbl.TextSize = 9
-	textLbl.Font = Enum.Font.GothamBold
+	if hasIcon then
+		local tabIcon = Instance.new("TextLabel", tabBtn)
+		tabIcon.Size = UDim2.new(0, 24, 1, 0)
+		tabIcon.Position = UDim2.new(0, 8, 0, 0)
+		tabIcon.BackgroundTransparency = 1
+		tabIcon.Text = iconSymbol
+		tabIcon.TextColor3 = window.Colors.TextSub
+		tabIcon.TextSize = 14
+		tabIcon.TextXAlignment = Enum.TextXAlignment.Center
+		window:BindTheme(tabIcon, "TextColor3", "TextSub")
+		window:BindFont(tabIcon, "Medium")
+		TabObj.IconLabel = tabIcon
+	end
+
+	local tabTextLabel = Instance.new("TextLabel", tabBtn)
+	tabTextLabel.Size = UDim2.new(1, hasIcon and -32 or -16, 1, 0)
+	tabTextLabel.Position = UDim2.new(0, hasIcon and 32 or 8, 0, 0)
+	tabTextLabel.BackgroundTransparency = 1
+	tabTextLabel.Text = tabName
+	tabTextLabel.TextColor3 = window.Colors.TextSub
+	tabTextLabel.TextSize = 13
+	tabTextLabel.TextXAlignment = Enum.TextXAlignment.Left
+	window:BindTheme(tabTextLabel, "TextColor3", "TextSub")
+	window:BindFont(tabTextLabel, "Medium")
 
 	local function ActivateTab()
 		for _, t in ipairs(window.Tabs) do
 			t.Page.Visible = false
-			TweenService:Create(t.IconLbl, TweenInfo.new(0.2), { TextColor3 = window.Colors.TextSub }):Play()
-			TweenService:Create(t.TextLbl, TweenInfo.new(0.2), { TextColor3 = window.Colors.TextSub }):Play()
+			TweenService:Create(t.Button, TweenInfo.new(0.2), {
+				BackgroundColor3 = window.Colors.SidebarUnselected
+			}):Play()
+
+			for _, child in ipairs(t.Button:GetChildren()) do
+				if child:IsA("TextLabel") then
+					child.TextColor3 = window.Colors.TextSub
+				end
+			end
 		end
 
+		page.Position = UDim2.new(0, 20, 0, 10)
 		page.Visible = true
-		window.ActiveLineIndicator.Visible = true
+		window.TitleLabel.Text = window.TitleText .. " - " .. tabName
 
-		-- Tính vị trí chuẩn xác tương đối trong ScrollingFrame
-		local relX = tabBtn.AbsolutePosition.X - window.TabScroll.AbsolutePosition.X + window.TabScroll.CanvasPosition.X
-		TweenService:Create(window.ActiveLineIndicator, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-			Position = UDim2.new(0, relX + 8, 1, -5),
-			Size = UDim2.new(0, tabBtn.AbsoluteSize.X - 16, 0, 3)
+		TweenService:Create(page, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			Position = UDim2.new(0, 10, 0, 10)
 		}):Play()
 
-		TweenService:Create(iconLbl, TweenInfo.new(0.2), { TextColor3 = window.Colors.AccentPink }):Play()
-		TweenService:Create(textLbl, TweenInfo.new(0.2), { TextColor3 = window.Colors.AccentPink }):Play()
+		TweenService:Create(tabBtn, TweenInfo.new(0.2), {
+			BackgroundColor3 = window.Colors.Accent
+		}):Play()
+
+		tabTextLabel.TextColor3 = window.Colors.TextMain
+		if TabObj.IconLabel then
+			TabObj.IconLabel.TextColor3 = window.Colors.TextMain
+		end
 	end
+
+	tabBtn.MouseEnter:Connect(function()
+		if not page.Visible then
+			TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundColor3 = window.Colors.SidebarHover}):Play()
+		end
+	end)
+
+	tabBtn.MouseLeave:Connect(function()
+		if not page.Visible then
+			TweenService:Create(tabBtn, TweenInfo.new(0.2), {BackgroundColor3 = window.Colors.SidebarUnselected}):Play()
+		end
+	end)
 
 	tabBtn.MouseButton1Click:Connect(ActivateTab)
 
 	TabObj.Page = page
 	TabObj.Button = tabBtn
-	TabObj.IconLbl = iconLbl
-	TabObj.TextLbl = textLbl
-
 	table.insert(window.Tabs, TabObj)
 
-	-- Tự động tính toán CanvasSize cho nhiều Tab
-	task.defer(function()
-		window.TabScroll.CanvasSize = UDim2.new(0, window.TabListLayout.AbsoluteContentSize.X + 15, 0, 0)
-		if #window.Tabs == 1 then
-			ActivateTab()
-		end
-	end)
+	if #window.Tabs == 1 then ActivateTab() end
 
-	-- -------------------------------------------------------------
-	-- COMPONENT: SLIDER (CÓ NÚT RESET)
-	-- -------------------------------------------------------------
+	function TabObj:AddLabel(text)
+		local label = Instance.new("TextLabel", page)
+		label.Size = UDim2.new(1, 0, 0, 22)
+		label.BackgroundTransparency = 1
+		label.Text = text
+		label.TextColor3 = window.Colors.TextSub
+		label.TextSize = 12
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		window:BindTheme(label, "TextColor3", "TextSub")
+		window:BindFont(label, "Main")
+	end
+
+	function TabObj:AddButton(options)
+		options = options or {}
+		local btnText = options.Text or "Button"
+		local callback = options.Callback or function() end
+
+		local btn = Instance.new("TextButton", page)
+		btn.Size = UDim2.new(1, -5, 0, 38)
+		btn.BackgroundColor3 = window.Colors.Accent
+		btn.Text = btnText
+		btn.TextColor3 = window.Colors.TextMain
+		btn.TextSize = 13
+		btn.AutoButtonColor = false
+		AddUICorner(btn, 6)
+		window:BindTheme(btn, "BackgroundColor3", "Accent")
+		window:BindTheme(btn, "TextColor3", "TextMain")
+		window:BindFont(btn, "Bold")
+
+		btn.MouseEnter:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = window.Colors.AccentHover}):Play()
+		end)
+		btn.MouseLeave:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.2), {BackgroundColor3 = window.Colors.Accent}):Play()
+		end)
+		btn.MouseButton1Down:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -9, 0, 35)}):Play()
+		end)
+		btn.MouseButton1Up:Connect(function()
+			TweenService:Create(btn, TweenInfo.new(0.1), {Size = UDim2.new(1, -5, 0, 38)}):Play()
+		end)
+
+		btn.MouseButton1Click:Connect(callback)
+	end
+
+	function TabObj:AddToggle(options)
+		options = options or {}
+		local toggleText = options.Text or "Toggle"
+		local defaultState = options.Default or false
+		local callback = options.Callback or function() end
+
+		local frame = Instance.new("Frame", page)
+		frame.Size = UDim2.new(1, -5, 0, 38)
+		frame.BackgroundColor3 = window.Colors.Background
+		AddUICorner(frame, 6)
+		local stroke = AddUIStroke(frame, window.Colors.Border)
+		window:BindTheme(frame, "BackgroundColor3", "Background")
+		window:BindTheme(stroke, "Color", "Border")
+
+		local label = Instance.new("TextLabel", frame)
+		label.Size = UDim2.new(1, -65, 1, 0)
+		label.Position = UDim2.new(0, 12, 0, 0)
+		label.BackgroundTransparency = 1
+		label.Text = toggleText
+		label.TextColor3 = window.Colors.TextMain
+		label.TextSize = 13
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		window:BindTheme(label, "TextColor3", "TextMain")
+		window:BindFont(label, "Medium")
+
+		local btn = Instance.new("TextButton", frame)
+		btn.Size = UDim2.new(0, 44, 0, 22)
+		btn.Position = UDim2.new(1, -52, 0.5, -11)
+		btn.BackgroundColor3 = defaultState and window.Colors.Accent or window.Colors.SidebarUnselected
+		btn.Text = ""
+		btn.AutoButtonColor = false
+		AddUICorner(btn, 11)
+
+		local dot = Instance.new("Frame", btn)
+		dot.Size = UDim2.new(0, 16, 0, 16)
+		dot.Position = UDim2.new(0, defaultState and 24 or 4, 0, 3)
+		dot.BackgroundColor3 = window.Colors.TextMain
+		AddUICorner(dot, 8)
+		window:BindTheme(dot, "BackgroundColor3", "TextMain")
+
+		local state = defaultState
+		btn.MouseButton1Click:Connect(function()
+			state = not state
+			TweenService:Create(btn, TweenInfo.new(0.2), {
+				BackgroundColor3 = state and window.Colors.Accent or window.Colors.SidebarUnselected
+			}):Play()
+			TweenService:Create(dot, TweenInfo.new(0.2), {
+				Position = UDim2.new(0, state and 24 or 4, 0, 3)
+			}):Play()
+			callback(state)
+		end)
+	end
+
 	function TabObj:AddSlider(options)
 		options = options or {}
-		local sliderText = options.Text or "SLIDER"
+		local sliderText = options.Text or "Slider"
 		local min = options.Min or 0
 		local max = options.Max or 100
 		local default = options.Default or min
 		local callback = options.Callback or function() end
 
-		local card = Instance.new("Frame", page)
-		card.Size = UDim2.new(1, -6, 0, 48)
-		card.BackgroundColor3 = window.Colors.CardBg
-		card.BackgroundTransparency = window.Colors.CardTransparency
-		AddUICorner(card, 0, 10)
-		AddUIStroke(card, Color3.fromRGB(255, 255, 255), 1, 0.5)
+		local frame = Instance.new("Frame", page)
+		frame.Size = UDim2.new(1, -5, 0, 48)
+		frame.BackgroundColor3 = window.Colors.Background
+		AddUICorner(frame, 6)
+		local stroke = AddUIStroke(frame, window.Colors.Border)
+		window:BindTheme(frame, "BackgroundColor3", "Background")
+		window:BindTheme(stroke, "Color", "Border")
 
-		local titleLbl = Instance.new("TextLabel", card)
-		titleLbl.Size = UDim2.new(0.5, 0, 0, 20)
-		titleLbl.Position = UDim2.new(0, 12, 0, 6)
-		titleLbl.BackgroundTransparency = 1
-		titleLbl.Text = sliderText:upper()
-		titleLbl.TextColor3 = window.Colors.TextMain
-		titleLbl.TextSize = 11
-		titleLbl.Font = Enum.Font.GothamBold
-		titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		local label = Instance.new("TextLabel", frame)
+		label.Size = UDim2.new(1, -60, 0, 22)
+		label.Position = UDim2.new(0, 12, 0, 2)
+		label.BackgroundTransparency = 1
+		label.Text = sliderText
+		label.TextColor3 = window.Colors.TextMain
+		label.TextSize = 13
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		window:BindTheme(label, "TextColor3", "TextMain")
+		window:BindFont(label, "Medium")
 
-		local valLbl = Instance.new("TextLabel", card)
-		valLbl.Size = UDim2.new(0.3, 0, 0, 20)
-		valLbl.Position = UDim2.new(0.48, 0, 0, 6)
-		valLbl.BackgroundTransparency = 1
-		valLbl.Text = "VALUE: " .. tostring(default)
-		valLbl.TextColor3 = window.Colors.TextMain
-		valLbl.TextSize = 10
-		valLbl.Font = Enum.Font.GothamBold
+		local valLabel = Instance.new("TextLabel", frame)
+		valLabel.Size = UDim2.new(0, 50, 0, 22)
+		valLabel.Position = UDim2.new(1, -60, 0, 2)
+		valLabel.BackgroundTransparency = 1
+		valLabel.Text = tostring(default)
+		valLabel.TextColor3 = window.Colors.Accent
+		valLabel.TextSize = 13
+		window:BindTheme(valLabel, "TextColor3", "Accent")
+		window:BindFont(valLabel, "Bold")
 
-		local resetBtn = Instance.new("TextButton", card)
-		resetBtn.Size = UDim2.new(0, 56, 0, 22)
-		resetBtn.Position = UDim2.new(1, -66, 0, 5)
-		resetBtn.BackgroundColor3 = window.Colors.AccentPink
-		resetBtn.Text = "RESET"
-		resetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		resetBtn.TextSize = 9
-		resetBtn.Font = Enum.Font.GothamBold
-		AddUICorner(resetBtn, 0, 6)
+		local sliderBar = Instance.new("Frame", frame)
+		sliderBar.Size = UDim2.new(1, -24, 0, 6)
+		sliderBar.Position = UDim2.new(0, 12, 0, 32)
+		sliderBar.BackgroundColor3 = window.Colors.SidebarUnselected
+		AddUICorner(sliderBar, 3)
+		window:BindTheme(sliderBar, "BackgroundColor3", "SidebarUnselected")
 
-		local sliderTrack = Instance.new("Frame", card)
-		sliderTrack.Size = UDim2.new(1, -24, 0, 5)
-		sliderTrack.Position = UDim2.new(0, 12, 0, 32)
-		sliderTrack.BackgroundColor3 = Color3.fromRGB(180, 190, 200)
-		AddUICorner(sliderTrack, 0, 3)
-
-		local sliderFill = Instance.new("Frame", sliderTrack)
+		local sliderFill = Instance.new("Frame", sliderBar)
 		sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-		sliderFill.BackgroundColor3 = window.Colors.AccentPink
-		AddUICorner(sliderFill, 0, 3)
+		sliderFill.BackgroundColor3 = window.Colors.Accent
+		AddUICorner(sliderFill, 3)
+		window:BindTheme(sliderFill, "BackgroundColor3", "Accent")
 
 		local dragging = false
 		local function UpdateSlider(input)
-			local pos = math.clamp((input.Position.X - sliderTrack.AbsolutePosition.X) / sliderTrack.AbsoluteSize.X, 0, 1)
+			local pos = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
 			local value = math.floor(min + (max - min) * pos)
-			valLbl.Text = "VALUE: " .. tostring(value)
-			sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+			valLabel.Text = tostring(value)
+			TweenService:Create(sliderFill, TweenInfo.new(0.05), {Size = UDim2.new(pos, 0, 1, 0)}):Play()
 			callback(value)
 		end
 
-		sliderTrack.InputBegan:Connect(function(input)
+		sliderBar.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 				dragging = true
 				UpdateSlider(input)
@@ -434,211 +808,175 @@ function PitayaUI:CreateTab(tabName, iconSymbol)
 				UpdateSlider(input)
 			end
 		end)
-
-		resetBtn.MouseButton1Click:Connect(function()
-			valLbl.Text = "VALUE: " .. tostring(default)
-			sliderFill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
-			callback(default)
-		end)
 	end
 
-	-- -------------------------------------------------------------
-	-- COMPONENT: TOGGLE
-	-- -------------------------------------------------------------
-	function TabObj:AddToggle(options)
-		options = options or {}
-		local toggleText = options.Text or "TOGGLE"
-		local defaultState = options.Default or false
-		local callback = options.Callback or function() end
-
-		local card = Instance.new("Frame", page)
-		card.Size = UDim2.new(1, -6, 0, 38)
-		card.BackgroundColor3 = window.Colors.CardBg
-		card.BackgroundTransparency = window.Colors.CardTransparency
-		AddUICorner(card, 0, 8)
-		AddUIStroke(card, Color3.fromRGB(255, 255, 255), 1, 0.5)
-
-		local titleLbl = Instance.new("TextLabel", card)
-		titleLbl.Size = UDim2.new(0.7, 0, 1, 0)
-		titleLbl.Position = UDim2.new(0, 12, 0, 0)
-		titleLbl.BackgroundTransparency = 1
-		titleLbl.Text = toggleText:upper()
-		titleLbl.TextColor3 = window.Colors.TextMain
-		titleLbl.TextSize = 10
-		titleLbl.Font = Enum.Font.GothamBold
-		titleLbl.TextXAlignment = Enum.TextXAlignment.Left
-
-		local switchBtn = Instance.new("TextButton", card)
-		switchBtn.Size = UDim2.new(0, 42, 0, 20)
-		switchBtn.Position = UDim2.new(1, -50, 0.5, -10)
-		switchBtn.BackgroundColor3 = defaultState and window.Colors.AccentCyan or Color3.fromRGB(120, 130, 145)
-		switchBtn.Text = ""
-		AddUICorner(switchBtn, 1, 0)
-
-		local dot = Instance.new("Frame", switchBtn)
-		dot.Size = UDim2.new(0, 14, 0, 14)
-		dot.Position = UDim2.new(0, defaultState and 24 or 4, 0, 3)
-		dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		AddUICorner(dot, 1, 0)
-
-		local state = defaultState
-		switchBtn.MouseButton1Click:Connect(function()
-			state = not state
-			TweenService:Create(switchBtn, TweenInfo.new(0.2), {
-				BackgroundColor3 = state and window.Colors.AccentCyan or Color3.fromRGB(120, 130, 145)
-			}):Play()
-			TweenService:Create(dot, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-				Position = UDim2.new(0, state and 24 or 4, 0, 3)
-			}):Play()
-			callback(state)
-		end)
-	end
-
-	-- -------------------------------------------------------------
-	-- COMPONENT: BUTTON (NÚT BẤM)
-	-- -------------------------------------------------------------
-	function TabObj:AddButton(options)
-		options = options or {}
-		local btnText = options.Text or "CLICK BUTTON"
-		local callback = options.Callback or function() end
-
-		local card = Instance.new("Frame", page)
-		card.Size = UDim2.new(1, -6, 0, 38)
-		card.BackgroundColor3 = window.Colors.CardBg
-		card.BackgroundTransparency = window.Colors.CardTransparency
-		AddUICorner(card, 0, 8)
-		AddUIStroke(card, Color3.fromRGB(255, 255, 255), 1, 0.5)
-
-		local btn = Instance.new("TextButton", card)
-		btn.Size = UDim2.new(1, -12, 1, -10)
-		btn.Position = UDim2.new(0, 6, 0, 5)
-		btn.BackgroundColor3 = window.Colors.AccentPink
-		btn.Text = btnText:upper()
-		btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		btn.TextSize = 10
-		btn.Font = Enum.Font.GothamBold
-		AddUICorner(btn, 0, 6)
-
-		btn.MouseButton1Click:Connect(function()
-			TweenService:Create(btn, TweenInfo.new(0.08), { Size = UDim2.new(1, -18, 1, -14), Position = UDim2.new(0, 9, 0, 7) }):Play()
-			task.wait(0.08)
-			TweenService:Create(btn, TweenInfo.new(0.1), { Size = UDim2.new(1, -12, 1, -10), Position = UDim2.new(0, 6, 0, 5) }):Play()
-			callback()
-		end)
-	end
-
-	-- -------------------------------------------------------------
-	-- COMPONENT: DROPDOWN + NÚT BẤM ("GO")
-	-- -------------------------------------------------------------
 	function TabObj:AddDropdown(options)
 		options = options or {}
-		local dropText = options.Text or "TELEPORT TO:"
+		local dropText = options.Text or "Dropdown"
 		local items = options.Items or {}
-		local default = options.Default or items[1] or "Select..."
-		local hasActionButton = options.ActionButton ~= false
-		local actionText = options.ActionText or "GO"
+		local defaultItem = options.Default or items[1] or ""
 		local callback = options.Callback or function() end
 
-		local card = Instance.new("Frame", page)
-		card.Size = UDim2.new(1, -6, 0, 48)
-		card.BackgroundColor3 = window.Colors.CardBg
-		card.BackgroundTransparency = window.Colors.CardTransparency
-		card.ZIndex = 10
-		AddUICorner(card, 0, 8)
-		AddUIStroke(card, Color3.fromRGB(255, 255, 255), 1, 0.5)
+		local isDropped = false
+		local headerHeight = 38
+		local itemHeight = 32
+		local maxVisibleItems = 4
+		local currentChoice = defaultItem
 
-		local titleLbl = Instance.new("TextLabel", card)
-		titleLbl.Size = UDim2.new(0.38, 0, 1, 0)
-		titleLbl.Position = UDim2.new(0, 12, 0, 0)
-		titleLbl.BackgroundTransparency = 1
-		titleLbl.Text = dropText:upper()
-		titleLbl.TextColor3 = window.Colors.TextMain
-		titleLbl.TextSize = 10
-		titleLbl.Font = Enum.Font.GothamBold
-		titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+		local visibleCount = math.clamp(#items, 1, maxVisibleItems)
+		page.ClipsDescendants = false
 
-		local dropHeader = Instance.new("TextButton", card)
-		dropHeader.Size = UDim2.new(hasActionButton and 0.42 or 0.56, 0, 0, 26)
-		dropHeader.Position = UDim2.new(0.38, 0, 0.5, -13)
-		dropHeader.BackgroundColor3 = window.Colors.DarkBtnBg
-		dropHeader.Text = tostring(default) .. "  ▼"
-		dropHeader.TextColor3 = Color3.fromRGB(255, 255, 255)
-		dropHeader.TextSize = 9
-		dropHeader.Font = Enum.Font.GothamBold
-		AddUICorner(dropHeader, 0, 6)
+		local frame = Instance.new("Frame", page)
+		frame.Name = "Dropdown"
+		frame.Size = UDim2.new(1, -5, 0, headerHeight)
+		frame.BackgroundColor3 = window.Colors.Background
+		AddUICorner(frame, 6)
+		local stroke = AddUIStroke(frame, window.Colors.Border)
+		window:BindTheme(frame, "BackgroundColor3", "Background")
+		window:BindTheme(stroke, "Color", "Border")
 
-		local actionBtn
-		if hasActionButton then
-			actionBtn = Instance.new("TextButton", card)
-			actionBtn.Size = UDim2.new(0, 48, 0, 26)
-			actionBtn.Position = UDim2.new(1, -56, 0.5, -13)
-			actionBtn.BackgroundColor3 = window.Colors.AccentCyan
-			actionBtn.Text = actionText
-			actionBtn.TextColor3 = window.Colors.TextMain
-			actionBtn.TextSize = 10
-			actionBtn.Font = Enum.Font.GothamBold
-			AddUICorner(actionBtn, 0, 6)
-		end
+		local label = Instance.new("TextLabel", frame)
+		label.Size = UDim2.new(1, -40, 0, headerHeight)
+		label.Position = UDim2.new(0, 12, 0, 0)
+		label.BackgroundTransparency = 1
+		label.Text = dropText .. ": " .. tostring(currentChoice)
+		label.TextColor3 = window.Colors.TextMain
+		label.TextSize = 13
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		window:BindTheme(label, "TextColor3", "TextMain")
+		window:BindFont(label, "Medium")
 
-		local dropList = Instance.new("ScrollingFrame", card)
-		dropList.Size = UDim2.new(hasActionButton and 0.42 or 0.56, 0, 0, 0)
-		dropList.Position = UDim2.new(0.38, 0, 1, 4)
-		dropList.BackgroundColor3 = window.Colors.DarkBtnBg
-		dropList.Visible = false
-		dropList.ZIndex = 100
-		dropList.ScrollBarThickness = 2
-		dropList.ScrollBarImageColor3 = window.Colors.AccentCyan
-		AddUICorner(dropList, 0, 6)
+		local arrow = Instance.new("TextLabel", frame)
+		arrow.Size = UDim2.new(0, 30, 0, headerHeight)
+		arrow.Position = UDim2.new(1, -35, 0, 0)
+		arrow.BackgroundTransparency = 1
+		arrow.Text = "▼"
+		arrow.TextColor3 = window.Colors.TextSub
+		arrow.TextSize = 11
+		window:BindTheme(arrow, "TextColor3", "TextSub")
+		window:BindFont(arrow, "Bold")
 
-		local listLayout = Instance.new("UIListLayout", dropList)
+		local listContainer = Instance.new("ScrollingFrame", frame)
+		listContainer.Size = UDim2.new(1, 0, 0, 0)
+		listContainer.Position = UDim2.new(0, 0, 0, headerHeight + 4)
+		listContainer.BackgroundColor3 = window.Colors.Window
+		listContainer.BorderSizePixel = 0
+		listContainer.ZIndex = 50
+		listContainer.CanvasSize = UDim2.new(0, 0, 0, #items * itemHeight)
+		listContainer.ScrollBarThickness = 2
+		listContainer.ClipsDescendants = true
+		AddUICorner(listContainer, 6)
+		local listStroke = AddUIStroke(listContainer, window.Colors.Border)
+
+		window:BindTheme(listContainer, "BackgroundColor3", "Window")
+		window:BindTheme(listStroke, "Color", "Border")
+
+		local listLayout = Instance.new("UIListLayout", listContainer)
 		listLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-		local isOpen = false
-		local selectedValue = default
-
 		local function ToggleDrop()
-			isOpen = not isOpen
-			if isOpen then
-				dropList.Visible = true
-				local targetH = math.min(#items * 24, 90)
-				dropList.CanvasSize = UDim2.new(0, 0, 0, #items * 24)
-				TweenService:Create(dropList, TweenInfo.new(0.2), { Size = UDim2.new(hasActionButton and 0.42 or 0.56, 0, 0, targetH) }):Play()
-				dropHeader.Text = tostring(selectedValue) .. "  ▲"
-			else
-				local tw = TweenService:Create(dropList, TweenInfo.new(0.15), { Size = UDim2.new(hasActionButton and 0.42 or 0.56, 0, 0, 0) })
-				tw:Play()
-				tw.Completed:Connect(function()
-					if not isOpen then dropList.Visible = false end
+			isDropped = not isDropped
+			arrow.Text = isDropped and "▲" or "▼"
+			local targetListH = isDropped and (visibleCount * itemHeight) or 0
+			local targetFrameH = isDropped and (headerHeight + targetListH + 8) or headerHeight
+
+			TweenService:Create(frame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(1, -5, 0, targetFrameH)
+			}):Play()
+
+			TweenService:Create(listContainer, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+				Size = UDim2.new(1, 0, 0, targetListH)
+			}):Play()
+		end
+
+		local function RefreshItems(newItems)
+			items = newItems or items
+			for _, child in ipairs(listContainer:GetChildren()) do
+				if child:IsA("TextButton") then child:Destroy() end
+			end
+
+			listContainer.CanvasSize = UDim2.new(0, 0, 0, #items * itemHeight)
+			visibleCount = math.clamp(#items, 1, maxVisibleItems)
+
+			for i, v in ipairs(items) do
+				local itemBtn = Instance.new("TextButton", listContainer)
+				itemBtn.Size = UDim2.new(1, 0, 0, itemHeight)
+				itemBtn.BackgroundColor3 = window.Colors.Window
+				itemBtn.Text = tostring(v)
+				itemBtn.TextColor3 = (v == currentChoice) and window.Colors.Accent or window.Colors.TextSub
+				itemBtn.TextSize = 12
+				itemBtn.ZIndex = 51
+				window:BindTheme(itemBtn, "BackgroundColor3", "Window")
+				window:BindFont(itemBtn, "Main")
+
+				itemBtn.MouseButton1Click:Connect(function()
+					currentChoice = v
+					label.Text = dropText .. ": " .. tostring(currentChoice)
+					callback(v)
+					ToggleDrop()
 				end)
-				dropHeader.Text = tostring(selectedValue) .. "  ▼"
 			end
 		end
 
-		dropHeader.MouseButton1Click:Connect(ToggleDrop)
+		RefreshItems(items)
 
-		for _, item in ipairs(items) do
-			local itemBtn = Instance.new("TextButton", dropList)
-			itemBtn.Size = UDim2.new(1, 0, 0, 24)
-			itemBtn.BackgroundTransparency = 1
-			itemBtn.Text = tostring(item)
-			itemBtn.TextColor3 = Color3.fromRGB(240, 240, 240)
-			itemBtn.TextSize = 9
-			itemBtn.Font = Enum.Font.GothamMedium
-			itemBtn.ZIndex = 101
+		local headerBtn = Instance.new("TextButton", frame)
+		headerBtn.Size = UDim2.new(1, 0, 0, headerHeight)
+		headerBtn.BackgroundTransparency = 1
+		headerBtn.Text = ""
+		headerBtn.ZIndex = 10
+		headerBtn.MouseButton1Click:Connect(ToggleDrop)
 
-			itemBtn.MouseButton1Click:Connect(function()
-				selectedValue = item
-				dropHeader.Text = tostring(selectedValue) .. "  ▼"
-				ToggleDrop()
-				if not hasActionButton then callback(selectedValue) end
-			end)
+		local DropObj = {}
+		function DropObj:Refresh(newList)
+			RefreshItems(newList)
 		end
+		return DropObj
+	end
 
-		if actionBtn then
-			actionBtn.MouseButton1Click:Connect(function()
-				callback(selectedValue)
-			end)
-		end
+	function TabObj:AddTextBox(options)
+		options = options or {}
+		local boxText = options.Text or "Input"
+		local placeholder = options.Placeholder or "Enter text..."
+		local callback = options.Callback or function() end
+
+		local frame = Instance.new("Frame", page)
+		frame.Size = UDim2.new(1, -5, 0, 38)
+		frame.BackgroundColor3 = window.Colors.Background
+		AddUICorner(frame, 6)
+		local stroke = AddUIStroke(frame, window.Colors.Border)
+		window:BindTheme(frame, "BackgroundColor3", "Background")
+		window:BindTheme(stroke, "Color", "Border")
+
+		local label = Instance.new("TextLabel", frame)
+		label.Size = UDim2.new(0, 100, 1, 0)
+		label.Position = UDim2.new(0, 12, 0, 0)
+		label.BackgroundTransparency = 1
+		label.Text = boxText
+		label.TextColor3 = window.Colors.TextMain
+		label.TextSize = 13
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		window:BindTheme(label, "TextColor3", "TextMain")
+		window:BindFont(label, "Medium")
+
+		local textBox = Instance.new("TextBox", frame)
+		textBox.Size = UDim2.new(1, -125, 0, 26)
+		textBox.Position = UDim2.new(0, 115, 0.5, -13)
+		textBox.BackgroundColor3 = window.Colors.SidebarUnselected
+		textBox.Text = ""
+		textBox.PlaceholderText = placeholder
+		textBox.TextColor3 = window.Colors.TextMain
+		textBox.PlaceholderColor3 = window.Colors.TextSub
+		textBox.TextSize = 12
+		textBox.ClearTextOnFocus = false
+		AddUICorner(textBox, 4)
+		window:BindTheme(textBox, "BackgroundColor3", "SidebarUnselected")
+		window:BindTheme(textBox, "TextColor3", "TextMain")
+		window:BindFont(textBox, "Main")
+
+		textBox.FocusLost:Connect(function(enterPressed)
+			callback(textBox.Text, enterPressed)
+		end)
 	end
 
 	return TabObj
