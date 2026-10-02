@@ -7,6 +7,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
 
 local NovaUI = {}
 NovaUI.Version = "2.0"
@@ -155,6 +156,7 @@ function NovaUI:CreateWindow(config)
 		StartOpen = config.StartOpen ~= false,
 		Font = config.Font or Enum.Font.BuilderSans,
 		FontMedium = config.FontMedium or Enum.Font.BuilderSansMedium,
+		FontBold = config.FontBold or Enum.Font.BuilderSansBold,
 		Version = config.Version or "v2.0",
 		Parent = config.Parent,
 	}
@@ -353,15 +355,53 @@ function NovaUI:CreateWindow(config)
 		Size = UDim2.new(1, -24, 1, -118),
 		Parent = main,
 	})
+
+	-- Bổ sung: Khung chứa thanh Tìm kiếm + Tab Rail
+	local sidebar = create("Frame", {
+		Name = "Sidebar",
+		Size = UDim2.new(0, 150, 1, 0),
+		BackgroundTransparency = 1,
+		Parent = body,
+	})
+
+	-- Bổ sung: Ô Search Bar
+	local searchFrame = create("Frame", {
+		Name = "SearchFrame",
+		Size = UDim2.new(1, 0, 0, 30),
+		BackgroundColor3 = WHITE,
+		BackgroundTransparency = 0.93,
+		BorderSizePixel = 0,
+		Parent = sidebar,
+	})
+	corner(searchFrame, UDim.new(0, 8))
+	stroke(searchFrame, WHITE, 0.85, 1)
+
+	local searchBox = create("TextBox", {
+		Name = "SearchBox",
+		BackgroundTransparency = 1,
+		Position = UDim2.fromOffset(8, 0),
+		Size = UDim2.new(1, -16, 1, 0),
+		Font = cfg.Font,
+		TextSize = 12,
+		TextColor3 = WHITE,
+		PlaceholderText = "🔍 Tìm kiếm...",
+		PlaceholderColor3 = Color3.fromRGB(170, 170, 185),
+		Text = "",
+		ClearTextOnFocus = false,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = searchFrame,
+	})
+
 	local rail = create("ScrollingFrame", {
 		Name = "Rail",
-		Size = UDim2.new(0, 150, 1, 0),
+		Position = UDim2.fromOffset(0, 36),
+		Size = UDim2.new(1, 0, 1, -36),
 		BackgroundColor3 = WHITE,
 		BackgroundTransparency = 0.93,
 		BorderSizePixel = 0,
 		ScrollBarThickness = 0,
 		CanvasSize = UDim2.new(),
-		Parent = body,
+		Parent = sidebar,
 	})
 	corner(rail, UDim.new(0, 12))
 	self._rail = rail
@@ -404,6 +444,32 @@ function NovaUI:CreateWindow(config)
 	})
 	corner(self._pages, UDim.new(0, 12))
 
+	-- Logic xử lý Lọc từ khóa Tìm kiếm (Search)
+	searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local query = string.lower(searchBox.Text):gsub("^%s*(.-)%s*$", "%1")
+		if not self.ActiveTab then return end
+
+		for _, item in ipairs(self.ActiveTab.Scroll:GetChildren()) do
+			if item:IsA("Frame") or item:IsA("TextLabel") then
+				if query == "" then
+					item.Visible = true
+				else
+					local titleLabel = item:FindFirstChild("Title") or (item:IsA("TextLabel") and item)
+					local descLabel = item:FindFirstChild("Description")
+					local match = false
+
+					if titleLabel and string.find(string.lower(titleLabel.Text), query, 1, true) then
+						match = true
+					elseif descLabel and string.find(string.lower(descLabel.Text), query, 1, true) then
+						match = true
+					end
+
+					item.Visible = match
+				end
+			end
+		end
+	end)
+
 	-- thanh trạng thái
 	local status = create("Frame", {
 		Name = "Status",
@@ -418,7 +484,7 @@ function NovaUI:CreateWindow(config)
 	self._footer = create("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(12, 0),
-		Size = UDim2.new(1, -80, 1, 0),
+		Size = UDim2.new(1, -150, 1, 0),
 		Font = cfg.Font,
 		TextSize = 12,
 		TextColor3 = WHITE,
@@ -426,11 +492,41 @@ function NovaUI:CreateWindow(config)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = status,
 	})
+
+	-- Bổ sung: FPS Counter góc dưới bên phải
+	local fpsLabel = create("TextLabel", {
+		Name = "FPSCounter",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -80, 0, 0),
+		Size = UDim2.new(0, 60, 1, 0),
+		Font = cfg.FontMedium,
+		TextSize = 12,
+		Text = "FPS: 60",
+		TextColor3 = WHITE,
+		TextTransparency = 0.35,
+		TextXAlignment = Enum.TextXAlignment.Right,
+		Parent = status,
+	})
+
+	local frameCount = 0
+	local lastCheck = os.clock()
+	table.insert(self._conns, RunService.RenderStepped:Connect(function()
+		frameCount += 1
+		local now = os.clock()
+		if now - lastCheck >= 0.5 then
+			local fps = math.floor(frameCount / (now - lastCheck) + 0.5)
+			fpsLabel.Text = "FPS: " .. fps
+			frameCount = 0
+			lastCheck = now
+		end
+	end))
+
 	create("TextLabel", {
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -36, 0, 0),
-		Size = UDim2.new(0, 50, 1, 0),
+		Position = UDim2.new(1, -12, 0, 0),
+		Size = UDim2.new(0, 60, 1, 0),
 		Font = cfg.Font,
 		TextSize = 12,
 		Text = cfg.Version,
@@ -885,7 +981,9 @@ function Window:AddTab(opts)
 	local cfg = self.Config
 	local idx = #self.Tabs + 1
 	local name = opts.Title or opts.Name or ("Tab " .. idx)
-	local icon = toAsset(opts.Icon)
+	local rawIcon = opts.Icon or opts.IconText or ""
+	local assetIcon = toAsset(rawIcon)
+	local isUnicodeIcon = (assetIcon == "" and type(rawIcon) == "string" and rawIcon ~= "")
 
 	local btn = create("TextButton", {
 		Name = "Tab_" .. name,
@@ -896,22 +994,40 @@ function Window:AddTab(opts)
 		Size = UDim2.new(1, -16, 0, 38),
 		Parent = self._rail,
 	})
-	local textOffset = if icon ~= "" then 38 else 14
-	if icon ~= "" then
+
+	local hasIcon = (assetIcon ~= "" or isUnicodeIcon)
+	local textOffset = if hasIcon then 38 else 14
+
+	-- Bổ sung: Hỗ trợ cả Icon ID Ảnh lẫn Icon Ký tự Unicode (In đậm)
+	if assetIcon ~= "" then
 		create("ImageLabel", {
 			BackgroundTransparency = 1,
 			AnchorPoint = Vector2.new(0, 0.5),
 			Position = UDim2.new(0, 12, 0.5, 0),
 			Size = UDim2.fromOffset(18, 18),
-			Image = icon,
+			Image = assetIcon,
+			Parent = btn,
+		})
+	elseif isUnicodeIcon then
+		create("TextLabel", {
+			BackgroundTransparency = 1,
+			AnchorPoint = Vector2.new(0, 0.5),
+			Position = UDim2.new(0, 10, 0.5, 0),
+			Size = UDim2.fromOffset(20, 20),
+			Font = cfg.FontBold,
+			TextSize = 16,
+			Text = rawIcon,
+			TextColor3 = WHITE,
 			Parent = btn,
 		})
 	end
+
+	-- Bổ sung: In đậm tên Tab (FontBold)
 	local label = create("TextLabel", {
 		BackgroundTransparency = 1,
 		Position = UDim2.fromOffset(textOffset, 0),
 		Size = UDim2.new(1, -textOffset, 1, 0),
-		Font = cfg.FontMedium,
+		Font = cfg.FontBold,
 		TextSize = 14,
 		Text = name,
 		TextColor3 = WHITE,
