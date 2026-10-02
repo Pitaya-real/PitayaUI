@@ -1,18 +1,5 @@
 --[[
-	NovaUI v2 - thư viện UI kính mờ cho Roblox, cách dùng giống Fluent
-	Loại script: ModuleScript (đặt tên "NovaUI" trong ReplicatedStorage)
-	GUI được đặt trong PlayerGui của người chơi.
-
-	local NovaUI = require(game.ReplicatedStorage.NovaUI)
-	local Window = NovaUI:CreateWindow({ Title = "...", SubTitle = "...", Logo = "", FloatingIcon = "" })
-	local Tabs = { Main = Window:AddTab({ Title = "Chính" }) }
-	local Options = NovaUI.Options
-
-	Tabs.Main:AddToggle("Id", { Title = "...", Description = "...", Default = false, Callback = function(v) end })
-	Options.Id:OnChanged(function(v) end)
-	Options.Id:SetValue(true)
-	print(Options.Id.Value)
-	NovaUI:Notify({ Title = "...", Content = "...", Duration = 3 })
+	NovaUI v2 - Thư viện UI kính mờ cho Roblox (Dạng Loadstring / GitHub)
 ]]
 
 local Players = game:GetService("Players")
@@ -203,7 +190,13 @@ function NovaUI:CreateWindow(config)
 	self._notifyOrder = 0
 	NovaUI._window = self
 
-	local parent = cfg.Parent or Players.LocalPlayer:WaitForChild("PlayerGui")
+	-- TỰ ĐỘNG CHỌN PARENT TỐT NHẤT CHO EXECUTOR
+	local parent = cfg.Parent 
+		or (gethui and gethui()) 
+		or (game:GetService("CoreGui"):FindFirstChild("RobloxGui")) 
+		or game:GetService("CoreGui") 
+		or Players.LocalPlayer:WaitForChild("PlayerGui")
+
 	local guiName = "NovaUI_" .. cfg.Name
 	local old = parent:FindFirstChild(guiName)
 	if old then
@@ -497,7 +490,7 @@ function NovaUI:CreateWindow(config)
 		end)
 	end)
 
-	-- nơi hiện thông báo (góc dưới bên phải, hiện cả khi menu đang đóng)
+	-- nơi hiện thông báo
 	self._notifyHolder = create("Frame", {
 		Name = "Notifications",
 		BackgroundTransparency = 1,
@@ -1435,7 +1428,6 @@ function Tab:AddDropdown(id, opts)
 
 	local function setOpen(state)
 		open = state
-		-- đổi chiều cao hàng: UIListLayout tự đẩy các hàng bên dưới trượt theo
 		tween(row, { Size = UDim2.new(1, 0, 0, if state then 56 + 4 + panelH + 8 else 56) }, 0.38)
 		tween(arrow, { Rotation = if state then 180 else 0 }, 0.3)
 	end
@@ -1729,4 +1721,5 @@ end
 
 Tab.AddColorPicker = Tab.AddColorpicker
 
+-- BẮT BUỘC CÓ DÒNG NÀY ĐỂ MÁY CHỦ LOADSTRING TRẢ VỀ THƯ VIỆN
 return NovaUI
