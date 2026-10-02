@@ -1,27 +1,26 @@
---[[
-	Ví dụ dùng NovaUI (cách viết giống Fluent)
-	Loại script: LocalScript (đặt trong StarterPlayer > StarterPlayerScripts)
-	Cần có ModuleScript tên "NovaUI" trong ReplicatedStorage.
-]]
+-- =================================================================
+-- SCRIPT CHẠY UI LIBRARY NOVA UI (DẠNG LOADSTRING GITHUB)
+-- =================================================================
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local NovaUI = require(ReplicatedStorage:WaitForChild("NovaUI"))
+-- 1. Tải và nạp Library từ GitHub
+local rawUrl = "https://raw.githubusercontent.com/Tên_GitHub_Của_Bạn/NovaUI/main/source.lua"
+local NovaUI = loadstring(game:HttpGet(rawUrl))()
 
+-- 2. Tạo cửa sổ menu chính
 local Window = NovaUI:CreateWindow({
 	Title = "NovaMenu",
 	SubTitle = "Game của tôi",
 
-	-- Đổi ảnh bằng code: dán Asset ID ảnh của bạn (số hoặc "rbxassetid://...").
-	-- Để trống thì dùng chữ cái đầu của tên menu.
 	Logo = "",
 	FloatingIcon = "",
 
-	Size = UDim2.fromOffset(620, 420), -- kéo góc dưới phải để giãn
+	Size = UDim2.fromOffset(620, 420),
 	Accent = Color3.fromRGB(167, 139, 250),
-	MinimizeKey = Enum.KeyCode.M, -- phím ẩn hoặc hiện menu
-	Acrylic = true, -- làm nhòe nền game khi mở menu
+	MinimizeKey = Enum.KeyCode.M,
+	Acrylic = true,
 })
 
+-- 3. Tạo các Tab
 local Tabs = {
 	Audio = Window:AddTab({ Title = "Âm thanh" }),
 	Graphics = Window:AddTab({ Title = "Đồ họa" }),
@@ -74,12 +73,11 @@ Tabs.Audio:AddSlider("SfxVolume", {
 ---------------------------------------------------------------------
 Tabs.Graphics:AddSection("Hình ảnh")
 
--- Dropdown xổ ra sẽ đẩy các hàng bên dưới trượt xuống
 Tabs.Graphics:AddDropdown("Quality", {
 	Title = "Chất lượng hình ảnh",
 	Description = "Giảm xuống nếu máy bị giật",
 	Values = { "Thấp", "Trung bình", "Cao", "Siêu cao" },
-	Default = 2, -- số thứ tự hoặc tên đều được
+	Default = 2,
 })
 
 Tabs.Graphics:AddToggle("Shadows", {
@@ -143,7 +141,7 @@ Tabs.Player:AddInput("DisplayName", {
 	Title = "Tên hiển thị",
 	Description = "Nhấn Enter để lưu",
 	Placeholder = "Nhập tên của bạn",
-	Finished = true, -- chỉ chạy Callback khi nhấn Enter
+	Finished = true,
 	Callback = function(text)
 		if text:gsub("%s", "") == "" then
 			NovaUI:Notify({ Title = "Tên hiển thị", Content = "Hãy nhập nội dung trước" })
@@ -159,7 +157,6 @@ Tabs.Player:AddInput("GiftCode", {
 	Placeholder = "NOVA2026",
 	Finished = true,
 	Callback = function(code)
-		-- Gửi mã lên server bằng RemoteEvent của game bạn ở đây
 		NovaUI:Notify({ Title = "Mã quà tặng", Content = "Đã gửi mã: " .. code })
 	end,
 })
@@ -216,7 +213,7 @@ Tabs.Look:AddButton({
 	end,
 })
 
--- Chọn tab đầu tiên
+-- Chọn tab mặc định
 Window:SelectTab(1)
 
 NovaUI:Notify({
@@ -224,11 +221,3 @@ NovaUI:Notify({
 	Content = "Nhấn nút tròn hoặc phím M để ẩn hiện menu",
 	Duration = 4,
 })
-
--- Các hàm hay dùng khác:
---   Options.Music.Value                         đọc giá trị hiện tại
---   Options.Music:SetValue(false)               đổi giá trị bằng code
---   Window:SetLogo("rbxassetid://...")          đổi logo cạnh tên menu
---   Window:SetFloatingIcon("rbxassetid://...")  đổi ảnh nút nổi
---   Window:Open() / Window:Close() / Window:Toggle()
---   NovaUI:Destroy()
