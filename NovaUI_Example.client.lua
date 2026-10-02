@@ -11,8 +11,8 @@ local Window = NovaUI:CreateWindow({
 	Title = "NovaMenu",
 	SubTitle = "Game của tôi",
 
-	Logo = "",
-	FloatingIcon = "",
+	Logo = "73866843639743",
+	FloatingIcon = "73866843639743",
 
 	Size = UDim2.fromOffset(620, 420),
 	Accent = Color3.fromRGB(167, 139, 250),
