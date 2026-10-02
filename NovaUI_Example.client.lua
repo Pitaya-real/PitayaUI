@@ -3,7 +3,7 @@
 -- =================================================================
 
 -- 1. Tải và nạp Library từ GitHub
-local rawUrl = "https://raw.githubusercontent.com/Tên_GitHub_Của_Bạn/NovaUI/main/source.lua"
+local rawUrl = "https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/NovaUI.lua"
 local NovaUI = loadstring(game:HttpGet(rawUrl))()
 
 -- 2. Tạo cửa sổ menu chính
