@@ -22,12 +22,13 @@ local Window = NovaUI:CreateWindow({
 
 -- 3. Tạo các Tab
 local Tabs = {
-	Audio = Window:AddTab({ Title = "Âm thanh" }),
-	Graphics = Window:AddTab({ Title = "Đồ họa" }),
-	Controls = Window:AddTab({ Title = "Điều khiển" }),
-	Player = Window:AddTab({ Title = "Người chơi" }),
-	Look = Window:AddTab({ Title = "Giao diện" }),
+    Audio    = Window:AddTab({ Title = "Âm thanh", Icon = "🔊" }),
+    Graphics = Window:AddTab({ Title = "Đồ họa", Icon = "🎨" }),
+    Controls = Window:AddTab({ Title = "Điều khiển", Icon = "🎮" }),
+    Player   = Window:AddTab({ Title = "Người chơi", Icon = "👤" }),
+    Look     = Window:AddTab({ Title = "Giao diện", Icon = "⚙️" }),
 }
+
 
 local Options = NovaUI.Options
 
