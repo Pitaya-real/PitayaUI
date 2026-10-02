@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nova UI – Thư viện giao diện kính mờ cho Roblox</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0812;--card:rgba(255,255,255,.045);--ln:rgba(255,255,255,.1);--tx:#f4f2fb;--mu:#a29db8;--ac:#a78bfa;--ac2:#f472b6;--font-sans:Inter,"Segoe UI",system-ui,-apple-system,sans-serif}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--font-sans);line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(600px 400px at 15% 5%,rgba(167,139,250,.22),transparent),radial-gradient(500px 400px at 90% 30%,rgba(244,114,182,.14),transparent),radial-gradient(500px 400px at 30% 90%,rgba(45,212,191,.1),transparent)}
+a{color:inherit;text-decoration:none}button,input{font-family:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(16px);background:rgba(10,8,18,.65);border-bottom:1px solid var(--ln)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+.brand i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:grid;place-items:center;color:#15101f;font-size:17px}
+nav .lk{margin-left:auto;display:flex;gap:22px;font-size:14px;color:var(--mu)}
+nav .lk a:hover{color:var(--tx)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:12px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-size:14px;font-weight:500;cursor:pointer;transition:transform .2s,background .2s,border-color .2s}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.09)}
+.btn.p{background:linear-gradient(135deg,var(--ac),#8b6cf0);border-color:transparent;color:#15101f;font-weight:600}
+.btn.p:hover{background:linear-gradient(135deg,#b9a2ff,var(--ac))}
+.hero{text-align:center;padding:84px 0 40px}
+.pill{display:inline-flex;gap:8px;align-items:center;padding:6px 14px;border-radius:99px;border:1px solid var(--ln);background:var(--card);font-size:13px;color:var(--mu)}
+.pill b{color:var(--ac);font-weight:600}
+h1{font-size:clamp(36px,7vw,68px);line-height:1.08;margin:22px 0 18px;letter-spacing:-.03em}
+h1 span{background:linear-gradient(90deg,var(--ac),var(--ac2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.s{max-width:620px;margin:0 auto 30px;color:var(--mu);font-size:18px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+section{padding:56px 0}
+.hd{text-align:center;margin-bottom:34px}
+.hd small{color:var(--ac);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+.hd h2{font-size:clamp(26px,4vw,38px);margin:8px 0;letter-spacing:-.02em}
+.hd p{color:var(--mu);max-width:560px;margin:0 auto}
+.frame{border:1px solid var(--ln);border-radius:20px;padding:10px;background:var(--card);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.frame .bar{display:flex;gap:6px;padding:6px 8px 12px;align-items:center;font-size:12px;color:var(--mu)}
+.frame .bar u{width:10px;height:10px;border-radius:50%;background:#ff5f57}.frame .bar u:nth-child(2){background:#febc2e}.frame .bar u:nth-child(3){background:#28c840}
+.frame .bar span{margin-left:10px}
+#demo #nv{min-height:520px;border-radius:12px}
+.tips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:16px}
+.tips span{font-size:13px;color:var(--mu);padding:6px 12px;border:1px solid var(--ln);border-radius:99px;background:var(--card)}
+.tips kbd{background:rgba(255,255,255,.12);padding:1px 7px;border-radius:5px;font-family:inherit;color:var(--tx)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.card{padding:22px;border-radius:16px;border:1px solid var(--ln);background:var(--card);transition:transform .25s,border-color .25s}
+.card:hover{transform:translateY(-4px);border-color:rgba(167,139,250,.5)}
+.card i{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;background:rgba(167,139,250,.16);color:var(--ac);margin-bottom:14px}
+.card h3{font-size:16px;margin-bottom:6px}.card p{color:var(--mu);font-size:14px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:34px}
+.step{padding:18px;border-radius:14px;border:1px solid var(--ln);background:var(--card);font-size:14px;color:var(--mu)}
+.step b{display:flex;align-items:center;gap:10px;color:var(--tx);font-size:15px;margin-bottom:6px}
+.step em{font-style:normal;width:26px;height:26px;border-radius:50%;background:var(--ac);color:#15101f;display:grid;place-items:center;font-size:13px;font-weight:700}
+.docs{display:grid;grid-template-columns:210px 1fr;gap:18px;align-items:start}
+.list{position:sticky;top:76px;display:flex;flex-direction:column;gap:4px;padding:8px;border:1px solid var(--ln);border-radius:14px;background:var(--card)}
+.list button{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;border:none;background:none;color:var(--mu);font-size:14px;cursor:pointer;text-align:left;transition:background .2s,color .2s}
+.list button:hover{color:var(--tx);background:rgba(255,255,255,.06)}
+.list button.on{background:rgba(167,139,250,.2);color:var(--tx)}
+.list .g{font-size:11px;color:#6f6a85;text-transform:uppercase;letter-spacing:.08em;padding:10px 12px 4px}
+.pane{border:1px solid var(--ln);border-radius:16px;background:var(--card);padding:24px;min-width:0;animation:fi .35s both}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}}
+.pane h3{font-size:22px;display:flex;align-items:center;gap:10px}.pane h3 i{color:var(--ac)}
+.pane>p{color:var(--mu);margin:6px 0 18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:18px}
+th{text-align:left;color:var(--mu);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--ln)}
+td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top}
+td:first-child{white-space:nowrap}
+code,.cb{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+td code{color:var(--ac);background:rgba(167,139,250,.12);padding:1px 7px;border-radius:6px;font-size:12.5px}
+td .ty{color:#6ee7d4;font-size:12.5px}
+.codebox{position:relative;border:1px solid var(--ln);border-radius:12px;background:#0d0a18;overflow:hidden}
+.codebox .top{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--ln);font-size:12px;color:var(--mu)}
+.codebox button{display:flex;align-items:center;gap:6px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-size:12px;padding:4px 10px;border-radius:7px;cursor:pointer}
+.codebox button:hover{background:rgba(255,255,255,.1)}
+.cb{padding:16px;font-size:13px;line-height:1.65;overflow:auto;white-space:pre;tab-size:4;color:#d8d3ee}
+.cb.big{max-height:520px}
+.k{color:#f472b6}.s{color:#86efac}.n{color:#fbbf24}.c{color:#6b6685;font-style:italic}.f{color:#7dd3fc}
+.full .acts{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+footer{border-top:1px solid var(--ln);padding:30px 0;text-align:center;color:var(--mu);font-size:13px}
+@media(max-width:760px){nav .lk{display:none}nav .wrap{justify-content:space-between}.docs{grid-template-columns:1fr}.list{position:static;flex-direction:row;overflow-x:auto}.list .g{display:none}.list button{white-space:nowrap}.hero{padding-top:56px}}
+</style>
+<style id="demo-css"></style>
+</head><body>
+<nav><div class="wrap"><a class="brand" href="#"><i class="ti ti-sparkles"></i>Nova UI</a>
+<div class="lk"><a href="#demo">Dùng thử</a><a href="#features">Tính năng</a><a href="#docs">Cách dùng</a><a href="#code">Code mẫu</a></div>
+<a class="btn p" href="#code"><i class="ti ti-download"></i>Tải code</a></div></nav>
+
+<header class="wrap hero">
+<span class="pill"><b>v2.0</b> Thư viện UI cho Roblox</span>
+<h1>Menu game đẹp như kính mờ,<br><span>code chỉ vài dòng</span></h1>
+<p class="s">Nova UI giúp bạn dựng menu có tab, nút gạt, thanh kéo, ô nhập, đổi phím, chọn màu và thông báo. Hiệu ứng mượt, chạy được cả máy tính lẫn điện thoại.</p>
+<div class="cta"><a class="btn p" href="#demo"><i class="ti ti-player-play"></i>Dùng thử trực tiếp</a><a class="btn" href="#docs"><i class="ti ti-book-2"></i>Xem cách code</a></div>
+</header>
+
+<section id="demo"><div class="wrap">
+<div class="hd"><small>Dùng thử</small><h2>Thử UI ngay trên trang này</h2><p>Đây là bản chạy thật, không phải ảnh chụp. Bạn tự bấm, kéo và gõ thử.</p></div>
+<div class="frame"><div class="bar"><u></u><u></u><u></u><span>NovaMenu – bản xem trước</span></div><div id="demo-box"></div></div>
+<div class="tips"><span>Nhấn <kbd>M</kbd> để ẩn hiện menu</span><span>Kéo nút tròn đi khắp nơi</span><span>Gõ vào ô tìm kiếm để lọc chức năng</span><span>Tab Giao diện: đổi màu, đổi logo</span><span>Kéo góc dưới phải để đổi kích thước</span></div>
+</div></section>
+
+<section id="features"><div class="wrap">
+<div class="hd"><small>Tính năng</small><h2>Mọi thứ một menu game cần</h2></div>
+<div class="grid">
+<div class="card"><i class="ti ti-blur"></i><h3>Kính mờ Acrylic</h3><p>Nền mờ xuyên thấu, chỉnh được độ đậm ngay trong menu.</p></div>
+<div class="card"><i class="ti ti-wand"></i><h3>Animation mượt</h3><p>Chuyển tab, mở dropdown, bật tắt đều có hiệu ứng nhẹ nhàng.</p></div>
+<div class="card"><i class="ti ti-search"></i><h3>Tìm kiếm nhanh</h3><p>Gõ từ khóa là lọc chức năng trong mọi tab, kể cả khi gõ không dấu.</p></div>
+<div class="card"><i class="ti ti-palette"></i><h3>Tùy biến</h3><p>Đổi màu chủ đạo, logo, nút nổi và phím mở menu theo ý bạn.</p></div>
+<div class="card"><i class="ti ti-device-mobile"></i><h3>PC và điện thoại</h3><p>Nút nổi kéo thả được, bấm là mở hoặc ẩn menu.</p></div>
+<div class="card"><i class="ti ti-code"></i><h3>Code dễ đọc</h3><p>Mỗi thành phần chỉ một hàm, có Callback và Options để điều khiển.</p></div>
+</div></div></section>
+
+<section id="docs"><div class="wrap">
+<div class="hd"><small>Cách dùng</small><h2>Bắt đầu trong 4 bước</h2></div>
+<div class="steps">
+<div class="step"><b><em>1</em>Nạp thư viện</b>Dùng loadstring để tải NovaUI từ GitHub.</div>
+<div class="step"><b><em>2</em>Tạo cửa sổ</b>Gọi CreateWindow với tên, logo, màu và phím.</div>
+<div class="step"><b><em>3</em>Thêm tab</b>Mỗi tab là một nhóm chức năng bên trái.</div>
+<div class="step"><b><em>4</em>Thêm chức năng</b>Toggle, Slider, Dropdown, Button... vào từng tab.</div>
+</div>
+<div class="docs"><div class="list" id="list"></div><div class="pane" id="pane"></div></div>
+</div></section>
+
+<section id="code" class="full"><div class="wrap">
+<div class="hd"><small>Code mẫu</small><h2>Script Lua hoàn chỉnh</h2><p>Đây chính là menu ở phần dùng thử, viết bằng NovaUI. Chép vào executor hoặc LocalScript để chạy.</p></div>
+<div class="codebox"><div class="top"><span>NovaUI_Example_client.lua</span><button id="cp"><i class="ti ti-copy"></i><span>Sao chép</span></button></div><div class="cb big" id="lua"></div></div>
+<div class="acts"><button class="btn p" id="dl1"><i class="ti ti-file-code"></i>Tải file Lua mẫu</button><button class="btn" id="dl2"><i class="ti ti-browser"></i>Tải file HTML xem trước</button></div>
+</div></section>
+<footer>Nova UI v2.0 · Trang giới thiệu thư viện giao diện cho Roblox</footer>
+
+<script>
+var LUA="-- =================================================================\n-- SCRIPT CHẠY UI LIBRARY NOVA UI (DẠNG LOADSTRING GITHUB)\n-- =================================================================\n\n-- 1. Tải và nạp Library từ GitHub\nlocal rawUrl = \"https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/NovaUI.lua\"\nlocal NovaUI = loadstring(game:HttpGet(rawUrl))()\n\n-- 2. Tạo cửa sổ menu chính\nlocal Window = NovaUI:CreateWindow({\n\tTitle = \"NovaMenu\",\n\tSubTitle = \"Game của tôi\",\n\n\tLogo = \"73866843639743\",\n\tFloatingIcon = \"73866843639743\",\n\n\tSize = UDim2.fromOffset(620, 420),\n\tAccent = Color3.fromRGB(167, 139, 250),\n\tMinimizeKey = Enum.KeyCode.M,\n\tAcrylic = true,\n})\n\n-- 3. Tạo các Tab\nlocal Tabs = {\n    Audio    = Window:AddTab({ Title = \"Âm thanh\", Icon = \"🔊\" }),\n    Graphics = Window:AddTab({ Title = \"Đồ họa\", Icon = \"🎨\" }),\n    Controls = Window:AddTab({ Title = \"Điều khiển\", Icon = \"🎮\" }),\n    Player   = Window:AddTab({ Title = \"Người chơi\", Icon = \"👤\" }),\n    Look     = Window:AddTab({ Title = \"Giao diện\", Icon = \"⚙️\" }),\n}\n\n\nlocal Options = NovaUI.Options\n\n---------------------------------------------------------------------\n-- Âm thanh\n---------------------------------------------------------------------\nTabs.Audio:AddSection(\"Nhạc\")\n\nTabs.Audio:AddToggle(\"Music\", {\n\tTitle = \"Bật nhạc nền\",\n\tDescription = \"Phát nhạc khi vào game\",\n\tDefault = true,\n})\nOptions.Music:OnChanged(function(on)\n\tprint(\"Nhạc nền:\", on)\nend)\n\nTabs.Audio:AddSlider(\"MusicVolume\", {\n\tTitle = \"Âm lượng nhạc\",\n\tDescription = \"Điều chỉnh độ lớn nhạc nền\",\n\tDefault = 70,\n\tMin = 0,\n\tMax = 100,\n\tRounding = 0,\n\tSuffix = \"%\",\n\tCallback = function(value)\n\t\tprint(\"Âm lượng nhạc:\", value)\n\tend,\n})\n\nTabs.Audio:AddSlider(\"SfxVolume\", {\n\tTitle = \"Hiệu ứng âm thanh\",\n\tDescription = \"Tiếng bước chân, va chạm\",\n\tDefault = 85,\n\tMin = 0,\n\tMax = 100,\n\tRounding = 0,\n\tSuffix = \"%\",\n})\n\n---------------------------------------------------------------------\n-- Đồ họa\n---------------------------------------------------------------------\nTabs.Graphics:AddSection(\"Hình ảnh\")\n\nTabs.Graphics:AddDropdown(\"Quality\", {\n\tTitle = \"Chất lượng hình ảnh\",\n\tDescription = \"Giảm xuống nếu máy bị giật\",\n\tValues = { \"Thấp\", \"Trung bình\", \"Cao\", \"Siêu cao\" },\n\tDefault = 2,\n})\n\nTabs.Graphics:AddToggle(\"Shadows\", {\n\tTitle = \"Đổ bóng\",\n\tDescription = \"Bóng đổ của nhân vật và vật thể\",\n\tDefault = true,\n\tCallback = function(on)\n\t\tgame:GetService(\"Lighting\").GlobalShadows = on\n\tend,\n})\n\nTabs.Graphics:AddButton({\n\tTitle = \"Đặt lại đồ họa\",\n\tDescription = \"Trả về cài đặt mặc định\",\n\tButtonText = \"Đặt lại\",\n\tCallback = function()\n\t\tOptions.Quality:SetValue(\"Trung bình\")\n\t\tOptions.Shadows:SetValue(true)\n\t\tNovaUI:Notify({ Title = \"Đồ họa\", Content = \"Đã đặt lại về mặc định\", Duration = 2.5 })\n\tend,\n})\n\n---------------------------------------------------------------------\n-- Điều khiển\n---------------------------------------------------------------------\nTabs.Controls:AddSection(\"Phím và camera\")\n\nTabs.Controls:AddSlider(\"CameraSensitivity\", {\n\tTitle = \"Độ nhạy camera\",\n\tDescription = \"Tốc độ xoay khi kéo màn hình\",\n\tDefault = 50,\n\tMin = 0,\n\tMax = 100,\n\tRounding = 0,\n\tSuffix = \"%\",\n})\n\nTabs.Controls:AddKeybind(\"MenuKey\", {\n\tTitle = \"Phím mở menu\",\n\tDescription = \"Bấm vào rồi nhấn phím mới (Esc để hủy)\",\n\tDefault = \"M\",\n\tChangedCallback = function(keyName)\n\t\tWindow:SetMinimizeKey(keyName)\n\t\tNovaUI:Notify({ Title = \"Đã đổi phím\", Content = \"Phím mở menu: \" .. keyName })\n\tend,\n})\n\nTabs.Controls:AddDropdown(\"MoveMode\", {\n\tTitle = \"Kiểu di chuyển\",\n\tDescription = \"Cách điều khiển nhân vật\",\n\tValues = { \"Cần điều khiển\", \"Chạm để đi\" },\n\tDefault = \"Cần điều khiển\",\n})\n\n---------------------------------------------------------------------\n-- Người chơi\n---------------------------------------------------------------------\nTabs.Player:AddSection(\"Hồ sơ\")\n\nTabs.Player:AddInput(\"DisplayName\", {\n\tTitle = \"Tên hiển thị\",\n\tDescription = \"Nhấn Enter để lưu\",\n\tPlaceholder = \"Nhập tên của bạn\",\n\tFinished = true,\n\tCallback = function(text)\n\t\tif text:gsub(\"%s\", \"\") == \"\" then\n\t\t\tNovaUI:Notify({ Title = \"Tên hiển thị\", Content = \"Hãy nhập nội dung trước\" })\n\t\t\treturn\n\t\tend\n\t\tNovaUI:Notify({ Title = \"Đã lưu tên\", Content = text })\n\tend,\n})\n\nTabs.Player:AddInput(\"GiftCode\", {\n\tTitle = \"Mã quà tặng\",\n\tDescription = \"Nhập mã rồi nhấn Enter\",\n\tPlaceholder = \"NOVA2026\",\n\tFinished = true,\n\tCallback = function(code)\n\t\tNovaUI:Notify({ Title = \"Mã quà tặng\", Content = \"Đã gửi mã: \" .. code })\n\tend,\n})\n\nTabs.Player:AddToggle(\"ShowName\", {\n\tTitle = \"Hiện tên trên đầu\",\n\tDescription = \"Người khác thấy tên của bạn\",\n\tDefault = true,\n})\n\nTabs.Player:AddParagraph({\n\tTitle = \"Ghi chú\",\n\tContent = \"Ô nhập, nút, đoạn ghi chú như thế này đều dùng được trong mọi tab.\",\n})\n\n---------------------------------------------------------------------\n-- Giao diện\n---------------------------------------------------------------------\nTabs.Look:AddSection(\"Tùy chỉnh menu\")\n\nTabs.Look:AddColorpicker(\"Accent\", {\n\tTitle = \"Màu chủ đạo\",\n\tDescription = \"Đổi màu nhấn của toàn menu\",\n\tDefault = Color3.fromRGB(167, 139, 250),\n\tCallback = function(color)\n\t\tWindow:SetAccent(color)\n\tend,\n})\n\nTabs.Look:AddSlider(\"Opacity\", {\n\tTitle = \"Độ đậm cửa sổ\",\n\tDescription = \"Kéo lên để nền đậm hơn, kéo xuống để nhìn xuyên hơn\",\n\tDefault = 70,\n\tMin = 10,\n\tMax = 100,\n\tRounding = 0,\n\tSuffix = \"%\",\n\tCallback = function(value)\n\t\tWindow:SetOpacity(value / 100)\n\tend,\n})\n\nTabs.Look:AddButton({\n\tTitle = \"Thông báo thử\",\n\tDescription = \"Xem hiệu ứng thông báo\",\n\tButtonText = \"Thử\",\n\tCallback = function()\n\t\tNovaUI:Notify({\n\t\t\tTitle = \"Xin chào\",\n\t\t\tContent = \"Đây là thông báo từ NovaUI\",\n\t\t\tSubContent = \"Tự biến mất sau 3 giây\",\n\t\t\tDuration = 3,\n\t\t})\n\tend,\n})\n\n-- Chọn tab mặc định\nWindow:SelectTab(1)\n\nNovaUI:Notify({\n\tTitle = \"NovaMenu\",\n\tContent = \"Nhấn nút tròn hoặc phím M để ẩn hiện menu\",\n\tDuration = 4,\n})\n",DEMO_CSS="#nv{--ac:#a78bfa;--ac2:color-mix(in srgb,var(--ac) 24%,transparent);--wb:rgba(24,18,46,.42);--sb:rgba(255,255,255,.07);--e:cubic-bezier(.2,.8,.2,1);border-radius:12px;padding:18px 18px 80px;background:#3b7fd0;position:relative;overflow:hidden;font-family:var(--font-sans);min-height:500px}\n#nv .gr{position:absolute;left:0;right:0;bottom:0;height:60px;background:#4fae52}\n#nv .bl{position:absolute;border-radius:50%;will-change:transform}\n#nv .b1{width:130px;height:130px;background:#f59e0b;left:6%;top:8%;animation:d1 9s ease-in-out infinite alternate}\n#nv .b2{width:110px;height:110px;background:#ec4899;right:8%;top:30%;animation:d2 11s ease-in-out infinite alternate}\n#nv .b3{width:90px;height:90px;background:#22c55e;left:42%;bottom:20%;animation:d1 8s ease-in-out infinite alternate-reverse}\n@keyframes d1{to{transform:translate(70px,40px)}}\n@keyframes d2{to{transform:translate(-90px,50px)}}\n#nv .win{position:relative;background:var(--wb);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);border:0.5px solid rgba(255,255,255,.28);border-radius:18px;padding:12px;color:#fff;transform:translateY(14px) scale(.94);opacity:0;pointer-events:none;transition:transform .42s var(--e),opacity .3s ease;will-change:transform,opacity}\n#nv .win.show{transform:none;opacity:1;pointer-events:auto}\n#nv .tb{display:flex;align-items:center;gap:10px;background:var(--sb);border-radius:12px;padding:8px 12px}\n#nv .lg{width:30px;height:30px;border-radius:8px;background:var(--ac);display:flex;align-items:center;justify-content:center;color:#15101f;font-size:18px;overflow:hidden;flex:none;transition:background .3s}\n#nv .tt{flex:1}\n#nv .tt b{display:block;font-weight:500;font-size:15px}\n#nv .tt span{font-size:12px;color:rgba(255,255,255,.7)}\n#nv .ib{font-size:18px;color:rgba(255,255,255,.75);padding:4px;border-radius:6px;cursor:pointer;transition:background .2s,transform .2s}\n#nv .ib:hover{background:rgba(255,255,255,.14);transform:scale(1.1)}\n#nv .bd{display:flex;gap:10px;margin-top:10px;height:290px}\n#nv .lc{width:165px;display:flex;flex-direction:column;gap:8px;flex:none}\n#nv .srch{display:flex;align-items:center;gap:6px;height:36px;padding:0 10px;border-radius:12px;background:var(--sb);border:0.5px solid rgba(255,255,255,.2);flex:none;transition:border-color .2s,background .2s}\n#nv .srch:focus-within{border-color:var(--ac);background:rgba(255,255,255,.12)}\n#nv .srch i{font-size:15px;color:rgba(255,255,255,.6)}\n#nv .srch input{flex:1;min-width:0;width:auto;height:100%;padding:0;border:none;border-radius:0;background:transparent;color:#fff;font-size:12px;outline:none;box-shadow:none}\n#nv .srch input:hover,#nv .srch input:focus{border:none;box-shadow:none}\n#nv .srch input::placeholder{color:rgba(255,255,255,.5)}\n#nv .rail.s .ind{opacity:0}\n#nv .rail.s .tab.on{color:rgba(255,255,255,.72)}\n#nv .ind{transition:transform .38s var(--e),background .3s,border-color .3s,opacity .2s}\n#nv .rt{display:flex;gap:18px;padding-right:20px}\n#nv .rz{position:absolute;right:7px;bottom:7px;width:16px;height:16px;cursor:nwse-resize;touch-action:none;color:rgba(255,255,255,.65)}\n#nv .rail{flex:1;min-height:0;display:flex;flex-direction:column;gap:4px;background:var(--sb);border-radius:12px;padding:8px;position:relative;flex:none}\n#nv .ind{position:absolute;left:8px;right:8px;top:8px;height:38px;border-radius:8px;background:var(--ac2);border-left:3px solid var(--ac);transition:transform .38s var(--e),background .3s,border-color .3s;will-change:transform}\n#nv .tab{position:relative;display:flex;align-items:center;gap:8px;height:38px;padding:0 10px 0 13px;border-radius:8px;font-size:13px;color:rgba(255,255,255,.72);cursor:pointer;transition:color .25s;flex:none}\n#nv .tab:hover,#nv .tab.on{color:#fff}\n#nv .tab i{font-size:17px}\n#nv .ct{flex:1;min-width:0;background:var(--sb);border-radius:12px;padding:10px 8px 4px 12px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.3) transparent;transition:opacity .14s ease,transform .14s ease}\n#nv .ct.out{opacity:0;transform:translateY(6px)}\n#nv .sec2{font-size:12px;color:var(--ac);margin:2px 0 8px;animation:ri .4s var(--e) both;transition:color .3s}\n#nv .rw{margin:0 6px 8px 0;animation:ri .4s var(--e) both}\n@keyframes ri{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}\n#nv .row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;border:0.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);transition:background .2s,transform .2s}\n#nv .row:hover{background:rgba(255,255,255,.1);transform:translateX(2px)}\n#nv .lb{min-width:0}\n#nv .row b{display:block;font-weight:500;font-size:13px}\n#nv .row span.d{font-size:12px;color:rgba(255,255,255,.62)}\n#nv .tg{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.22);position:relative;cursor:pointer;flex:none;transition:background .28s}\n#nv .tg::after{content:\"\";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .32s var(--e),background .28s;will-change:transform}\n#nv .tg.on{background:var(--ac)}\n#nv .tg.on::after{transform:translateX(18px);background:#15101f}\n#nv .sl{display:flex;align-items:center;gap:8px;flex:none}\n#nv .trk{width:110px;height:6px;border-radius:3px;background:rgba(255,255,255,.22);position:relative;cursor:pointer;touch-action:none}\n#nv .fl{height:6px;border-radius:3px;background:var(--ac)}\n#nv .kn{position:absolute;top:-5px;width:16px;height:16px;border-radius:50%;background:#fff;margin-left:-8px;transition:transform .15s}\n#nv .trk:active .kn{transform:scale(1.2)}\n#nv .sv{font-size:12px;min-width:32px;text-align:right;color:rgba(255,255,255,.85)}\n#nv .sb{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:0.5px solid rgba(255,255,255,.3);font-size:12px;cursor:pointer;flex:none;transition:background .2s}\n#nv .sb:hover{background:rgba(255,255,255,.1)}\n#nv .sb i{transition:transform .3s var(--e)}\n#nv .rw.open .sb i{transform:rotate(180deg)}\n#nv .dd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .36s var(--e)}\n#nv .rw.open .dd{grid-template-rows:1fr}\n#nv .ddi{overflow:hidden;min-height:0}\n#nv .ddp{margin-top:4px;padding:4px;border-radius:10px;border:0.5px solid rgba(255,255,255,.16);background:rgba(0,0,0,.2)}\n#nv .op{padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;transition:background .15s}\n#nv .op:hover{background:rgba(255,255,255,.12)}\n#nv .op.cur{color:var(--ac)}\n#nv .ab{background:var(--ac);color:#15101f;border:none;border-radius:8px;padding:0 14px;height:30px;font-size:12px;font-weight:500;cursor:pointer;flex:none;transition:transform .15s,background .3s}\n#nv .ab:hover{transform:translateY(-1px)}\n#nv .ab:active{transform:scale(.95)}\n#nv .in{width:140px;height:30px;padding:0 10px;border-radius:8px;border:0.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;font-size:12px;outline:none;box-shadow:none;flex:none;transition:border-color .2s,background .2s}\n#nv .in::placeholder{color:rgba(255,255,255,.45)}\n#nv .in:focus{border-color:var(--ac);background:rgba(255,255,255,.14);box-shadow:none}\n#nv .kb{min-width:44px;text-align:center;padding:6px 10px;border-radius:8px;border:0.5px solid rgba(255,255,255,.3);font-size:12px;cursor:pointer;flex:none;transition:background .2s,border-color .2s}\n#nv .kb.ls{border-color:var(--ac);background:var(--ac2)}\n#nv .sws{display:flex;gap:8px;flex:none}\n#nv .swc{width:20px;height:20px;border-radius:50%;cursor:pointer;transition:transform .25s var(--e),outline-color .2s;outline:2px solid transparent;outline-offset:2px}\n#nv .swc:hover{transform:scale(1.15)}\n#nv .swc.on{outline-color:#fff}\n#nv .st{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,.65);background:var(--sb);border-radius:10px}\n#nv .ts{position:absolute;left:50%;bottom:52px;transform:translate(-50%,10px);background:rgba(10,8,20,.9);border:0.5px solid var(--ac);color:#fff;font-size:12px;padding:8px 14px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .25s,transform .35s var(--e);white-space:nowrap;z-index:9}\n#nv .ts.on{opacity:1;transform:translate(-50%,0)}\n#nv .fab{position:absolute;left:16px;bottom:14px;width:48px;height:48px;border-radius:50%;background:var(--ac);color:#15101f;border:0.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:grab;touch-action:none;overflow:hidden;z-index:10;transition:transform .25s var(--e),background .3s;user-select:none}\n#nv .fab:hover{transform:scale(1.08)}\n#nv .fab:active{transform:scale(.94);cursor:grabbing}\n@media (prefers-reduced-motion:reduce){#nv *{animation:none!important;transition-duration:.01s!important}}\n",DEMO_HTML="<div id=\"nv\"><div class=\"bl b1\"><\/div><div class=\"bl b2\"><\/div><div class=\"bl b3\"><\/div><div class=\"gr\"><\/div>\n<div class=\"win\" id=\"win\">\n<div class=\"tb\"><div class=\"lg\" id=\"lg\"><i class=\"ti ti-sparkles\" aria-hidden=\"true\"><\/i><\/div>\n<div class=\"tt\"><b>NovaMenu<\/b><span>Game của tôi<\/span><\/div>\n<i class=\"ti ti-x ib\" aria-label=\"Đóng\" id=\"cl\"><\/i><\/div>\n<div class=\"bd\" id=\"bd\"><div class=\"lc\"><label class=\"srch\"><i class=\"ti ti-search\" aria-hidden=\"true\"><\/i><input id=\"q\" type=\"text\" placeholder=\"Tìm kiếm...\" autocomplete=\"off\" aria-label=\"Tìm kiếm\"><\/label><div class=\"rail\" id=\"rail\"><div class=\"ind\" id=\"ind\"><\/div><div id=\"tabs\" style=\"display:contents\"><\/div><\/div><\/div><div class=\"ct\" id=\"ct\"><\/div><\/div>\n<div class=\"st\"><span id=\"hint\">Nhấn M để ẩn hoặc hiện menu<\/span><span class=\"rt\"><span id=\"fps\">FPS: 60<\/span><span>v2.0<\/span><\/span><\/div>\n<svg class=\"rz\" id=\"rz\" viewBox=\"0 0 16 16\" aria-label=\"Đổi kích thước\"><path d=\"M14 4L4 14M14 9L9 14\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" fill=\"none\"/><\/svg>\n<div class=\"ts\" id=\"ts\"><\/div>\n<\/div>\n<div class=\"fab\" id=\"fab\" aria-label=\"Mở hoặc đóng menu\"><i class=\"ti ti-sparkles\" aria-hidden=\"true\"><\/i><\/div>\n<\/div>\n<input type=\"file\" accept=\"image/*\" id=\"f1\" style=\"display:none\"><input type=\"file\" accept=\"image/*\" id=\"f2\" style=\"display:none\">\n",DEMO_JS="var D=[\n{n:'Âm thanh',i:'ti-volume',r:[\n{t:'sec',l:'Nhạc'},\n{t:'tg',l:'Bật nhạc nền',d:'Phát nhạc khi vào game',v:1},\n{t:'sl',l:'Âm lượng nhạc',d:'Điều chỉnh độ lớn nhạc nền',v:70},\n{t:'sl',l:'Hiệu ứng âm thanh',d:'Tiếng bước chân, va chạm',v:85}]},\n{n:'Đồ họa',i:'ti-device-desktop',r:[\n{t:'sec',l:'Hình ảnh'},\n{t:'sel',l:'Chất lượng hình ảnh',d:'Giảm xuống nếu máy bị giật',o:['Thấp','Trung bình','Cao','Siêu cao'],x:1},\n{t:'tg',l:'Đổ bóng',d:'Bóng đổ của nhân vật và vật thể',v:1},\n{t:'tg',l:'Hiển thị FPS',d:'Hiện số khung hình ở góc màn hình',v:0},\n{t:'btn',l:'Đặt lại đồ họa',d:'Trả về cài đặt mặc định',b:'Đặt lại',a:'reset'}]},\n{n:'Điều khiển',i:'ti-device-gamepad-2',r:[\n{t:'sec',l:'Phím và camera'},\n{t:'sl',l:'Độ nhạy camera',d:'Tốc độ xoay khi kéo màn hình',v:50},\n{t:'key',l:'Phím mở menu',d:'Bấm vào rồi nhấn phím mới',k:'M'},\n{t:'sel',l:'Kiểu di chuyển',d:'Cách điều khiển nhân vật',o:['Cần điều khiển','Chạm để đi'],x:0}]},\n{n:'Người chơi',i:'ti-user',r:[\n{t:'sec',l:'Hồ sơ'},\n{t:'inp',l:'Tên hiển thị',d:'Nhấn Enter để lưu',p:'Nhập tên của bạn',v:'',m:'Đã lưu tên'},\n{t:'inp',l:'Mã quà tặng',d:'Nhập mã rồi nhấn Enter',p:'NOVA2026',v:'',m:'Đã gửi mã'},\n{t:'tg',l:'Hiện tên trên đầu',d:'Người khác thấy tên của bạn',v:1}]},\n{n:'Giao diện',i:'ti-palette',r:[\n{t:'sec',l:'Tùy chỉnh menu'},\n{t:'col',l:'Màu chủ đạo',d:'Đổi màu nhấn của toàn menu',c:0},\n{t:'btn',l:'Logo menu',d:'Ảnh cạnh tên menu',b:'Đổi ảnh',a:'logo'},\n{t:'btn',l:'Nút nổi',d:'Ảnh của nút mở menu',b:'Đổi ảnh',a:'fab'},\n{t:'sl',l:'Độ mờ cửa sổ',d:'Kéo để thấy nền rõ hơn hoặc mờ hơn',v:45,f:'op'}]}];\nvar COL=['#a78bfa','#f87171','#2dd4bf','#fbbf24','#60a5fa','#f472b6'];\nvar cur=0,menuKey='M',bind=null,tmr=null;\nvar tabs=document.getElementById('tabs'),ct=document.getElementById('ct'),nv=document.getElementById('nv'),win=document.getElementById('win'),ind=document.getElementById('ind'),ts=document.getElementById('ts'),fab=document.getElementById('fab'),lg=document.getElementById('lg'),hint=document.getElementById('hint');\nfunction toast(m){ts.textContent=m;ts.classList.add('on');clearTimeout(tmr);tmr=setTimeout(function(){ts.classList.remove('on')},1800)}\nfunction tog(){win.classList.toggle('show')}\nfunction tabs_(){tabs.innerHTML=D.map(function(t,k){return '<div class=\"tab'+(k==cur?' on':'')+'\" data-k=\"'+k+'\"><i class=\"ti '+t.i+'\" aria-hidden=\"true\"><\/i>'+t.n+'<\/div>'}).join('');ind.style.transform='translateY('+(cur*42)+'px)'}\nfunction ctl(r){\nif(r.t=='tg')return '<div class=\"tg'+(r.v?' on':'')+'\"><\/div>';\nif(r.t=='sel')return '<div class=\"sb\"><span>'+r.o[r.x]+'<\/span><i class=\"ti ti-chevron-down\" aria-hidden=\"true\"><\/i><\/div>';\nif(r.t=='btn')return '<button class=\"ab\">'+r.b+'<\/button>';\nif(r.t=='inp')return '<input class=\"in\" type=\"text\" placeholder=\"'+r.p+'\" value=\"'+r.v+'\">';\nif(r.t=='key')return '<div class=\"kb\">'+(r.k)+'<\/div>';\nif(r.t=='col')return '<div class=\"sws\">'+COL.map(function(c,q){return '<div class=\"swc'+(q==r.c?' on':'')+'\" data-q=\"'+q+'\" style=\"background:'+c+'\"><\/div>'}).join('')+'<\/div>';\nreturn '<div class=\"sl\"><div class=\"trk\"><div class=\"fl\" style=\"width:'+r.v+'%\"><\/div><div class=\"kn\" style=\"left:'+r.v+'%\"><\/div><\/div><span class=\"sv\">'+r.v+'%<\/span><\/div>'}\nvar qs='';\nfunction nm(x){return x.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/đ/g,'d')}\nfunction R(w){return D[+w.dataset.t].r[+w.dataset.j]}\nfunction row(r,t,j,dl){\nvar h='<div class=\"rw\" data-t=\"'+t+'\" data-j=\"'+j+'\" style=\"'+dl+'\"><div class=\"row\"><div class=\"lb\"><b>'+r.l+'<\/b><span class=\"d\">'+r.d+'<\/span><\/div>'+ctl(r)+'<\/div>';\nif(r.t=='sel')h+='<div class=\"dd\"><div class=\"ddi\"><div class=\"ddp\">'+r.o.map(function(o,q){return '<div class=\"op'+(q==r.x?' cur':'')+'\" data-q=\"'+q+'\">'+o+'<\/div>'}).join('')+'<\/div><\/div><\/div>';\nreturn h+'<\/div>'}\nfunction ct_(){\nif(qs){var k=nm(qs).split(/\\s+/),out='',n=0;\nD.forEach(function(T,ti){var h='';T.r.forEach(function(r,j){if(r.t=='sec')return;var z=nm(r.l+' '+r.d+' '+T.n);\nif(k.every(function(w){return z.indexOf(w)>-1}))h+=row(r,ti,j,'animation-delay:'+(n++*40)+'ms')});\nif(h)out+='<div class=\"sec2\">'+T.n+'<\/div>'+h});\nct.innerHTML=out||'<div class=\"sec2\">Không tìm thấy kết quả cho \"'+qs.replace(/<\/g,'&lt;')+'\"<\/div>';return}\nct.innerHTML=D[cur].r.map(function(r,j){var dl='animation-delay:'+(j*50)+'ms';\nif(r.t=='sec')return '<div class=\"sec2\" style=\"'+dl+'\">'+r.l+'<\/div>';\nreturn row(r,cur,j,dl)}).join('')}\ndocument.getElementById('rail').onclick=function(e){var a=e.target.closest('.tab');if(!a)return;var k0=+a.dataset.k;if(k0==cur&&!qs)return;cur=k0;if(qs){qs='';document.getElementById('q').value='';this.classList.remove('s')}\ntabs.querySelectorAll('.tab').forEach(function(x,k){x.classList.toggle('on',k==cur)});ind.style.transform='translateY('+(cur*42)+'px)';\nct.classList.add('out');setTimeout(function(){ct_();ct.classList.remove('out');ct.scrollTop=0},140)};\nfunction setImg(el,url){el.innerHTML='<img src=\"'+url+'\" alt=\"\" style=\"width:100%;height:100%;object-fit:cover\">';toast('Đã đổi ảnh')}\ndocument.getElementById('f1').onchange=function(e){var f=e.target.files[0];if(f)setImg(lg,URL.createObjectURL(f))};\ndocument.getElementById('f2').onchange=function(e){var f=e.target.files[0];if(f)setImg(fab,URL.createObjectURL(f))};\nct.onclick=function(e){var w=e.target.closest('.rw');if(!w)return;var r=R(w);\nif(r.t=='tg'){r.v=r.v?0:1;w.querySelector('.tg').classList.toggle('on',!!r.v)}\nelse if(r.t=='sel'){var op=e.target.closest('.op');\nif(op){r.x=+op.dataset.q;w.querySelector('.sb span').textContent=r.o[r.x];w.querySelectorAll('.op').forEach(function(o,q){o.classList.toggle('cur',q==r.x)});w.classList.remove('open')}\nelse if(e.target.closest('.row'))w.classList.toggle('open')}\nelse if(r.t=='btn'){if(r.a=='reset')toast('Đã đặt lại đồ họa');else if(r.a=='logo')document.getElementById('f1').click();else document.getElementById('f2').click()}\nelse if(r.t=='key'){var k=w.querySelector('.kb');bind={r:r,el:k};k.textContent='Nhấn phím…';k.classList.add('ls')}\nelse if(r.t=='col'){var s=e.target.closest('.swc');if(s){r.c=+s.dataset.q;nv.style.setProperty('--ac',COL[r.c]);w.querySelectorAll('.swc').forEach(function(x,q){x.classList.toggle('on',q==r.c)});toast('Đã đổi màu chủ đạo')}}};\nct.addEventListener('input',function(e){var w=e.target.closest('.rw');if(w&&e.target.classList.contains('in'))R(w).v=e.target.value});\nct.addEventListener('keydown',function(e){if(e.key!='Enter'||!e.target.classList.contains('in'))return;var w=e.target.closest('.rw'),r=R(w);\ntoast(r.v.trim()?r.m+': '+r.v.trim():'Nhập nội dung trước')});\ndocument.addEventListener('keydown',function(e){\nif(bind){e.preventDefault();if(e.key!='Escape'){bind.r.k=e.key.length==1?e.key.toUpperCase():e.key;menuKey=bind.r.k;hint.textContent='Nhấn '+menuKey+' để ẩn hoặc hiện menu';toast('Phím mới: '+menuKey)}\nbind.el.textContent=bind.r.k;bind.el.classList.remove('ls');bind=null;return}\nif(document.activeElement&&document.activeElement.tagName=='INPUT')return;\nif(e.key.toUpperCase()==menuKey.toUpperCase())tog()});\nvar drag=null;\nfunction setv(e,trk){var b=trk.getBoundingClientRect(),p=Math.round(Math.max(0,Math.min(1,(e.clientX-b.left)/b.width))*100);\nvar w=trk.closest('.rw'),r=R(w);r.v=p;trk.querySelector('.fl').style.width=p+'%';trk.querySelector('.kn').style.left=p+'%';w.querySelector('.sv').textContent=p+'%';\nif(r.f=='op')nv.style.setProperty('--wb','rgba(24,18,46,'+(0.12+p/100*0.7).toFixed(2)+')')}\nct.addEventListener('pointerdown',function(e){var t=e.target.closest('.trk');if(t){drag=t;setv(e,t)}});\nwindow.addEventListener('pointermove',function(e){if(drag)setv(e,drag)});\nwindow.addEventListener('pointerup',function(){drag=null});\nvar dg=null,mv=false;\nfab.addEventListener('pointerdown',function(e){var b=fab.getBoundingClientRect();dg={dx:e.clientX-b.left,dy:e.clientY-b.top,sx:e.clientX,sy:e.clientY};mv=false;fab.setPointerCapture(e.pointerId)});\nfab.addEventListener('pointermove',function(e){if(!dg)return;if(Math.abs(e.clientX-dg.sx)+Math.abs(e.clientY-dg.sy)>5)mv=true;if(!mv)return;\nvar n=nv.getBoundingClientRect(),x=Math.max(0,Math.min(n.width-48,e.clientX-n.left-dg.dx)),y=Math.max(0,Math.min(n.height-48,e.clientY-n.top-dg.dy));\nfab.style.left=x+'px';fab.style.top=y+'px';fab.style.bottom='auto'});\nfab.addEventListener('pointerup',function(){if(dg&&!mv)tog();dg=null});\nvar qi=document.getElementById('q'),rl=document.getElementById('rail');\nqi.addEventListener('input',function(){qs=qi.value.trim();rl.classList.toggle('s',!!qs);ct.scrollTop=0;ct_()});\nqi.addEventListener('keydown',function(e){if(e.key=='Escape'){qi.value='';qs='';rl.classList.remove('s');ct_();qi.blur()}});\nvar fp=document.getElementById('fps'),fc=0,ft=performance.now();\n(function L(t){fc++;if(t-ft>=1000){fp.textContent='FPS: '+Math.round(fc*1000/(t-ft));fc=0;ft=t}requestAnimationFrame(L)})(ft);\nvar rz=document.getElementById('rz'),bd=document.getElementById('bd'),rs=null;\nrz.addEventListener('pointerdown',function(e){rs={x:e.clientX,y:e.clientY,w:win.offsetWidth,h:bd.offsetHeight};rz.setPointerCapture(e.pointerId);e.preventDefault()});\nrz.addEventListener('pointermove',function(e){if(!rs)return;win.style.width=Math.max(440,Math.min(nv.clientWidth-36,rs.w+e.clientX-rs.x))+'px';bd.style.height=Math.max(260,Math.min(560,rs.h+e.clientY-rs.y))+'px'});\nrz.addEventListener('pointerup',function(){rs=null});\ndocument.getElementById('cl').onclick=tog;\ntabs_();ct_();requestAnimationFrame(function(){requestAnimationFrame(function(){win.classList.add('show')})});\n";
+document.getElementById('demo-css').textContent=DEMO_CSS;
+document.getElementById('demo-box').innerHTML=DEMO_HTML;
+(new Function(DEMO_JS))();
+(function(){
+function esc(x){return x.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function hl(x){return esc(x).replace(/(--[^\n]*)|("(?:[^"\\\n]|\\.)*")|\b(local|function|end|if|then|return|true|false|nil|not|and|or|for|in|do)\b|\b(\d+(?:\.\d+)?)\b|(\b[A-Z][A-Za-z0-9]*)(?=[:.(])/g,function(m,c,s,k,n,f){return c?'<span class="c">'+c+'</span>':s?'<span class="s">'+s+'</span>':k?'<span class="k">'+k+'</span>':n?'<span class="n">'+n+'</span>':'<span class="f">'+f+'</span>'})}
+var P=function(a){return a.map(function(x){return '<tr><td><code>'+x[0]+'</code></td><td><span class="ty">'+x[1]+'</span></td><td>'+x[2]+'</td></tr>'}).join('')};
+var T=[['Thiết lập'],
+{n:'CreateWindow',i:'ti-app-window',d:'Tạo cửa sổ menu chính. Hàm trả về Window để thêm tab và điều khiển menu.',p:[['Title','string','Tên hiển thị trên thanh tiêu đề'],['SubTitle','string','Dòng chữ nhỏ bên dưới tên'],['Logo','string','ID ảnh Roblox cho logo menu'],['FloatingIcon','string','ID ảnh cho nút tròn nổi'],['Size','UDim2','Kích thước cửa sổ'],['Accent','Color3','Màu chủ đạo của menu'],['MinimizeKey','Enum.KeyCode','Phím ẩn hoặc hiện menu'],['Acrylic','boolean','Bật nền kính mờ']],c:`local NovaUI = loadstring(game:HttpGet(rawUrl))()
+
+local Window = NovaUI:CreateWindow({
+	Title = "NovaMenu",
+	SubTitle = "Game của tôi",
+	Logo = "73866843639743",
+	FloatingIcon = "73866843639743",
+	Size = UDim2.fromOffset(620, 420),
+	Accent = Color3.fromRGB(167, 139, 250),
+	MinimizeKey = Enum.KeyCode.M,
+	Acrylic = true,
+})`},
+{n:'AddTab',i:'ti-layout-sidebar',d:'Thêm một tab ở cột bên trái. Dùng SelectTab để chọn tab mở sẵn.',p:[['Title','string','Tên tab'],['Icon','string','Biểu tượng (emoji)']],c:`local Tabs = {
+	Audio  = Window:AddTab({ Title = "Âm thanh", Icon = "🔊" }),
+	Player = Window:AddTab({ Title = "Người chơi", Icon = "👤" }),
+}
+
+Window:SelectTab(1) -- mở tab đầu tiên`},
+{n:'AddSection',i:'ti-heading',d:'Thêm tiêu đề nhỏ để chia nhóm chức năng trong một tab.',p:[['(tên)','string','Nội dung tiêu đề, truyền thẳng vào hàm']],c:`Tabs.Audio:AddSection("Nhạc")`},
+['Thành phần'],
+{n:'AddToggle',i:'ti-toggle-right',d:'Nút gạt bật tắt. Dùng Callback hoặc OnChanged để nhận giá trị mới.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Default','boolean','Trạng thái ban đầu'],['Callback','function(on)','Chạy khi đổi trạng thái']],c:`Tabs.Audio:AddToggle("Music", {
+	Title = "Bật nhạc nền",
+	Description = "Phát nhạc khi vào game",
+	Default = true,
+})
+
+Options.Music:OnChanged(function(on)
+	print("Nhạc nền:", on)
+end)`},
+{n:'AddSlider',i:'ti-adjustments-horizontal',d:'Thanh kéo chọn số trong khoảng Min đến Max.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Default','number','Giá trị ban đầu'],['Min / Max','number','Giá trị nhỏ nhất và lớn nhất'],['Rounding','number','Số chữ số thập phân'],['Suffix','string','Đơn vị hiện sau số, ví dụ %'],['Callback','function(value)','Chạy khi kéo thanh']],c:`Tabs.Audio:AddSlider("MusicVolume", {
+	Title = "Âm lượng nhạc",
+	Description = "Điều chỉnh độ lớn nhạc nền",
+	Default = 70,
+	Min = 0,
+	Max = 100,
+	Rounding = 0,
+	Suffix = "%",
+	Callback = function(value)
+		print("Âm lượng nhạc:", value)
+	end,
+})`},
+{n:'AddDropdown',i:'ti-chevron-down',d:'Danh sách xổ xuống để chọn một mục. Default là số thứ tự hoặc tên mục.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Values','table','Danh sách các lựa chọn'],['Default','number | string','Mục chọn sẵn']],c:`Tabs.Graphics:AddDropdown("Quality", {
+	Title = "Chất lượng hình ảnh",
+	Description = "Giảm xuống nếu máy bị giật",
+	Values = { "Thấp", "Trung bình", "Cao", "Siêu cao" },
+	Default = 2,
+})
+
+Options.Quality:SetValue("Trung bình")`},
+{n:'AddButton',i:'ti-click',d:'Nút bấm chạy một hành động.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['ButtonText','string','Chữ trên nút'],['Callback','function()','Chạy khi bấm nút']],c:`Tabs.Graphics:AddButton({
+	Title = "Đặt lại đồ họa",
+	Description = "Trả về cài đặt mặc định",
+	ButtonText = "Đặt lại",
+	Callback = function()
+		Options.Quality:SetValue("Trung bình")
+		NovaUI:Notify({ Title = "Đồ họa", Content = "Đã đặt lại" })
+	end,
+})`},
+{n:'AddInput',i:'ti-forms',d:'Ô nhập chữ. Đặt Finished = true để chỉ chạy Callback khi người chơi nhấn Enter.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Placeholder','string','Chữ gợi ý trong ô trống'],['Finished','boolean','true: chỉ gọi Callback khi nhấn Enter'],['Callback','function(text)','Nhận nội dung đã nhập']],c:`Tabs.Player:AddInput("GiftCode", {
+	Title = "Mã quà tặng",
+	Description = "Nhập mã rồi nhấn Enter",
+	Placeholder = "NOVA2026",
+	Finished = true,
+	Callback = function(code)
+		NovaUI:Notify({ Title = "Mã quà tặng", Content = "Đã gửi mã: " .. code })
+	end,
+})`},
+{n:'AddKeybind',i:'ti-keyboard',d:'Ô đổi phím. Người chơi bấm vào rồi nhấn phím mới, Esc để hủy.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Default','string','Phím mặc định, ví dụ "M"'],['ChangedCallback','function(keyName)','Chạy khi đổi sang phím mới']],c:`Tabs.Controls:AddKeybind("MenuKey", {
+	Title = "Phím mở menu",
+	Description = "Bấm vào rồi nhấn phím mới (Esc để hủy)",
+	Default = "M",
+	ChangedCallback = function(keyName)
+		Window:SetMinimizeKey(keyName)
+	end,
+})`},
+{n:'AddColorpicker',i:'ti-color-swatch',d:'Chọn màu. Thường dùng để đổi màu chủ đạo của menu.',p:[['Title','string','Tên chức năng'],['Description','string','Mô tả ngắn'],['Default','Color3','Màu ban đầu'],['Callback','function(color)','Nhận màu mới được chọn']],c:`Tabs.Look:AddColorpicker("Accent", {
+	Title = "Màu chủ đạo",
+	Description = "Đổi màu nhấn của toàn menu",
+	Default = Color3.fromRGB(167, 139, 250),
+	Callback = function(color)
+		Window:SetAccent(color)
+	end,
+})`},
+{n:'AddParagraph',i:'ti-notes',d:'Đoạn ghi chú gồm tiêu đề và nội dung, dùng được trong mọi tab.',p:[['Title','string','Tiêu đề ghi chú'],['Content','string','Nội dung ghi chú']],c:`Tabs.Player:AddParagraph({
+	Title = "Ghi chú",
+	Content = "Ô nhập, nút, đoạn ghi chú như thế này đều dùng được trong mọi tab.",
+})`},
+['Điều khiển'],
+{n:'Notify',i:'ti-bell',d:'Hiện thông báo nhỏ, tự biến mất sau Duration giây.',p:[['Title','string','Tiêu đề thông báo'],['Content','string','Nội dung chính'],['SubContent','string','Dòng phụ bên dưới'],['Duration','number','Số giây hiển thị']],c:`NovaUI:Notify({
+	Title = "Xin chào",
+	Content = "Đây là thông báo từ NovaUI",
+	SubContent = "Tự biến mất sau 3 giây",
+	Duration = 3,
+})`},
+{n:'Options & Window',i:'ti-settings',d:'Mỗi thành phần có ID riêng, truy cập qua NovaUI.Options. Window có sẵn các hàm đổi giao diện.',p:[['Options.ID:OnChanged(fn)','function','Lắng nghe khi giá trị đổi'],['Options.ID:SetValue(v)','function','Đặt giá trị bằng code'],['Window:SetAccent(color)','Color3','Đổi màu chủ đạo'],['Window:SetOpacity(n)','0 đến 1','Đổi độ đậm cửa sổ'],['Window:SetMinimizeKey(k)','string','Đổi phím ẩn hiện menu'],['Window:SelectTab(i)','number','Chọn tab theo số thứ tự']],c:`local Options = NovaUI.Options
+
+Options.Shadows:SetValue(true)
+Window:SetAccent(Color3.fromRGB(96, 165, 250))
+Window:SetOpacity(0.7)
+Window:SelectTab(1)`}];
+var cb=function(c){return '<div class="codebox"><div class="top"><span>Lua</span><button class="cpy"><i class="ti ti-copy"></i><span>Sao chép</span></button></div><div class="cb">'+hl(c)+'</div></div>'};
+function show(k){var t=T[k];document.querySelectorAll('#list button').forEach(function(b){b.classList.toggle('on',+b.dataset.k==k)});
+var pn=document.getElementById('pane');pn.style.animation='none';pn.offsetWidth;pn.style.animation='';
+pn.innerHTML='<h3><i class="ti '+t.i+'"></i>'+t.n+'</h3><p>'+t.d+'</p><table><tr><th>Tham số</th><th>Kiểu</th><th>Mô tả</th></tr>'+P(t.p)+'</table>'+cb(t.c);pn.dataset.c=t.c}
+document.getElementById('list').innerHTML=T.map(function(t,k){return Array.isArray(t)?'<div class="g">'+t[0]+'</div>':'<button data-k="'+k+'"><i class="ti '+t.i+'"></i>'+t.n+'</button>'}).join('');
+document.getElementById('list').onclick=function(e){var b=e.target.closest('button');if(b)show(+b.dataset.k)};
+function flash(b){var s=b.querySelector('span');var o=s.textContent;s.textContent='Đã chép!';setTimeout(function(){s.textContent=o},1400)}
+function cpy(t,b){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).catch(function(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()});flash(b)}
+document.getElementById('pane').onclick=function(e){var b=e.target.closest('.cpy');if(b)cpy(this.dataset.c,b)};
+document.getElementById('lua').innerHTML=hl(LUA);
+document.getElementById('cp').onclick=function(){cpy(LUA,this)};
+function dl(name,txt,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:type}));a.download=name;a.click()}
+document.getElementById('dl1').onclick=function(){dl('NovaUI_Example_client.lua',LUA,'text/plain')};
+document.getElementById('dl2').onclick=function(){dl('nova_ui_library_preview.html','<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.42.0/dist/tabler-icons.min.css"><style>*{box-sizing:border-box;margin:0;padding:0}body{padding:16px;font-family:system-ui,sans-serif;--font-sans:system-ui,sans-serif}'+DEMO_CSS+'</style></head><body>'+DEMO_HTML+'<script>'+DEMO_JS+'<\/script></body></html>','text/html')};
+show(1)})();
+</script></body></html>
