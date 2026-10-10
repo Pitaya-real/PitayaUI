@@ -625,7 +625,7 @@ function NovaUI:CreateWindow(config)
 	})
 	self._island = island
 	self._islandCorner = corner(island, UDim.new(0, 17))
-	stroke(island, WHITE, 0.88, 1)
+	self._islandStroke = stroke(island, WHITE, 0.88, 1)
 	self._islandScale = create("UIScale", { Scale = 1, Parent = island })
 	local islandDot = create("Frame", {
 		Name = "Dot",
@@ -638,6 +638,13 @@ function NovaUI:CreateWindow(config)
 		Parent = island,
 	})
 	corner(islandDot, UDim.new(1, 0))
+	self._islandDot = islandDot
+	self._islandPulse = TweenService:Create(
+		islandDot,
+		TweenInfo.new(1.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true),
+		{ BackgroundTransparency = 0.75 }
+	)
+	self._islandPulsing = false
 	self:_onAccent(function()
 		islandDot.BackgroundColor3 = self.Accent
 	end)
@@ -1067,9 +1074,21 @@ function Window:_islandRender()
 
 	local w = islandWidth(self, text, 130)
 	local h = 34
+	-- chấm nhịp thở khi có chức năng đang chạy
+	local shouldPulse = n > 0
+	if shouldPulse ~= self._islandPulsing then
+		self._islandPulsing = shouldPulse
+		if shouldPulse then
+			self._islandPulse:Play()
+		else
+			self._islandPulse:Cancel()
+			self._islandDot.BackgroundTransparency = 0
+		end
+	end
+
 	if expanded then
 		for _, c in ipairs(self._islandList:GetChildren()) do
-			if c:IsA("TextLabel") then
+			if not c:IsA("UIListLayout") then
 				c:Destroy()
 			end
 		end
@@ -1090,23 +1109,74 @@ function Window:_islandRender()
 			h = 34 + 8 + 22 + 10
 		else
 			for i, it in ipairs(items) do
-				create("TextLabel", {
+				local rowBtn = create("Frame", {
 					LayoutOrder = i,
 					BackgroundTransparency = 1,
-					Size = UDim2.new(1, 0, 0, 22),
-					Font = self.Config.Font,
-					TextSize = 12,
-					Text = "• " .. it.name,
-					TextColor3 = WHITE,
-					TextTransparency = 0.15,
-					TextXAlignment = Enum.TextXAlignment.Left,
-					TextTruncate = Enum.TextTruncate.AtEnd,
+					Size = UDim2.new(1, 0, 0, 26),
 					ZIndex = 201,
 					Parent = self._islandList,
 				})
-				widest = math.max(widest, islandWidth(self, "• " .. it.name, 0))
+				local dot = create("Frame", {
+					AnchorPoint = Vector2.new(0, 0.5),
+					Position = UDim2.fromOffset(0, 13),
+					Size = UDim2.fromOffset(6, 6),
+					BackgroundColor3 = self.Accent,
+					BorderSizePixel = 0,
+					ZIndex = 202,
+					Parent = rowBtn,
+				})
+				corner(dot, UDim.new(1, 0))
+				create("TextLabel", {
+					BackgroundTransparency = 1,
+					Position = UDim2.fromOffset(14, 0),
+					Size = UDim2.new(1, -66, 1, 0),
+					Font = self.Config.Font,
+					TextSize = 12,
+					Text = it.name,
+					TextColor3 = WHITE,
+					TextTransparency = 0.1,
+					TextXAlignment = Enum.TextXAlignment.Left,
+					TextTruncate = Enum.TextTruncate.AtEnd,
+					ZIndex = 202,
+					Parent = rowBtn,
+				})
+				local off = create("TextButton", {
+					AutoButtonColor = false,
+					AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, 0, 0.5, 0),
+					Size = UDim2.fromOffset(46, 20),
+					BackgroundColor3 = Color3.fromRGB(248, 113, 113),
+					BackgroundTransparency = 0.6,
+					BorderSizePixel = 0,
+					Font = self.Config.FontMedium,
+					TextSize = 11,
+					Text = "TẮT",
+					TextColor3 = WHITE,
+					ZIndex = 203,
+					Parent = rowBtn,
+				})
+				corner(off, UDim.new(1, 0))
+				off.MouseEnter:Connect(function()
+					tween(off, { BackgroundTransparency = 0.25 }, 0.15)
+				end)
+				off.MouseLeave:Connect(function()
+					tween(off, { BackgroundTransparency = 0.6 }, 0.15)
+				end)
+				off.MouseButton1Click:Connect(function()
+					if it.key and it.key.SetValue then
+						it.key:SetValue(false)
+					end
+				end)
+				-- trượt vào lần lượt từng dòng
+				rowBtn.Position = UDim2.fromOffset(-12, 0)
+				task.delay((i - 1) * 0.04, function()
+					if rowBtn.Parent then
+						tween(rowBtn, { Position = UDim2.fromOffset(0, 0) }, 0.35)
+					end
+				end)
+				widest = math.max(widest, islandWidth(self, it.name, 0) + 40)
 			end
-			h = 34 + 8 + n * 24 + 10
+			h = 34 + 8 + n * 28 + 10
 		end
 		w = math.max(widest, 200)
 	end
@@ -1135,6 +1205,17 @@ function Window:Island(opts)
 	local token = self._islandToken
 	self._islandMsg = text
 	self:_islandRender()
+	-- viền phát sáng theo màu Accent rồi mờ dần
+	local st = self._islandStroke
+	if st then
+		st.Color = self.Accent
+		st.Transparency = 0.05
+		st.Thickness = 2.5
+		tween(st, { Transparency = 0.88, Thickness = 1 }, 1.1)
+		task.delay(0.1, function()
+			tween(st, { Color = WHITE }, 1.0)
+		end)
+	end
 	if opts.Duration ~= false then
 		task.delay(opts.Duration or 2.5, function()
 			if self._islandToken == token then
