@@ -1,10 +1,31 @@
 -- =================================================================
 -- SCRIPT CHẠY UI LIBRARY NOVA UI (DẠNG LOADSTRING GITHUB)
+-- Bản test: các chức năng chạy thật + Dynamic Island
+-- LƯU Ý: file NovaUI.lua trên GitHub phải là bản đã có Dynamic Island
 -- =================================================================
 
 -- 1. Tải và nạp Library từ GitHub
 local rawUrl = "https://raw.githubusercontent.com/Pitaya-real/PitayaUI/refs/heads/main/NovaUI.lua"
 local NovaUI = loadstring(game:HttpGet(rawUrl))()
+
+-- Dịch vụ
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local LocalPlayer = Players.LocalPlayer
+
+local function getCharacter()
+	return LocalPlayer.Character
+end
+
+local function getHumanoid()
+	local c = getCharacter()
+	return c and c:FindFirstChildOfClass("Humanoid")
+end
 
 -- 2. Tạo cửa sổ menu chính
 local Window = NovaUI:CreateWindow({
@@ -22,29 +43,53 @@ local Window = NovaUI:CreateWindow({
 
 -- 3. Tạo các Tab
 local Tabs = {
-    Audio    = Window:AddTab({ Title = "Âm thanh", Icon = "🔊" }),
-    Graphics = Window:AddTab({ Title = "Đồ họa", Icon = "🎨" }),
-    Controls = Window:AddTab({ Title = "Điều khiển", Icon = "🎮" }),
-    Player   = Window:AddTab({ Title = "Người chơi", Icon = "👤" }),
-    Look     = Window:AddTab({ Title = "Giao diện", Icon = "⚙️" }),
+	Audio    = Window:AddTab({ Title = "Âm thanh", Icon = "🔊" }),
+	Graphics = Window:AddTab({ Title = "Đồ họa", Icon = "🎨" }),
+	Controls = Window:AddTab({ Title = "Điều khiển", Icon = "🎮" }),
+	Player   = Window:AddTab({ Title = "Người chơi", Icon = "👤" }),
+	Look     = Window:AddTab({ Title = "Giao diện", Icon = "⚙️" }),
 }
-
 
 local Options = NovaUI.Options
 
 ---------------------------------------------------------------------
--- Âm thanh
+-- Âm thanh (chạy thật: chỉnh Volume của các Sound trong game)
+-- Nhạc = Sound trong SoundService, Hiệu ứng = Sound trong workspace
 ---------------------------------------------------------------------
+local baseVolume = setmetatable({}, { __mode = "k" })
+local musicOn, musicVol, sfxVol = true, 0.7, 0.85
+
+local function scaleSound(s, mult)
+	if baseVolume[s] == nil then
+		baseVolume[s] = s.Volume
+	end
+	s.Volume = baseVolume[s] * mult
+end
+
+local function refreshSounds()
+	for _, s in ipairs(SoundService:GetDescendants()) do
+		if s:IsA("Sound") then
+			scaleSound(s, if musicOn then musicVol else 0)
+		end
+	end
+	for _, s in ipairs(workspace:GetDescendants()) do
+		if s:IsA("Sound") then
+			scaleSound(s, sfxVol)
+		end
+	end
+end
+
 Tabs.Audio:AddSection("Nhạc")
 
 Tabs.Audio:AddToggle("Music", {
 	Title = "Bật nhạc nền",
-	Description = "Phát nhạc khi vào game",
+	Description = "Tắt thì nhạc trong SoundService bị câm",
 	Default = true,
+	Callback = function(on)
+		musicOn = on
+		refreshSounds()
+	end,
 })
-Options.Music:OnChanged(function(on)
-	print("Nhạc nền:", on)
-end)
 
 Tabs.Audio:AddSlider("MusicVolume", {
 	Title = "Âm lượng nhạc",
@@ -55,7 +100,8 @@ Tabs.Audio:AddSlider("MusicVolume", {
 	Rounding = 0,
 	Suffix = "%",
 	Callback = function(value)
-		print("Âm lượng nhạc:", value)
+		musicVol = value / 100
+		refreshSounds()
 	end,
 })
 
@@ -67,11 +113,22 @@ Tabs.Audio:AddSlider("SfxVolume", {
 	Max = 100,
 	Rounding = 0,
 	Suffix = "%",
+	Callback = function(value)
+		sfxVol = value / 100
+		refreshSounds()
+	end,
 })
 
 ---------------------------------------------------------------------
 -- Đồ họa
 ---------------------------------------------------------------------
+local qualityMap = {
+	["Thấp"] = Enum.QualityLevel.Level01,
+	["Trung bình"] = Enum.QualityLevel.Level05,
+	["Cao"] = Enum.QualityLevel.Level10,
+	["Siêu cao"] = Enum.QualityLevel.Level21,
+}
+
 Tabs.Graphics:AddSection("Hình ảnh")
 
 Tabs.Graphics:AddDropdown("Quality", {
@@ -79,6 +136,14 @@ Tabs.Graphics:AddDropdown("Quality", {
 	Description = "Giảm xuống nếu máy bị giật",
 	Values = { "Thấp", "Trung bình", "Cao", "Siêu cao" },
 	Default = 2,
+	Callback = function(name)
+		local level = qualityMap[name]
+		if level then
+			pcall(function()
+				settings().Rendering.QualityLevel = level
+			end)
+		end
+	end,
 })
 
 Tabs.Graphics:AddToggle("Shadows", {
@@ -86,7 +151,36 @@ Tabs.Graphics:AddToggle("Shadows", {
 	Description = "Bóng đổ của nhân vật và vật thể",
 	Default = true,
 	Callback = function(on)
-		game:GetService("Lighting").GlobalShadows = on
+		Lighting.GlobalShadows = on
+	end,
+})
+
+-- Fullbright: lưu cài đặt cũ rồi trả lại khi tắt
+local savedLight
+Tabs.Graphics:AddToggle("Fullbright", {
+	Title = "Sáng toàn bản đồ",
+	Description = "Xóa bóng tối và sương mù",
+	Default = false,
+	Callback = function(on)
+		if on then
+			savedLight = {
+				Brightness = Lighting.Brightness,
+				ClockTime = Lighting.ClockTime,
+				FogEnd = Lighting.FogEnd,
+				Ambient = Lighting.Ambient,
+				OutdoorAmbient = Lighting.OutdoorAmbient,
+			}
+			Lighting.Brightness = 2
+			Lighting.ClockTime = 14
+			Lighting.FogEnd = 1e6
+			Lighting.Ambient = Color3.new(1, 1, 1)
+			Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+		elseif savedLight then
+			for k, v in pairs(savedLight) do
+				Lighting[k] = v
+			end
+			savedLight = nil
+		end
 	end,
 })
 
@@ -97,6 +191,7 @@ Tabs.Graphics:AddButton({
 	Callback = function()
 		Options.Quality:SetValue("Trung bình")
 		Options.Shadows:SetValue(true)
+		Options.Fullbright:SetValue(false)
 		NovaUI:Notify({ Title = "Đồ họa", Content = "Đã đặt lại về mặc định", Duration = 2.5 })
 	end,
 })
@@ -108,12 +203,32 @@ Tabs.Controls:AddSection("Phím và camera")
 
 Tabs.Controls:AddSlider("CameraSensitivity", {
 	Title = "Độ nhạy camera",
-	Description = "Tốc độ xoay khi kéo màn hình",
+	Description = "Độ nhạy chuột (áp dụng cho máy tính)",
 	Default = 50,
-	Min = 0,
+	Min = 1,
 	Max = 100,
 	Rounding = 0,
 	Suffix = "%",
+	Callback = function(value)
+		pcall(function()
+			UserSettings():GetService("UserGameSettings").MouseSensitivity = value / 50
+		end)
+	end,
+})
+
+Tabs.Controls:AddSlider("FOV", {
+	Title = "Tầm nhìn (FOV)",
+	Description = "Góc nhìn của camera",
+	Default = 70,
+	Min = 30,
+	Max = 120,
+	Rounding = 0,
+	Callback = function(value)
+		local cam = workspace.CurrentCamera
+		if cam then
+			cam.FieldOfView = value
+		end
+	end,
 })
 
 Tabs.Controls:AddKeybind("MenuKey", {
@@ -126,27 +241,192 @@ Tabs.Controls:AddKeybind("MenuKey", {
 	end,
 })
 
-Tabs.Controls:AddDropdown("MoveMode", {
-	Title = "Kiểu di chuyển",
-	Description = "Cách điều khiển nhân vật",
-	Values = { "Cần điều khiển", "Chạm để đi" },
-	Default = "Cần điều khiển",
+---------------------------------------------------------------------
+-- Người chơi (chạy thật, có Dynamic Island hiện trạng thái)
+---------------------------------------------------------------------
+Tabs.Player:AddSection("Di chuyển")
+
+-- Tốc độ chạy: vòng Heartbeat giữ WalkSpeed khi đang bật
+local speedOn, speedValue = false, 16
+RunService.Heartbeat:Connect(function()
+	if speedOn then
+		local hum = getHumanoid()
+		if hum and hum.WalkSpeed ~= speedValue then
+			hum.WalkSpeed = speedValue
+		end
+	end
+end)
+
+Tabs.Player:AddToggle("SpeedHack", {
+	Title = "Chạy nhanh",
+	Description = "Dùng tốc độ ở thanh bên dưới",
+	Default = false,
+	Callback = function(on)
+		speedOn = on
+		if not on then
+			local hum = getHumanoid()
+			if hum then
+				hum.WalkSpeed = 16
+			end
+		end
+	end,
 })
 
----------------------------------------------------------------------
--- Người chơi
----------------------------------------------------------------------
+Tabs.Player:AddSlider("WalkSpeed", {
+	Title = "Tốc độ chạy",
+	Description = "Mặc định của game là 16",
+	Default = 50,
+	Min = 16,
+	Max = 200,
+	Rounding = 0,
+	Callback = function(value)
+		speedValue = value
+	end,
+})
+speedValue = 50
+
+-- Nhảy vô hạn
+local jumpConn
+Tabs.Player:AddToggle("InfiniteJump", {
+	Title = "Nhảy vô hạn",
+	Description = "Bấm nhảy liên tục trên không",
+	Default = false,
+	Callback = function(on)
+		if jumpConn then
+			jumpConn:Disconnect()
+			jumpConn = nil
+		end
+		if on then
+			jumpConn = UserInputService.JumpRequest:Connect(function()
+				local hum = getHumanoid()
+				if hum then
+					hum:ChangeState(Enum.HumanoidStateType.Jumping)
+				end
+			end)
+		end
+	end,
+})
+
+-- Xuyên tường: nhớ CanCollide cũ để trả lại khi tắt
+local noclipConn
+local noclipSaved = {}
+Tabs.Player:AddToggle("Noclip", {
+	Title = "Xuyên tường",
+	Description = "Đi xuyên qua vật thể",
+	Default = false,
+	Callback = function(on)
+		if noclipConn then
+			noclipConn:Disconnect()
+			noclipConn = nil
+		end
+		if on then
+			noclipConn = RunService.Stepped:Connect(function()
+				local char = getCharacter()
+				if not char then
+					return
+				end
+				for _, part in ipairs(char:GetDescendants()) do
+					if part:IsA("BasePart") and part.CanCollide then
+						noclipSaved[part] = true
+						part.CanCollide = false
+					end
+				end
+			end)
+		else
+			for part in pairs(noclipSaved) do
+				if part.Parent then
+					part.CanCollide = true
+				end
+			end
+			table.clear(noclipSaved)
+		end
+	end,
+})
+
+Tabs.Player:AddSection("Tiện ích")
+
+-- ESP: viền sáng quanh người chơi khác
+local espOn = false
+local espFolder = {}
+local function clearESP()
+	for _, h in pairs(espFolder) do
+		h:Destroy()
+	end
+	table.clear(espFolder)
+end
+task.spawn(function()
+	while true do
+		task.wait(1)
+		if espOn then
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= LocalPlayer and plr.Character and not espFolder[plr] then
+					local hl = Instance.new("Highlight")
+					hl.FillTransparency = 0.7
+					hl.OutlineColor = Color3.new(1, 1, 1)
+					hl.Adornee = plr.Character
+					hl.Parent = plr.Character
+					espFolder[plr] = hl
+				end
+			end
+			for plr, hl in pairs(espFolder) do
+				if not plr.Parent or not hl.Parent then
+					hl:Destroy()
+					espFolder[plr] = nil
+				end
+			end
+		end
+	end
+end)
+
+Tabs.Player:AddToggle("ESP", {
+	Title = "Viền người chơi (ESP)",
+	Description = "Nhìn thấy người chơi khác xuyên vật thể",
+	Default = false,
+	Callback = function(on)
+		espOn = on
+		if not on then
+			clearESP()
+		end
+	end,
+})
+
+-- Chống AFK
+local afkConn
+Tabs.Player:AddToggle("AntiAFK", {
+	Title = "Chống AFK",
+	Description = "Không bị đá khi đứng yên lâu",
+	Default = false,
+	Callback = function(on)
+		if afkConn then
+			afkConn:Disconnect()
+			afkConn = nil
+		end
+		if on then
+			afkConn = LocalPlayer.Idled:Connect(function()
+				pcall(function()
+					VirtualUser:CaptureController()
+					VirtualUser:ClickButton2(Vector2.new())
+				end)
+			end)
+		end
+	end,
+})
+
 Tabs.Player:AddSection("Hồ sơ")
 
 Tabs.Player:AddInput("DisplayName", {
 	Title = "Tên hiển thị",
-	Description = "Nhấn Enter để lưu",
+	Description = "Nhấn Enter để đổi (chỉ bạn thấy)",
 	Placeholder = "Nhập tên của bạn",
 	Finished = true,
 	Callback = function(text)
 		if text:gsub("%s", "") == "" then
 			NovaUI:Notify({ Title = "Tên hiển thị", Content = "Hãy nhập nội dung trước" })
 			return
+		end
+		local hum = getHumanoid()
+		if hum then
+			hum.DisplayName = text
 		end
 		NovaUI:Notify({ Title = "Đã lưu tên", Content = text })
 	end,
@@ -166,11 +446,17 @@ Tabs.Player:AddToggle("ShowName", {
 	Title = "Hiện tên trên đầu",
 	Description = "Người khác thấy tên của bạn",
 	Default = true,
+	Callback = function(on)
+		local hum = getHumanoid()
+		if hum then
+			hum.DisplayDistanceType = if on then Enum.HumanoidDisplayDistanceType.Viewer else Enum.HumanoidDisplayDistanceType.None
+		end
+	end,
 })
 
 Tabs.Player:AddParagraph({
 	Title = "Ghi chú",
-	Content = "Ô nhập, nút, đoạn ghi chú như thế này đều dùng được trong mọi tab.",
+	Content = "Các toggle ở tab này sẽ hiện lên Dynamic Island phía trên màn hình khi bật hoặc tắt.",
 })
 
 ---------------------------------------------------------------------
@@ -200,9 +486,11 @@ Tabs.Look:AddSlider("Opacity", {
 	end,
 })
 
+Tabs.Look:AddSection("Thử nghiệm")
+
 Tabs.Look:AddButton({
 	Title = "Thông báo thử",
-	Description = "Xem hiệu ứng thông báo",
+	Description = "Xem hiệu ứng thông báo (island cũng hiện)",
 	ButtonText = "Thử",
 	Callback = function()
 		NovaUI:Notify({
@@ -211,6 +499,15 @@ Tabs.Look:AddButton({
 			SubContent = "Tự biến mất sau 3 giây",
 			Duration = 3,
 		})
+	end,
+})
+
+Tabs.Look:AddButton({
+	Title = "Thử Dynamic Island",
+	Description = "Chỉ hiện chữ trên island, không có thông báo góc phải",
+	ButtonText = "Thử",
+	Callback = function()
+		Window:Island({ Title = "Dynamic Island", Content = "Hoạt động tốt!", Duration = 3 })
 	end,
 })
 
